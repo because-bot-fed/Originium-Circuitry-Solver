@@ -393,10 +393,6 @@
             width: 68px;
         }
 
-        .col-req:has(.bar-input:only-child) .bar-input {
-            width: 33px;
-        }
-
         /* Custom Stepper Control */
         .stepper {
             display: flex;
@@ -532,11 +528,6 @@
             height: 68px;
             justify-content: center;
             align-items: center;
-            width: 60px;
-        }
-
-        .row-req:has(.bar-input:only-child) {
-            width: 33px;
         }
 
         /* Grid */
@@ -1168,7 +1159,7 @@
 
             // Update spacer to match row requirements width
             const spacer = document.getElementById('colReqSpacer');
-            spacer.style.width = hideBlue ? '33px' : '60px';
+            spacer.style.width = '60px';
         }
 
         function createBarInput(color, type, index, max) {
@@ -1344,7 +1335,7 @@
             }
 
             const spacer = document.getElementById('colReqSpacer');
-            spacer.style.width = hideBlue ? '33px' : '60px';
+            spacer.style.width = '60px';
 
             // Row requirements (blue on top, green on bottom)
             const rowReqs = document.getElementById('rowRequirements');
