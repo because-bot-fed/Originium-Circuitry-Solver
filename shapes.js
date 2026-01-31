@@ -111,6 +111,26 @@ const SHAPE_DEFINITIONS = {
     "J-6-mirror": {
         name: "6-Block J (Mirror)",
         cells: [[0, 0], [1, 0], [1, 2], [2, 0], [2, 1], [2, 2]]
+    },
+
+    // 6-block zigzag vertical
+    //   X
+    // X X
+    //   X X
+    //   X
+    "zigzag-6": {
+        name: "6-Block Zigzag",
+        cells: [[0, 1], [1, 0], [1, 1], [2, 1], [2, 2], [3, 1]]
+    },
+
+    // 6-block zigzag vertical (mirrored)
+    //   X
+    //   X X
+    // X X
+    //   X
+    "zigzag-6-mirror": {
+        name: "6-Block Zigzag (Mirror)",
+        cells: [[0, 1], [1, 1], [1, 2], [2, 0], [2, 1], [3, 1]]
     }
 };
 
