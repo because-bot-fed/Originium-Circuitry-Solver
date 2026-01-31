@@ -131,6 +131,22 @@ const SHAPE_DEFINITIONS = {
     "zigzag-6-mirror": {
         name: "6-Block Zigzag (Mirror)",
         cells: [[0, 1], [1, 1], [1, 2], [2, 0], [2, 1], [3, 1]]
+    },
+
+    // 4-block Z tetromino
+    // X X .
+    // . X X
+    "Z-4": {
+        name: "4-Block Z",
+        cells: [[0, 0], [0, 1], [1, 1], [1, 2]]
+    },
+
+    // 4-block S tetromino (Z mirrored)
+    // . X X
+    // X X .
+    "Z-4-mirror": {
+        name: "4-Block Z (Mirror)",
+        cells: [[0, 1], [0, 2], [1, 0], [1, 1]]
     }
 };
 
