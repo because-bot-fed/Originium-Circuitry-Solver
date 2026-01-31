@@ -393,6 +393,10 @@
             width: 68px;
         }
 
+        .col-req:has(.bar-input:only-child) .bar-input {
+            width: 33px;
+        }
+
         /* Custom Stepper Control */
         .stepper {
             display: flex;
@@ -527,7 +531,12 @@
             gap: 1px;
             height: 68px;
             justify-content: center;
+            align-items: center;
             width: 60px;
+        }
+
+        .row-req:has(.bar-input:only-child) {
+            width: 33px;
         }
 
         /* Grid */
@@ -983,6 +992,8 @@
             <!-- Shape Selector -->
             <div class="shape-selector" id="shapeSelector">
                 <div class="shape-selector-title">Shapes</div>
+                <div class="shape-selector-grid" id="shapeGrid"></div>
+                <button class="hide-blue-btn" id="hideBlueBtn" onclick="toggleHideBlue()">Hide Blue</button>
             </div>
 
             <div class="puzzle-wrapper">
@@ -1067,6 +1078,7 @@
         let cols = 5;
         let shapeCounts = new Map(); // Track shape ID -> count for solving
         let fitAllPiecesMode = false; // When true, ignore requirements, just fit all pieces
+        let hideBlue = false; // When true, hide blue inputs and center green
 
         function setCellMode(mode) {
             cellMode = mode;
@@ -1079,6 +1091,14 @@
             fitAllPiecesMode = !fitAllPiecesMode;
             const checkbox = document.getElementById('fitModeCheckbox');
             checkbox.classList.toggle('active', fitAllPiecesMode);
+        }
+
+        function toggleHideBlue() {
+            hideBlue = !hideBlue;
+            const btn = document.getElementById('hideBlueBtn');
+            btn.classList.toggle('active', hideBlue);
+            btn.textContent = hideBlue ? 'Show Blue' : 'Hide Blue';
+            regenerateInputs();
         }
 
         function toggleInputMode() {
@@ -1114,10 +1134,14 @@
                 colReq.className = 'col-req';
                 if (barInputMode) {
                     colReq.appendChild(createBarInput('green', 'col', c, rows));
-                    colReq.appendChild(createBarInput('blue', 'col', c, rows));
+                    if (!hideBlue) {
+                        colReq.appendChild(createBarInput('blue', 'col', c, rows));
+                    }
                 } else {
                     colReq.appendChild(createStepper('green', 'col', c, rows));
-                    colReq.appendChild(createStepper('blue', 'col', c, rows));
+                    if (!hideBlue) {
+                        colReq.appendChild(createStepper('blue', 'col', c, rows));
+                    }
                 }
                 colReqs.appendChild(colReq);
             }
@@ -1129,10 +1153,14 @@
                 const rowReq = document.createElement('div');
                 rowReq.className = 'row-req';
                 if (barInputMode) {
-                    rowReq.appendChild(createBarInput('blue', 'row', r, cols));
+                    if (!hideBlue) {
+                        rowReq.appendChild(createBarInput('blue', 'row', r, cols));
+                    }
                     rowReq.appendChild(createBarInput('green', 'row', r, cols));
                 } else {
-                    rowReq.appendChild(createStepper('blue', 'row', r, cols));
+                    if (!hideBlue) {
+                        rowReq.appendChild(createStepper('blue', 'row', r, cols));
+                    }
                     rowReq.appendChild(createStepper('green', 'row', r, cols));
                 }
                 rowReqs.appendChild(rowReq);
@@ -1140,7 +1168,7 @@
 
             // Update spacer to match row requirements width
             const spacer = document.getElementById('colReqSpacer');
-            spacer.style.width = '60px';
+            spacer.style.width = hideBlue ? '33px' : '60px';
         }
 
         function createBarInput(color, type, index, max) {
@@ -1303,16 +1331,20 @@
                 colReq.className = 'col-req';
                 if (barInputMode) {
                     colReq.appendChild(createBarInput('green', 'col', c, rows));
-                    colReq.appendChild(createBarInput('blue', 'col', c, rows));
+                    if (!hideBlue) {
+                        colReq.appendChild(createBarInput('blue', 'col', c, rows));
+                    }
                 } else {
                     colReq.appendChild(createStepper('green', 'col', c, rows));
-                    colReq.appendChild(createStepper('blue', 'col', c, rows));
+                    if (!hideBlue) {
+                        colReq.appendChild(createStepper('blue', 'col', c, rows));
+                    }
                 }
                 colReqs.appendChild(colReq);
             }
 
             const spacer = document.getElementById('colReqSpacer');
-            spacer.style.width = '60px';
+            spacer.style.width = hideBlue ? '33px' : '60px';
 
             // Row requirements (blue on top, green on bottom)
             const rowReqs = document.getElementById('rowRequirements');
@@ -1321,10 +1353,14 @@
                 const rowReq = document.createElement('div');
                 rowReq.className = 'row-req';
                 if (barInputMode) {
-                    rowReq.appendChild(createBarInput('blue', 'row', r, cols));
+                    if (!hideBlue) {
+                        rowReq.appendChild(createBarInput('blue', 'row', r, cols));
+                    }
                     rowReq.appendChild(createBarInput('green', 'row', r, cols));
                 } else {
-                    rowReq.appendChild(createStepper('blue', 'row', r, cols));
+                    if (!hideBlue) {
+                        rowReq.appendChild(createStepper('blue', 'row', r, cols));
+                    }
                     rowReq.appendChild(createStepper('green', 'row', r, cols));
                 }
                 rowReqs.appendChild(rowReq);
@@ -1370,6 +1406,14 @@
                 rows: Array(rows).fill(null).map(() => ({ green: 0, blue: 0 })),
                 cols: Array(cols).fill(null).map(() => ({ green: 0, blue: 0 }))
             };
+
+            // Clear shape selections
+            shapeCounts.clear();
+            document.querySelectorAll('.shape-selector-item').forEach(item => {
+                item.classList.remove('active');
+                const badge = item.querySelector('.shape-count-badge');
+                if (badge) badge.textContent = '1';
+            });
 
             // Regenerate inputs to reset their visual state
             regenerateInputs();
@@ -1675,16 +1719,8 @@
 
         // Render shape selector (left panel)
         function renderShapeSelector() {
-            const container = document.getElementById('shapeSelector');
-            container.innerHTML = '';
-
-            const title = document.createElement('div');
-            title.className = 'shape-selector-title';
-            title.textContent = 'Shapes';
-            container.appendChild(title);
-
-            const grid = document.createElement('div');
-            grid.className = 'shape-selector-grid';
+            const grid = document.getElementById('shapeGrid');
+            grid.innerHTML = '';
 
             for (const [id, shape] of Object.entries(SHAPE_LIBRARY)) {
                 const item = document.createElement('div');
@@ -1727,8 +1763,6 @@
 
                 grid.appendChild(item);
             }
-
-            container.appendChild(grid);
         }
 
         function handleShapeClick(shapeId, element, event) {
