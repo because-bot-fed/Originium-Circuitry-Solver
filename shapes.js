@@ -12,6 +12,15 @@ const SHAPE_DEFINITIONS = {
         cells: [[0, 0], [0, 1], [1, 0], [1, 1]]
     },
 
+    // Double 2x2 square (offset 1,1)
+    // X X
+    // X X X
+    //   X X
+    "double-square-7": {
+        name: "Double Square",
+        cells: [[0, 0], [0, 1], [1, 0], [1, 1], [1, 2], [2, 1], [2, 2]]
+    },
+
     // 3-block line (horizontal base)
     "line-3": {
         name: "3-Block Line",
@@ -40,6 +49,24 @@ const SHAPE_DEFINITIONS = {
     "L-4-mirror": {
         name: "4-Block L (Mirror)",
         cells: [[0, 1], [1, 1], [2, 0], [2, 1]]
+    },
+
+    // 5-block Big L (symmetrical)
+    // X
+    // X
+    // X X X
+    "L-5": {
+        name: "5-Block Big L",
+        cells: [[0, 0], [1, 0], [2, 0], [2, 1], [2, 2]]
+    },
+
+    // 5-block Big L (mirrored)
+    //     X
+    //     X
+    // X X X
+    "L-5-mirror": {
+        name: "5-Block Big L (Mirror)",
+        cells: [[0, 2], [1, 2], [2, 0], [2, 1], [2, 2]]
     },
 
     // 4-block T shape
