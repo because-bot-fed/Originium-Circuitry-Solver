@@ -2893,15 +2893,21 @@
                     shapeEl.className = `palette-shape ${color}`;
                     shapeEl.dataset.shapeId = shape.shapeId;
                     shapeEl.dataset.color = color;
-                    shapeEl.dataset.rotationIndex = shape.rotationIndex;
-                    // Store solution position for hints
+
+                    // IMPORTANT: Randomize the initial display rotation, NOT the solution rotation
+                    // This forces the user to potentially rotate shapes to solve
+                    const shapeData = SHAPE_LIBRARY[shape.shapeId];
+                    const randomDisplayRotation = Math.floor(Math.random() * shapeData.rotations.length);
+                    shapeEl.dataset.rotationIndex = randomDisplayRotation;
+
+                    // Store solution data for hints (solution rotation + position)
+                    shapeEl.dataset.solutionRotationIndex = shape.rotationIndex;
                     shapeEl.dataset.solutionRow = shape.position[0];
                     shapeEl.dataset.solutionCol = shape.position[1];
                     shapeEl.style.cursor = 'grab';
 
-                    // Render shape preview
-                    const shapeData = SHAPE_LIBRARY[shape.shapeId];
-                    const rotation = shapeData.rotations[shape.rotationIndex];
+                    // Render shape preview using the randomized display rotation
+                    const rotation = shapeData.rotations[randomDisplayRotation];
                     const bounds = getShapeBounds(rotation);
 
                     const preview = document.createElement('div');
@@ -3474,36 +3480,16 @@
                 `#puzzleGrid .cell.placed[data-placed-shape-id="${shapeId}"]`
             );
 
-            // Find connected cells (same shape instance)
-            const shapeData = SHAPE_LIBRARY[shapeId];
-            const rotation = shapeData.rotations[rotationIndex];
-
-            // Get origin of this shape by finding min row/col
-            let minRow = Infinity, minCol = Infinity;
-            allPlacedCells.forEach(c => {
-                if (c.classList.contains(color)) {
-                    const r = parseInt(c.dataset.row);
-                    const col = parseInt(c.dataset.col);
-                    if (r < minRow) minRow = r;
-                    if (col < minCol) minCol = col;
-                }
+            // Remove all cells of this shape instance directly
+            // This avoids issues where calculating origin/rotation might miss cells
+            allPlacedCells.forEach(gridCell => {
+                gridCell.classList.remove(color, 'placed', 'shade-alt',
+                    'border-top', 'border-right', 'border-bottom', 'border-left',
+                    'corner-tl', 'corner-tr', 'corner-br', 'corner-bl');
+                gridCell.dataset.currentState = 'empty';
+                delete gridCell.dataset.placedShapeId;
+                delete gridCell.dataset.placedRotation;
             });
-
-            // Remove all cells of this shape instance
-            for (const [dr, dc] of rotation) {
-                const r = minRow + dr;
-                const c = minCol + dc;
-                const gridCell = document.querySelector(
-                    `#puzzleGrid .cell[data-row="${r}"][data-col="${c}"]`
-                );
-                if (gridCell && gridCell.classList.contains('placed')) {
-                    gridCell.classList.remove(color, 'placed', 'shade-alt',
-                        'border-top', 'border-right', 'border-bottom', 'border-left');
-                    gridCell.dataset.currentState = 'empty';
-                    delete gridCell.dataset.placedShapeId;
-                    delete gridCell.dataset.placedRotation;
-                }
-            }
 
             // Add shape back to palette
             addShapeToPalette(shapeId, color, rotationIndex);
@@ -3512,18 +3498,33 @@
             updatePuzzleBars();
         }
 
-        function addShapeToPalette(shapeId, color, rotationIndex) {
+        function addShapeToPalette(shapeId, color, placedRotationIndex) {
             const palette = document.getElementById('paletteShapes');
+
+            // Look up the solution data from the current puzzle
+            const solutionShapes = currentPuzzle.shapes[color] || [];
+            const solutionShape = solutionShapes.find(s => s.shapeId === shapeId);
 
             const shapeEl = document.createElement('div');
             shapeEl.className = `palette-shape ${color}`;
             shapeEl.dataset.shapeId = shapeId;
             shapeEl.dataset.color = color;
-            shapeEl.dataset.rotationIndex = rotationIndex;
+
+            // Randomize display rotation (not the solution rotation)
+            const shapeData = SHAPE_LIBRARY[shapeId];
+            const randomDisplayRotation = Math.floor(Math.random() * shapeData.rotations.length);
+            shapeEl.dataset.rotationIndex = randomDisplayRotation;
+
+            // Store solution data if available (for hints to work)
+            if (solutionShape) {
+                shapeEl.dataset.solutionRotationIndex = solutionShape.rotationIndex;
+                shapeEl.dataset.solutionRow = solutionShape.position[0];
+                shapeEl.dataset.solutionCol = solutionShape.position[1];
+            }
+
             shapeEl.style.cursor = 'grab';
 
-            const shapeData = SHAPE_LIBRARY[shapeId];
-            const rotation = shapeData.rotations[rotationIndex];
+            const rotation = shapeData.rotations[randomDisplayRotation];
             const bounds = getShapeBounds(rotation);
 
             const preview = document.createElement('div');
@@ -3662,7 +3663,8 @@
                     );
                     if (cell) {
                         cell.classList.remove(placedColor, 'placed', 'shade-alt',
-                            'border-top', 'border-right', 'border-bottom', 'border-left');
+                            'border-top', 'border-right', 'border-bottom', 'border-left',
+                            'corner-tl', 'corner-tr', 'corner-br', 'corner-bl');
                                 cell.dataset.currentState = 'empty';
                         delete cell.dataset.placedShapeId;
                         delete cell.dataset.placedRotation;
@@ -3697,24 +3699,25 @@
             // Get solution position from data attributes
             const shapeId = shapeEl.dataset.shapeId;
             const color = shapeEl.dataset.color;
-            const rotationIndex = parseInt(shapeEl.dataset.rotationIndex);
+            // Use the SOLUTION rotation index, not the current display rotation
+            const solutionRotationIndex = parseInt(shapeEl.dataset.solutionRotationIndex);
             const solutionRow = parseInt(shapeEl.dataset.solutionRow);
             const solutionCol = parseInt(shapeEl.dataset.solutionCol);
 
-            // Get the rotation cells
+            // Get the rotation cells using the solution rotation
             const shapeData = SHAPE_LIBRARY[shapeId];
-            const rotation = shapeData.rotations[rotationIndex];
+            const rotation = shapeData.rotations[solutionRotationIndex];
 
             // Clear any incorrectly placed shapes from the solution cells
             const removedShapes = clearCellsForPlacement(solutionRow, solutionCol, rotation);
 
-            // Add removed shapes back to palette
+            // Add removed shapes back to palette (with randomized display rotation)
             for (const shape of removedShapes) {
                 addShapeToPalette(shape.shapeId, shape.color, shape.rotationIndex);
             }
 
-            // Place the shape at its solution position
-            placeShapeOnGrid(solutionRow, solutionCol, rotation, color, shapeId, rotationIndex);
+            // Place the shape at its solution position with the solution rotation
+            placeShapeOnGrid(solutionRow, solutionCol, rotation, color, shapeId, solutionRotationIndex);
 
             // Remove from palette
             shapeEl.remove();
