@@ -1600,10 +1600,494 @@
         .cell.border-right.border-bottom {
             z-index: 80 !important;
         }
+
+        /* ============================================
+           MOBILE SUPPORT - Device Detection & Toggle
+           ============================================ */
+
+        /* Mobile mode toggle - unobtrusive corner placement */
+        .mobile-toggle {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            background: rgba(30, 30, 30, 0.9);
+            border: 1px solid #444;
+            border-radius: 6px;
+            font-size: 11px;
+            color: #888;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s ease;
+        }
+
+        .mobile-toggle:hover {
+            background: rgba(40, 40, 40, 0.95);
+            border-color: #555;
+            color: #aaa;
+        }
+
+        .mobile-toggle-checkbox {
+            width: 32px;
+            height: 18px;
+            appearance: none;
+            background: #333;
+            border-radius: 9px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .mobile-toggle-checkbox::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 14px;
+            height: 14px;
+            background: #666;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+
+        .mobile-toggle-checkbox:checked {
+            background: #39ff14;
+        }
+
+        .mobile-toggle-checkbox:checked::after {
+            left: 16px;
+            background: #1a5c1a;
+        }
+
+        .mobile-toggle-label {
+            white-space: nowrap;
+        }
+
+        /* Mobile mode indicator */
+        body.mobile-mode .mobile-toggle {
+            border-color: #39ff14;
+        }
+
+        body.mobile-mode .mobile-toggle-label::after {
+            content: ' (ON)';
+            color: #39ff14;
+        }
+
+        /* Touch device auto-detected indicator */
+        body.touch-device:not(.mobile-mode) .mobile-toggle-label::after {
+            content: ' (Touch)';
+            color: #00bfff;
+        }
+
+        /* ============================================
+           MOBILE SUPPORT - CSS Custom Properties
+           ============================================ */
+
+        :root {
+            /* Base values (desktop) */
+            --cell-size-large: 68px;
+            --cell-size-medium: 56px;
+            --cell-size-small: 48px;
+            --cell-size-tiny: 40px;
+
+            /* Touch target minimum (44px Apple HIG) */
+            --touch-target-min: 44px;
+
+            /* Palette shape preview size */
+            --palette-cell-size: 12px;
+
+            /* Bar segment sizes */
+            --bar-segment-width: 16px;
+            --bar-segment-height: 16px;
+
+            /* Spacing */
+            --mobile-spacing: 8px;
+
+            /* Ghost preview offset (above finger) */
+            --ghost-offset-y: -60px;
+        }
+
+        /* ============================================
+           MOBILE SUPPORT - Media Queries (Additive)
+           ============================================ */
+
+        /* Narrow screens (phones) - layout adjustments */
+        @media (max-width: 768px) {
+            body.mobile-mode .container,
+            body.touch-device .container {
+                padding: 10px;
+                max-width: 100%;
+            }
+
+            body.mobile-mode h1,
+            body.touch-device h1 {
+                font-size: 1.5rem;
+                margin-bottom: 15px;
+            }
+
+            body.mobile-mode .config-panel,
+            body.touch-device .config-panel {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            body.mobile-mode .puzzle-area,
+            body.touch-device .puzzle-area {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+
+        /* Very narrow screens (small phones) */
+        @media (max-width: 480px) {
+            body.mobile-mode .mode-toggle,
+            body.touch-device .mode-toggle {
+                width: 100%;
+            }
+
+            body.mobile-mode .mode-toggle-btn,
+            body.touch-device .mode-toggle-btn {
+                flex: 1;
+                padding: 10px;
+            }
+        }
+
+        /* Coarse pointer (touch) - interaction adjustments */
+        @media (pointer: coarse) {
+            /* Ensure minimum touch target sizes */
+            body.mobile-mode .btn,
+            body.mobile-mode button,
+            body.touch-device .btn,
+            body.touch-device button {
+                min-height: var(--touch-target-min);
+                min-width: var(--touch-target-min);
+            }
+
+            /* Larger cell mode buttons for touch */
+            body.mobile-mode .cell-mode-btn,
+            body.touch-device .cell-mode-btn {
+                min-width: 50px;
+                padding: 8px 12px;
+            }
+        }
+
+        /* No hover capability - remove hover-dependent styles */
+        @media (hover: none) {
+            body.mobile-mode .btn:hover,
+            body.touch-device .btn:hover {
+                /* Remove hover effects that won't work on touch */
+                transform: none;
+            }
+        }
+
+        /* ============================================
+           MOBILE SUPPORT - Puzzle Mode Layout
+           ============================================ */
+
+        /* Puzzle container on mobile */
+        @media (max-width: 768px) {
+            body.mobile-mode .puzzle-container,
+            body.touch-device .puzzle-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            body.mobile-mode .puzzle-main,
+            body.touch-device .puzzle-main {
+                flex-direction: column;
+                align-items: center;
+                gap: 15px;
+            }
+
+            body.mobile-mode .puzzle-grid-area,
+            body.touch-device .puzzle-grid-area {
+                order: 1;
+            }
+
+            body.mobile-mode .puzzle-shape-palette,
+            body.touch-device .puzzle-shape-palette {
+                order: 2;
+                width: 100%;
+                max-width: 100%;
+            }
+
+            body.mobile-mode .palette-shapes,
+            body.touch-device .palette-shapes {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 8px;
+            }
+
+            body.mobile-mode .palette-shape,
+            body.touch-device .palette-shape {
+                padding: 8px;
+                min-width: 50px;
+                min-height: 50px;
+            }
+
+            body.mobile-mode .puzzle-actions,
+            body.touch-device .puzzle-actions {
+                order: 3;
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 8px;
+            }
+
+            body.mobile-mode .puzzle-actions .btn,
+            body.touch-device .puzzle-actions .btn {
+                flex: 1;
+                min-width: 80px;
+                max-width: 120px;
+            }
+        }
+
+        /* Smaller puzzle config panel on mobile */
+        @media (max-width: 768px) {
+            body.mobile-mode #puzzleUI .config-panel,
+            body.touch-device #puzzleUI .config-panel {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            body.mobile-mode #puzzleUI .config-group,
+            body.touch-device #puzzleUI .config-group {
+                width: 100%;
+            }
+
+            body.mobile-mode #puzzleUI .config-group label,
+            body.touch-device #puzzleUI .config-group label {
+                display: block;
+                margin-bottom: 4px;
+            }
+
+            body.mobile-mode #puzzleUI .config-group input,
+            body.touch-device #puzzleUI .config-group input {
+                width: 100%;
+            }
+        }
+
+        /* Solver mode on mobile */
+        @media (max-width: 768px) {
+            body.mobile-mode #solverUI .puzzle-area,
+            body.touch-device #solverUI .puzzle-area {
+                flex-direction: column;
+            }
+
+            body.mobile-mode #solverUI .grid-wrapper,
+            body.touch-device #solverUI .grid-wrapper {
+                overflow-x: auto;
+                max-width: 100%;
+            }
+
+            body.mobile-mode #solverUI .solutions-panel,
+            body.touch-device #solverUI .solutions-panel {
+                width: 100%;
+                max-height: 300px;
+                overflow-y: auto;
+            }
+        }
+
+        /* Requirements bars on mobile - slightly larger for readability */
+        @media (max-width: 480px) {
+            body.mobile-mode .prescriptive-bar,
+            body.touch-device .prescriptive-bar {
+                min-width: 14px;
+            }
+
+            body.mobile-mode .prescriptive-segment,
+            body.touch-device .prescriptive-segment {
+                min-width: 14px;
+                min-height: 14px;
+            }
+
+            body.mobile-mode .puzzle-row-req,
+            body.touch-device .puzzle-row-req {
+                width: 50px;
+                padding-right: 4px;
+            }
+
+            body.mobile-mode .puzzle-col-req,
+            body.touch-device .puzzle-col-req {
+                padding-bottom: 4px;
+            }
+        }
+
+        /* Hide mobile toggle label on very small screens */
+        @media (max-width: 360px) {
+            .mobile-toggle-label {
+                display: none;
+            }
+            .mobile-toggle {
+                padding: 6px;
+            }
+        }
+
+        /* ============================================
+           MOBILE SUPPORT - Touch-Specific UI Elements
+           ============================================ */
+
+        /* Mobile rotate button (appears during touch drag) */
+        .mobile-rotate-btn {
+            display: none;
+            position: fixed;
+            z-index: 10001;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #39ff14 0%, #1a5c1a 100%);
+            border: 2px solid #39ff14;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(57, 255, 20, 0.4);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .mobile-rotate-btn:active {
+            transform: scale(0.95);
+            box-shadow: 0 2px 8px rgba(57, 255, 20, 0.6);
+        }
+
+        .mobile-rotate-btn.visible {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Mobile undo button (appears after removal) */
+        .mobile-undo-btn {
+            display: none;
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10000;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #ff6b35 0%, #8b3a1a 100%);
+            border: 2px solid #ff6b35;
+            border-radius: 25px;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
+            animation: slideUp 0.3s ease;
+        }
+
+        .mobile-undo-btn.visible {
+            display: block;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        /* Prevent scrolling during touch drag */
+        body.touch-dragging {
+            overflow: hidden;
+            touch-action: none;
+        }
+
+        body.touch-dragging * {
+            touch-action: none;
+        }
+
+        /* Touch-friendly palette shapes */
+        body.mobile-mode .palette-shape,
+        body.touch-device .palette-shape {
+            touch-action: none;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        /* Touch feedback ripple effect */
+        .touch-ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(57, 255, 20, 0.3);
+            transform: scale(0);
+            animation: ripple 0.4s ease-out;
+            pointer-events: none;
+        }
+
+        @keyframes ripple {
+            to {
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+
+        /* Long-press indicator */
+        .long-press-indicator {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border: 3px solid transparent;
+            border-radius: 4px;
+            pointer-events: none;
+            transition: border-color 0.1s ease;
+        }
+
+        .long-press-indicator.active {
+            border-color: #ff3939;
+            animation: longPressGlow 0.5s ease infinite;
+        }
+
+        @keyframes longPressGlow {
+            0%, 100% { box-shadow: 0 0 5px rgba(255, 57, 57, 0.5); }
+            50% { box-shadow: 0 0 15px rgba(255, 57, 57, 0.8); }
+        }
+
+        /* Floating shape during touch drag */
+        .touch-floating-shape {
+            position: fixed;
+            z-index: 10000;
+            pointer-events: none;
+            opacity: 0.9;
+            transition: transform 0.1s ease;
+        }
+
+        .touch-floating-shape.awaiting-action {
+            pointer-events: auto;
+            animation: floatPulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes floatPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
     </style>
 </head>
 <body>
     <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Mobile Mode Toggle (unobtrusive, bottom-right corner) -->
+    <label class="mobile-toggle" title="Force mobile mode for testing">
+        <input type="checkbox" class="mobile-toggle-checkbox" id="mobileToggle" onchange="toggleMobileMode(this.checked)">
+        <span class="mobile-toggle-label">Mobile</span>
+    </label>
+
+    <!-- Mobile-specific UI elements (hidden until needed) -->
+    <button class="mobile-rotate-btn" id="mobileRotateBtn" title="Rotate shape">↻</button>
+    <button class="mobile-undo-btn" id="mobileUndoBtn">↩ Undo Removal</button>
+
     <div class="container">
         <h1>Originium Circuitry Solver</h1>
 
@@ -1807,6 +2291,119 @@
         let hideBlue = false; // When true, hide blue inputs and center green
         let enabledColors = ['green', 'blue']; // Colors enabled for current puzzle
         const ALL_COLORS = ['green', 'blue', 'red', 'purple'];
+
+        // ============================================
+        // MOBILE SUPPORT - Device Detection
+        // ============================================
+
+        const DeviceCapabilities = {
+            // Primary touch detection
+            hasTouch: ('ontouchstart' in window) || (navigator.maxTouchPoints > 0),
+
+            // Pointer events support (unified API)
+            hasPointerEvents: 'PointerEvent' in window,
+
+            // Screen size detection via matchMedia
+            isNarrowScreen: () => window.matchMedia('(max-width: 768px)').matches,
+
+            // Coarse pointer (finger) vs fine pointer (mouse)
+            hasCoarsePointer: () => window.matchMedia('(pointer: coarse)').matches,
+
+            // Hover capability
+            canHover: () => window.matchMedia('(hover: hover)').matches,
+
+            // Check if we're in mobile mode (forced or auto-detected)
+            isMobileMode: () => document.body.classList.contains('mobile-mode'),
+
+            // Check if touch device (auto-detected)
+            isTouchDevice: () => document.body.classList.contains('touch-device')
+        };
+
+        // Mobile mode state
+        let mobileMode = false;
+
+        // Initialize device detection on load
+        function initDeviceDetection() {
+            // Auto-detect touch device
+            if (DeviceCapabilities.hasTouch || DeviceCapabilities.hasCoarsePointer()) {
+                document.body.classList.add('touch-device');
+                console.log('Touch device detected');
+            }
+
+            // Check for saved mobile mode preference
+            const savedMobileMode = localStorage.getItem('forceMobileMode');
+            if (savedMobileMode === 'true') {
+                toggleMobileMode(true);
+                document.getElementById('mobileToggle').checked = true;
+            }
+
+            // Log device capabilities
+            console.log('Device Capabilities:', {
+                hasTouch: DeviceCapabilities.hasTouch,
+                hasPointerEvents: DeviceCapabilities.hasPointerEvents,
+                isNarrowScreen: DeviceCapabilities.isNarrowScreen(),
+                hasCoarsePointer: DeviceCapabilities.hasCoarsePointer(),
+                canHover: DeviceCapabilities.canHover()
+            });
+        }
+
+        // Toggle mobile mode (for testing or as failsafe)
+        function toggleMobileMode(enabled) {
+            mobileMode = enabled;
+
+            if (enabled) {
+                document.body.classList.add('mobile-mode');
+                showToast('Mobile mode enabled', 'info', 2000);
+            } else {
+                document.body.classList.remove('mobile-mode');
+                showToast('Mobile mode disabled', 'info', 2000);
+            }
+
+            // Save preference
+            localStorage.setItem('forceMobileMode', enabled.toString());
+
+            // Trigger any mobile-specific initialization
+            if (enabled) {
+                initMobileInteractions();
+            } else {
+                cleanupMobileInteractions();
+            }
+        }
+
+        // Placeholder for mobile interaction initialization
+        function initMobileInteractions() {
+            console.log('Mobile interactions initialized');
+            // Will be implemented in subsequent tasks
+        }
+
+        // Placeholder for mobile interaction cleanup
+        function cleanupMobileInteractions() {
+            console.log('Mobile interactions cleaned up');
+            // Will be implemented in subsequent tasks
+        }
+
+        // Initialize on DOM ready
+        document.addEventListener('DOMContentLoaded', () => {
+            initDeviceDetection();
+            initGlobalTouchHandlers();
+        });
+
+        // Set up global touch handlers (always active, they check mode internally)
+        function initGlobalTouchHandlers() {
+            document.addEventListener('touchmove', handleTouchDragMove, { passive: false });
+            document.addEventListener('touchend', handleTouchDragEnd);
+
+            // Initialize rotate button handlers
+            const rotateBtn = document.getElementById('mobileRotateBtn');
+            if (rotateBtn) {
+                rotateBtn.addEventListener('click', handleMobileRotate);
+                rotateBtn.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleMobileRotate();
+                });
+            }
+        }
 
         function setMode(mode) {
             currentMode = mode;
@@ -2734,8 +3331,11 @@
                     cell.dataset.originalState = playableState;
                     cell.dataset.currentState = playableState;
 
-                    // Right-click to remove placed shapes
+                    // Right-click to remove placed shapes (desktop)
                     cell.addEventListener('contextmenu', handleCellRightClick);
+
+                    // Touch removal handlers (mobile - long-press and double-tap)
+                    addRemovalTouchHandlers(cell);
 
                     grid.appendChild(cell);
                 }
@@ -2942,6 +3542,9 @@
 
                     // Add drag handlers
                     shapeEl.addEventListener('mousedown', handleShapeMouseDown);
+
+                    // Add touch handler for mobile support
+                    addTouchHandlerToShape(shapeEl);
                 }
             }
         }
@@ -3232,6 +3835,434 @@
             };
         }
 
+        // ============================================
+        // MOBILE SUPPORT - Touch Drag System
+        // ============================================
+
+        // Touch drag state machine: 'idle' -> 'dragging' -> 'awaiting-action' -> 'idle'
+        let touchDragState = {
+            phase: 'idle', // 'idle', 'dragging', 'awaiting-action'
+            shapeId: null,
+            color: null,
+            rotationIndex: 0,
+            sourceElement: null,
+            ghost: null,
+            gridCellSize: 68,
+            lastGridCell: null,
+            lastTouchPos: { x: 0, y: 0 },
+            solutionData: null // For hints to work
+        };
+
+        // Called when mobile mode is toggled ON
+        function initMobileInteractions() {
+            console.log('Mobile mode enabled - touch interactions ready');
+            // Global handlers are already set up via initGlobalTouchHandlers
+            // Touch handlers on shapes are added when shapes are created
+        }
+
+        // Cleanup touch handlers when mobile mode is disabled
+        function cleanupMobileInteractions() {
+            console.log('Cleaning up mobile touch interactions');
+
+            const paletteShapes = document.querySelectorAll('#paletteShapes .palette-shape');
+            paletteShapes.forEach(shape => {
+                shape.removeEventListener('touchstart', handleShapeTouchStart);
+            });
+
+            document.removeEventListener('touchmove', handleTouchDragMove);
+            document.removeEventListener('touchend', handleTouchDragEnd);
+
+            // Clean up any active touch drag
+            cancelTouchDrag();
+        }
+
+        function handleShapeTouchStart(e) {
+            // Handle touch events when:
+            // 1. Mobile mode is forced (for testing)
+            // 2. Device has touch capability (auto-detected)
+            // 3. Device has coarse pointer (touch primary input)
+            if (!mobileMode && !DeviceCapabilities.hasTouch) return;
+
+            const shapeEl = e.target.closest('.palette-shape');
+            if (!shapeEl) return;
+
+            e.preventDefault();
+
+            const touch = e.touches[0];
+            const shapeId = shapeEl.dataset.shapeId;
+            const color = shapeEl.dataset.color;
+            const rotationIndex = parseInt(shapeEl.dataset.rotationIndex);
+
+            // Get grid cell size
+            const cellSize = currentPuzzle ? (currentPuzzle.grid.length > 6 ?
+                (currentPuzzle.grid.length > 8 ? 48 : 56) : 68) : 68;
+
+            // Store solution data for hints
+            const solutionData = {
+                solutionRotationIndex: shapeEl.dataset.solutionRotationIndex,
+                solutionRow: shapeEl.dataset.solutionRow,
+                solutionCol: shapeEl.dataset.solutionCol
+            };
+
+            touchDragState = {
+                phase: 'dragging',
+                shapeId,
+                color,
+                rotationIndex,
+                sourceElement: shapeEl,
+                ghost: null,
+                gridCellSize: cellSize,
+                lastGridCell: null,
+                lastTouchPos: { x: touch.clientX, y: touch.clientY },
+                solutionData
+            };
+
+            // Prevent scrolling during drag
+            document.body.classList.add('touch-dragging');
+
+            // Create ghost element (offset above finger)
+            createTouchDragGhost(touch.clientX, touch.clientY);
+
+            // Hide source element
+            shapeEl.style.opacity = '0.3';
+
+            console.log('Touch drag started:', shapeId, color);
+        }
+
+        function createTouchDragGhost(x, y) {
+            if (touchDragState.ghost) {
+                touchDragState.ghost.remove();
+            }
+
+            const shapeData = SHAPE_LIBRARY[touchDragState.shapeId];
+            const rotation = shapeData.rotations[touchDragState.rotationIndex];
+            const bounds = getShapeBounds(rotation);
+            const cellSize = touchDragState.gridCellSize;
+
+            const ghost = document.createElement('div');
+            ghost.id = 'touch-drag-ghost';
+            ghost.className = 'touch-floating-shape';
+
+            const ghostWidth = bounds.width * cellSize;
+            const ghostHeight = bounds.height * cellSize;
+
+            ghost.style.cssText = `
+                position: fixed;
+                z-index: 10000;
+                opacity: 0.9;
+                display: grid;
+                grid-template-columns: repeat(${bounds.width}, ${cellSize}px);
+                grid-template-rows: repeat(${bounds.height}, ${cellSize}px);
+                gap: 0;
+                left: ${x - ghostWidth / 2}px;
+                top: ${y - ghostHeight / 2 - 60}px;
+            `;
+
+            // Build cell set for border checking
+            const cellSet = new Set(rotation.map(([r, c]) => `${r},${c}`));
+
+            // Create cells for the shape
+            for (let r = 0; r < bounds.height; r++) {
+                for (let c = 0; c < bounds.width; c++) {
+                    const cell = document.createElement('div');
+                    cell.style.width = cellSize + 'px';
+                    cell.style.height = cellSize + 'px';
+
+                    const isShapeCell = rotation.some(([sr, sc]) => sr === r && sc === c);
+
+                    if (isShapeCell) {
+                        cell.className = `cell ${touchDragState.color}`;
+                        cell.style.boxSizing = 'border-box';
+
+                        if ((r + c) % 2 === 1) {
+                            cell.classList.add('shade-alt');
+                        }
+
+                        // Check neighbors for border edges
+                        const hasTop = !cellSet.has(`${r - 1},${c}`);
+                        const hasRight = !cellSet.has(`${r},${c + 1}`);
+                        const hasBottom = !cellSet.has(`${r + 1},${c}`);
+                        const hasLeft = !cellSet.has(`${r},${c - 1}`);
+
+                        if (hasTop) cell.classList.add('border-top');
+                        if (hasRight) cell.classList.add('border-right');
+                        if (hasBottom) cell.classList.add('border-bottom');
+                        if (hasLeft) cell.classList.add('border-left');
+
+                        // Inner corners
+                        if (!hasTop && !hasLeft && !cellSet.has(`${r - 1},${c - 1}`)) cell.classList.add('corner-tl');
+                        if (!hasTop && !hasRight && !cellSet.has(`${r - 1},${c + 1}`)) cell.classList.add('corner-tr');
+                        if (!hasBottom && !hasRight && !cellSet.has(`${r + 1},${c + 1}`)) cell.classList.add('corner-br');
+                        if (!hasBottom && !hasLeft && !cellSet.has(`${r + 1},${c - 1}`)) cell.classList.add('corner-bl');
+                    } else {
+                        cell.style.background = 'transparent';
+                    }
+
+                    ghost.appendChild(cell);
+                }
+            }
+
+            document.body.appendChild(ghost);
+            touchDragState.ghost = ghost;
+        }
+
+        function handleTouchDragMove(e) {
+            if (touchDragState.phase !== 'dragging') return;
+            if (!touchDragState.ghost) return;
+
+            // Prevent scrolling while dragging
+            e.preventDefault();
+            e.stopPropagation();
+
+            const touch = e.touches[0];
+            touchDragState.lastTouchPos = { x: touch.clientX, y: touch.clientY };
+
+            const shapeData = SHAPE_LIBRARY[touchDragState.shapeId];
+            const rotation = shapeData.rotations[touchDragState.rotationIndex];
+            const bounds = getShapeBounds(rotation);
+            const cellSize = touchDragState.gridCellSize;
+
+            const ghostWidth = bounds.width * cellSize;
+            const ghostHeight = bounds.height * cellSize;
+
+            // Update ghost position (offset above finger)
+            touchDragState.ghost.style.left = (touch.clientX - ghostWidth / 2) + 'px';
+            touchDragState.ghost.style.top = (touch.clientY - ghostHeight / 2 - 60) + 'px';
+
+            // Check if over puzzle grid and highlight cells
+            const puzzleGrid = document.getElementById('puzzleGrid');
+            if (!puzzleGrid) return;
+
+            const gridRect = puzzleGrid.getBoundingClientRect();
+            const gridX = touch.clientX - gridRect.left;
+            const gridY = touch.clientY - gridRect.top;
+
+            clearGridHighlights();
+
+            if (gridX >= 0 && gridX < gridRect.width && gridY >= 0 && gridY < gridRect.height) {
+                const col = Math.floor(gridX / cellSize);
+                const row = Math.floor(gridY / cellSize);
+
+                const startRow = row - Math.floor(bounds.height / 2);
+                const startCol = col - Math.floor(bounds.width / 2);
+
+                touchDragState.lastGridCell = { row: startRow, col: startCol };
+
+                const validity = checkPlacementValidity(startRow, startCol, rotation);
+                highlightPlacementCells(startRow, startCol, rotation, validity);
+            } else {
+                touchDragState.lastGridCell = null;
+            }
+        }
+
+        function handleTouchDragEnd(e) {
+            if (touchDragState.phase !== 'dragging') return;
+
+            // Don't prevent default here - we want to allow other touch interactions
+
+            // Transition to awaiting-action phase
+            touchDragState.phase = 'awaiting-action';
+
+            // Make ghost interactive
+            if (touchDragState.ghost) {
+                touchDragState.ghost.classList.add('awaiting-action');
+            }
+
+            // Show rotate button near the ghost
+            showMobileRotateButton();
+
+            // Set up listener for placement/dismissal
+            setTimeout(() => {
+                document.addEventListener('touchstart', handleAwaitingActionTap, { passive: false });
+            }, 100);
+
+            console.log('Touch drag ended, awaiting action');
+        }
+
+        function handleAwaitingActionTap(e) {
+            if (touchDragState.phase !== 'awaiting-action') {
+                document.removeEventListener('touchstart', handleAwaitingActionTap);
+                return;
+            }
+
+            const touch = e.touches[0];
+            const target = document.elementFromPoint(touch.clientX, touch.clientY);
+
+            // Check if tapped on rotate button
+            if (target && target.closest('#mobileRotateBtn')) {
+                // Rotate is handled by its own handler
+                return;
+            }
+
+            // Check if tapped on the floating ghost (to dismiss or interact)
+            if (target && target.closest('#touch-drag-ghost')) {
+                // Tapping on ghost itself could cycle rotation
+                e.preventDefault();
+                handleMobileRotate();
+                return;
+            }
+
+            // Check if tapped on grid
+            const puzzleGrid = document.getElementById('puzzleGrid');
+            if (puzzleGrid && target && (target.closest('#puzzleGrid') || puzzleGrid.contains(target))) {
+                e.preventDefault();
+
+                // Try to place at the last known valid position
+                const shapeData = SHAPE_LIBRARY[touchDragState.shapeId];
+                const rotation = shapeData.rotations[touchDragState.rotationIndex];
+
+                // Calculate placement position from tap
+                const gridRect = puzzleGrid.getBoundingClientRect();
+                const gridX = touch.clientX - gridRect.left;
+                const gridY = touch.clientY - gridRect.top;
+                const cellSize = touchDragState.gridCellSize;
+
+                const col = Math.floor(gridX / cellSize);
+                const row = Math.floor(gridY / cellSize);
+                const bounds = getShapeBounds(rotation);
+                const startRow = row - Math.floor(bounds.height / 2);
+                const startCol = col - Math.floor(bounds.width / 2);
+
+                const validity = checkPlacementValidity(startRow, startCol, rotation);
+
+                if (validity.valid) {
+                    // Place the shape
+                    placeShapeOnGrid(
+                        startRow,
+                        startCol,
+                        rotation,
+                        touchDragState.color,
+                        touchDragState.shapeId,
+                        touchDragState.rotationIndex
+                    );
+
+                    // Remove from palette
+                    if (touchDragState.sourceElement) {
+                        touchDragState.sourceElement.remove();
+                    }
+
+                    // Clean up
+                    finishTouchDrag(true);
+
+                    // Update bars and check win
+                    updatePuzzleBars();
+                    checkWinCondition();
+                } else {
+                    // Invalid placement - show feedback
+                    showToast('Invalid placement', 'error', 1500);
+                }
+
+                return;
+            }
+
+            // Tapped elsewhere - dismiss/cancel
+            e.preventDefault();
+            cancelTouchDrag();
+        }
+
+        function handleMobileRotate() {
+            if (touchDragState.phase !== 'awaiting-action' && touchDragState.phase !== 'dragging') return;
+
+            const shapeData = SHAPE_LIBRARY[touchDragState.shapeId];
+            touchDragState.rotationIndex = (touchDragState.rotationIndex + 1) % shapeData.rotations.length;
+
+            // Recreate ghost with new rotation
+            if (touchDragState.ghost) {
+                const rect = touchDragState.ghost.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2 + 60; // Account for offset
+                createTouchDragGhost(centerX, centerY);
+
+                if (touchDragState.phase === 'awaiting-action') {
+                    touchDragState.ghost.classList.add('awaiting-action');
+                }
+            }
+
+            // Update highlights if over grid
+            if (touchDragState.lastGridCell) {
+                clearGridHighlights();
+                const rotation = shapeData.rotations[touchDragState.rotationIndex];
+                const validity = checkPlacementValidity(
+                    touchDragState.lastGridCell.row,
+                    touchDragState.lastGridCell.col,
+                    rotation
+                );
+                highlightPlacementCells(
+                    touchDragState.lastGridCell.row,
+                    touchDragState.lastGridCell.col,
+                    rotation,
+                    validity
+                );
+            }
+
+            // Reposition rotate button
+            showMobileRotateButton();
+
+            console.log('Shape rotated to index:', touchDragState.rotationIndex);
+        }
+
+        function showMobileRotateButton() {
+            const rotateBtn = document.getElementById('mobileRotateBtn');
+            if (!rotateBtn || !touchDragState.ghost) return;
+
+            const ghostRect = touchDragState.ghost.getBoundingClientRect();
+
+            // Position to the right of the ghost
+            rotateBtn.style.left = (ghostRect.right + 10) + 'px';
+            rotateBtn.style.top = (ghostRect.top + ghostRect.height / 2 - 28) + 'px';
+            rotateBtn.classList.add('visible');
+        }
+
+        function hideMobileRotateButton() {
+            const rotateBtn = document.getElementById('mobileRotateBtn');
+            if (rotateBtn) {
+                rotateBtn.classList.remove('visible');
+            }
+        }
+
+        function finishTouchDrag(placed) {
+            document.removeEventListener('touchstart', handleAwaitingActionTap);
+
+            // Re-enable scrolling
+            document.body.classList.remove('touch-dragging');
+
+            clearGridHighlights();
+            hideMobileRotateButton();
+
+            if (touchDragState.ghost) {
+                touchDragState.ghost.remove();
+            }
+
+            touchDragState = {
+                phase: 'idle',
+                shapeId: null,
+                color: null,
+                rotationIndex: 0,
+                sourceElement: null,
+                ghost: null,
+                gridCellSize: 68,
+                lastGridCell: null,
+                lastTouchPos: { x: 0, y: 0 },
+                solutionData: null
+            };
+        }
+
+        function cancelTouchDrag() {
+            // Restore source element
+            if (touchDragState.sourceElement) {
+                touchDragState.sourceElement.style.opacity = '1';
+            }
+
+            finishTouchDrag(false);
+            console.log('Touch drag cancelled');
+        }
+
+        // Add touch handler to newly created palette shapes
+        // Always add the handler - it checks mode at runtime
+        function addTouchHandlerToShape(shapeEl) {
+            shapeEl.addEventListener('touchstart', handleShapeTouchStart, { passive: false });
+        }
+
         function checkPlacementValidity(startRow, startCol, rotation) {
             const result = { valid: true, cells: [] };
 
@@ -3498,6 +4529,281 @@
             updatePuzzleBars();
         }
 
+        // ============================================
+        // MOBILE SUPPORT - Long Press & Double Tap Removal
+        // ============================================
+
+        // State for undo functionality
+        let lastRemovedShape = null;
+        let undoTimeout = null;
+
+        // State for long-press detection
+        let longPressState = {
+            active: false,
+            timer: null,
+            cell: null,
+            indicator: null
+        };
+
+        // State for double-tap detection
+        let doubleTapState = {
+            lastTapTime: 0,
+            lastTapCell: null
+        };
+
+        const LONG_PRESS_DURATION = 500; // ms
+        const DOUBLE_TAP_WINDOW = 300; // ms
+
+        // Add touch handlers to grid cells for removal
+        function addRemovalTouchHandlers(cell) {
+            cell.addEventListener('touchstart', handleCellTouchStart, { passive: false });
+            cell.addEventListener('touchend', handleCellTouchEnd);
+            cell.addEventListener('touchmove', handleCellTouchMove, { passive: false });
+            cell.addEventListener('touchcancel', cancelLongPress);
+        }
+
+        function handleCellTouchStart(e) {
+            // Only in mobile mode or touch device
+            if (!mobileMode && !DeviceCapabilities.hasTouch) return;
+
+            const cell = e.target.closest('.cell');
+            if (!cell || !cell.classList.contains('placed')) return;
+
+            // Don't prevent default yet - we need to distinguish from scroll
+
+            // Start long-press timer
+            longPressState.cell = cell;
+            longPressState.active = true;
+
+            // Add visual indicator
+            const indicator = document.createElement('div');
+            indicator.className = 'long-press-indicator';
+            cell.appendChild(indicator);
+            longPressState.indicator = indicator;
+
+            longPressState.timer = setTimeout(() => {
+                if (longPressState.active && longPressState.cell === cell) {
+                    // Long press detected - remove shape
+                    indicator.classList.add('active');
+                    setTimeout(() => {
+                        removeShapeByCell(cell, true);
+                        cancelLongPress();
+                    }, 100);
+                }
+            }, LONG_PRESS_DURATION);
+        }
+
+        function handleCellTouchMove(e) {
+            // Cancel long press if finger moved
+            if (longPressState.active) {
+                cancelLongPress();
+            }
+        }
+
+        function handleCellTouchEnd(e) {
+            const cell = e.target.closest('.cell');
+
+            // Cancel any pending long press
+            cancelLongPress();
+
+            // Check for double-tap
+            if (!cell || !cell.classList.contains('placed')) return;
+            if (!mobileMode && !DeviceCapabilities.hasTouch) return;
+
+            const now = Date.now();
+            const timeSinceLastTap = now - doubleTapState.lastTapTime;
+
+            if (timeSinceLastTap < DOUBLE_TAP_WINDOW && doubleTapState.lastTapCell === cell) {
+                // Double tap detected - remove shape
+                e.preventDefault();
+                removeShapeByCell(cell, true);
+                doubleTapState.lastTapTime = 0;
+                doubleTapState.lastTapCell = null;
+            } else {
+                // First tap - record it
+                doubleTapState.lastTapTime = now;
+                doubleTapState.lastTapCell = cell;
+            }
+        }
+
+        function cancelLongPress() {
+            if (longPressState.timer) {
+                clearTimeout(longPressState.timer);
+                longPressState.timer = null;
+            }
+            if (longPressState.indicator) {
+                longPressState.indicator.remove();
+                longPressState.indicator = null;
+            }
+            longPressState.active = false;
+            longPressState.cell = null;
+        }
+
+        function removeShapeByCell(cell, showUndo = false) {
+            const shapeId = cell.dataset.placedShapeId;
+            const rotationIndex = parseInt(cell.dataset.placedRotation);
+
+            // Find color from cell class
+            let color = null;
+            for (const c of puzzleConfig.colors) {
+                if (cell.classList.contains(c)) {
+                    color = c;
+                    break;
+                }
+            }
+            if (!color) return;
+
+            // Find the origin position of this shape
+            const shapeData = SHAPE_LIBRARY[shapeId];
+            const rotation = shapeData.rotations[rotationIndex];
+            const cellRow = parseInt(cell.dataset.row);
+            const cellCol = parseInt(cell.dataset.col);
+
+            // Find origin by testing offsets
+            let originRow = null, originCol = null;
+            for (const [dr, dc] of rotation) {
+                const testRow = cellRow - dr;
+                const testCol = cellCol - dc;
+                // Verify this is correct origin
+                let valid = true;
+                for (const [dr2, dc2] of rotation) {
+                    const checkCell = document.querySelector(
+                        `#puzzleGrid .cell[data-row="${testRow + dr2}"][data-col="${testCol + dc2}"]`
+                    );
+                    if (!checkCell || !checkCell.classList.contains('placed') ||
+                        checkCell.dataset.placedShapeId !== shapeId) {
+                        valid = false;
+                        break;
+                    }
+                }
+                if (valid) {
+                    originRow = testRow;
+                    originCol = testCol;
+                    break;
+                }
+            }
+
+            // Store for undo before removing
+            if (showUndo && originRow !== null) {
+                lastRemovedShape = {
+                    shapeId,
+                    color,
+                    rotationIndex,
+                    originRow,
+                    originCol,
+                    cells: rotation.map(([dr, dc]) => [originRow + dr, originCol + dc])
+                };
+            }
+
+            // Find and remove all cells of this placed shape
+            const allPlacedCells = document.querySelectorAll(
+                `#puzzleGrid .cell.placed[data-placed-shape-id="${shapeId}"]`
+            );
+
+            allPlacedCells.forEach(gridCell => {
+                gridCell.classList.remove(color, 'placed', 'shade-alt',
+                    'border-top', 'border-right', 'border-bottom', 'border-left',
+                    'corner-tl', 'corner-tr', 'corner-br', 'corner-bl');
+                gridCell.dataset.currentState = 'empty';
+                delete gridCell.dataset.placedShapeId;
+                delete gridCell.dataset.placedRotation;
+            });
+
+            // Add shape back to palette
+            addShapeToPalette(shapeId, color, rotationIndex);
+
+            // Update bars
+            updatePuzzleBars();
+
+            // Show undo button
+            if (showUndo && lastRemovedShape) {
+                showUndoButton();
+            }
+
+            showToast('Shape removed', 'info', 1500);
+        }
+
+        function showUndoButton() {
+            const undoBtn = document.getElementById('mobileUndoBtn');
+            if (!undoBtn) return;
+
+            // Clear any existing timeout
+            if (undoTimeout) {
+                clearTimeout(undoTimeout);
+            }
+
+            undoBtn.classList.add('visible');
+
+            // Auto-hide after 5 seconds
+            undoTimeout = setTimeout(() => {
+                hideUndoButton();
+            }, 5000);
+        }
+
+        function hideUndoButton() {
+            const undoBtn = document.getElementById('mobileUndoBtn');
+            if (undoBtn) {
+                undoBtn.classList.remove('visible');
+            }
+            if (undoTimeout) {
+                clearTimeout(undoTimeout);
+                undoTimeout = null;
+            }
+        }
+
+        function handleUndo() {
+            if (!lastRemovedShape) {
+                showToast('Nothing to undo', 'info', 1500);
+                return;
+            }
+
+            const { shapeId, color, rotationIndex, originRow, originCol, cells } = lastRemovedShape;
+
+            // Check if cells are still empty
+            const shapeData = SHAPE_LIBRARY[shapeId];
+            const rotation = shapeData.rotations[rotationIndex];
+            const validity = checkPlacementValidity(originRow, originCol, rotation);
+
+            if (!validity.valid) {
+                showToast('Cannot undo - space is occupied', 'error', 2000);
+                lastRemovedShape = null;
+                hideUndoButton();
+                return;
+            }
+
+            // Find and remove the shape from palette
+            const paletteShape = document.querySelector(
+                `#paletteShapes .palette-shape[data-shape-id="${shapeId}"][data-color="${color}"]`
+            );
+            if (paletteShape) {
+                paletteShape.remove();
+            }
+
+            // Place the shape back
+            placeShapeOnGrid(originRow, originCol, rotation, color, shapeId, rotationIndex);
+
+            // Update bars
+            updatePuzzleBars();
+
+            // Clear undo state
+            lastRemovedShape = null;
+            hideUndoButton();
+
+            showToast('Shape restored', 'success', 1500);
+        }
+
+        // Initialize undo button handler
+        document.addEventListener('DOMContentLoaded', () => {
+            const undoBtn = document.getElementById('mobileUndoBtn');
+            if (undoBtn) {
+                undoBtn.addEventListener('click', handleUndo);
+                undoBtn.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    handleUndo();
+                });
+            }
+        });
+
         function addShapeToPalette(shapeId, color, placedRotationIndex) {
             const palette = document.getElementById('paletteShapes');
 
@@ -3553,6 +4859,10 @@
 
             shapeEl.appendChild(preview);
             shapeEl.addEventListener('mousedown', handleShapeMouseDown);
+
+            // Add touch handler for mobile support
+            addTouchHandlerToShape(shapeEl);
+
             palette.appendChild(shapeEl);
         }
 
