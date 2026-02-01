@@ -27,11 +27,50 @@
 
         h1 {
             text-align: center;
-            margin-bottom: 25px;
+            margin-bottom: 15px;
             font-weight: 500;
             font-size: 1.3rem;
             color: #ffffff;
             letter-spacing: 0.5px;
+        }
+
+        /* Mode Toggle */
+        .mode-toggle-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .mode-toggle {
+            display: inline-flex;
+            background: #0a0a0a;
+            border-radius: 4px;
+            padding: 4px;
+            border: 1px solid #222;
+        }
+
+        .mode-toggle-btn {
+            padding: 10px 32px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background: transparent;
+            border: none;
+            color: #444;
+            cursor: pointer;
+            border-radius: 2px;
+            transition: all 0.2s;
+        }
+
+        .mode-toggle-btn:hover {
+            color: #666;
+        }
+
+        .mode-toggle-btn.active {
+            background: linear-gradient(135deg, #1a3a1a, #2d5a2d);
+            color: #39ff14;
+            box-shadow: 0 2px 8px rgba(57, 255, 20, 0.2);
         }
 
         h2 {
@@ -105,6 +144,63 @@
         .btn-primary:hover {
             background: #252525;
             border-color: #444;
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Toast notifications */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10001;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 4px;
+            padding: 12px 20px;
+            color: #fff;
+            font-size: 14px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            animation: toastIn 0.3s ease;
+            max-width: 350px;
+        }
+
+        .toast.success {
+            border-color: #39ff14;
+            background: linear-gradient(135deg, #1a1a1a 0%, #0a2a0a 100%);
+        }
+
+        .toast.error {
+            border-color: #ff3939;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a0a0a 100%);
+        }
+
+        .toast.info {
+            border-color: #00bfff;
+            background: linear-gradient(135deg, #1a1a1a 0%, #0a1a2a 100%);
+        }
+
+        .toast.fade-out {
+            animation: toastOut 0.3s ease forwards;
+        }
+
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes toastOut {
+            from { opacity: 1; transform: translateX(0); }
+            to { opacity: 0; transform: translateX(50px); }
         }
 
         .btn-solve {
@@ -214,6 +310,339 @@
 
         .shape-selector-item.active .shape-mini-cell.filled {
             background: linear-gradient(145deg, #39ff14, #32cd32);
+        }
+
+        /* Puzzle Mode Styles */
+        .puzzle-config-panel {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #0a0a0a;
+            border-radius: 2px;
+            border: 1px solid #1a1a1a;
+        }
+
+        .puzzle-config-panel h2 {
+            text-align: center;
+            font-size: 1rem;
+            color: #888;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .puzzle-config-panel h3 {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .puzzle-difficulty-selector {
+            margin-bottom: 25px;
+        }
+
+        .difficulty-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .difficulty-btn {
+            padding: 10px 20px;
+            background: #111;
+            border: 1px solid #222;
+            border-radius: 2px;
+            color: #666;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .difficulty-btn:hover {
+            background: #1a1a1a;
+            color: #888;
+        }
+
+        .difficulty-btn.active {
+            background: #1a3a1a;
+            color: #39ff14;
+            border-color: #2d5a2d;
+        }
+
+        .puzzle-custom-config {
+            margin-bottom: 25px;
+        }
+
+        .custom-config-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .config-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .config-item label {
+            font-size: 0.75rem;
+            color: #555;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .size-inputs {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .size-inputs input {
+            width: 60px;
+            padding: 8px;
+            background: #111;
+            border: 1px solid #222;
+            border-radius: 2px;
+            color: #fff;
+            text-align: center;
+        }
+
+        .size-inputs span {
+            color: #444;
+        }
+
+        .color-toggles {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .color-toggle {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: #111;
+            border: 1px solid #222;
+            border-radius: 2px;
+            font-size: 0.75rem;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .color-toggle input {
+            display: none;
+        }
+
+        .color-toggle.green.active { background: #1a3a1a; color: #39ff14; border-color: #2d5a2d; }
+        .color-toggle.blue.active { background: #1a2a4a; color: #00bfff; border-color: #2d4a7a; }
+        .color-toggle.red.active { background: #3a1a1a; color: #ff3939; border-color: #5a2d2d; }
+        .color-toggle.purple.active { background: #2a1a3a; color: #bf39ff; border-color: #4a2d5a; }
+
+        .feature-toggles {
+            display: flex;
+            gap: 15px;
+        }
+
+        .feature-toggle {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.8rem;
+            color: #888;
+            cursor: pointer;
+        }
+
+        .feature-toggle input {
+            accent-color: #39ff14;
+        }
+
+        .btn-generate-puzzle {
+            width: 100%;
+            padding: 14px;
+            background: #1a3a1a;
+            color: #39ff14;
+            border: 1px solid #2d5a2d;
+            border-radius: 2px;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-generate-puzzle:hover {
+            background: #224422;
+            border-color: #3d7a3d;
+        }
+
+        .puzzle-play-area {
+            margin-top: 20px;
+        }
+
+        .puzzle-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .puzzle-main {
+            display: flex;
+            gap: 30px;
+            align-items: flex-start;
+        }
+
+        .puzzle-grid-area {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .puzzle-grid-row {
+            display: flex;
+        }
+
+        .puzzle-grid {
+            background: #0f0f0f;
+            border: 1px solid #1a1a1a;
+            border-radius: 2px;
+        }
+
+        .puzzle-col-req {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            padding-bottom: 4px;
+        }
+
+        .puzzle-row-req {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-end;
+            padding-right: 4px;
+        }
+
+        .prescriptive-bar {
+            --green-accent: #39ff14;
+            --blue-accent: #00bfff;
+            --red-accent: #ff3939;
+            --purple-accent: #bf39ff;
+        }
+
+        .prescriptive-segment {
+            background: transparent;
+            transition: background 0.2s;
+        }
+
+        .prescriptive-segment.filled {
+            background: currentColor;
+        }
+
+        .prescriptive-bar.green .prescriptive-segment { border-color: #39ff14; }
+        .prescriptive-bar.green .prescriptive-segment.filled { background: #39ff14; }
+        .prescriptive-bar.blue .prescriptive-segment { border-color: #00bfff; }
+        .prescriptive-bar.blue .prescriptive-segment.filled { background: #00bfff; }
+        .prescriptive-bar.red .prescriptive-segment { border-color: #ff3939; }
+        .prescriptive-bar.red .prescriptive-segment.filled { background: #ff3939; }
+        .prescriptive-bar.purple .prescriptive-segment { border-color: #bf39ff; }
+        .prescriptive-bar.purple .prescriptive-segment.filled { background: #bf39ff; }
+
+        .prescriptive-bar.error {
+            background: linear-gradient(to top, rgba(255, 0, 0, 0.3), transparent);
+            animation: error-pulse 1s ease-in-out infinite;
+        }
+
+        /* Drag placement highlighting */
+        .cell.placement-valid {
+            background: rgba(57, 255, 20, 0.3) !important;
+            box-shadow: inset 0 0 10px rgba(57, 255, 20, 0.5);
+        }
+
+        .cell.placement-invalid {
+            background: rgba(255, 57, 57, 0.3) !important;
+            box-shadow: inset 0 0 10px rgba(255, 57, 57, 0.5);
+        }
+
+        .cell.placed {
+            cursor: pointer;
+        }
+
+        /* Legacy border logic removed - see .cell definition */
+
+        #drag-ghost .cell {
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .puzzle-shape-palette {
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            border-radius: 2px;
+            padding: 15px;
+            min-width: 120px;
+        }
+
+        .puzzle-shape-palette h3 {
+            font-size: 0.75rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .palette-shapes {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .palette-shape {
+            padding: 8px;
+            background: #111;
+            border: 2px solid #222;
+            border-radius: 2px;
+            cursor: grab;
+            transition: all 0.2s;
+        }
+
+        .palette-shape:hover {
+            background: #1a1a1a;
+            border-color: #333;
+        }
+
+        .palette-shape.green { border-color: #1a3a1a; }
+        .palette-shape.green:hover { border-color: #39ff14; }
+        .palette-shape.blue { border-color: #1a2a4a; }
+        .palette-shape.blue:hover { border-color: #00bfff; }
+        .palette-shape.red { border-color: #3a1a1a; }
+        .palette-shape.red:hover { border-color: #ff3939; }
+        .palette-shape.purple { border-color: #2a1a3a; }
+        .palette-shape.purple:hover { border-color: #bf39ff; }
+
+        .palette-shape.placed {
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        .shape-preview-cell {
+            background: #333;
+            border: 1px solid #444;
+        }
+        .shape-preview-cell.green { background: #1a5c1a; border-color: #39ff14; }
+        .shape-preview-cell.blue { background: #0066a0; border-color: #00bfff; }
+        .shape-preview-cell.red { background: #8b1a1a; border-color: #ff3939; }
+        .shape-preview-cell.purple { background: #5c1a8b; border-color: #bf39ff; }
+
+        .puzzle-actions {
+            display: flex;
+            gap: 12px;
         }
 
         /* Hide Blue toggle button */
@@ -360,6 +789,42 @@
             background: #00bfff;
         }
 
+        .bar-input.red .bar-segment {
+            border: 2px solid #ff3939;
+        }
+
+        .bar-input.red .bar-segment:hover {
+            background: rgba(255, 57, 57, 0.2);
+        }
+
+        .bar-input.red .bar-segment.filled {
+            background: #ff3939;
+        }
+
+        .bar-input.purple .bar-segment {
+            border: 2px solid #bf39ff;
+        }
+
+        .bar-input.purple .bar-segment:hover {
+            background: rgba(191, 57, 255, 0.2);
+        }
+
+        .bar-input.purple .bar-segment.filled {
+            background: #bf39ff;
+        }
+
+        /* Bar error state */
+        .bar-input.error {
+            background: linear-gradient(to top, rgba(255, 0, 0, 0.3), transparent);
+            border-radius: 2px;
+            animation: error-pulse 1s ease-in-out infinite;
+        }
+
+        @keyframes error-pulse {
+            0%, 100% { box-shadow: 0 0 5px rgba(255, 0, 0, 0.3); }
+            50% { box-shadow: 0 0 15px rgba(255, 0, 0, 0.5); }
+        }
+
         /* Column bar inputs - vertical bars side by side */
         .col-req .bar-input {
             width: 33px;
@@ -477,6 +942,22 @@
             color: #00bfff;
         }
 
+        .stepper.red .stepper-btn svg {
+            fill: #ff3939;
+        }
+
+        .stepper.red .stepper-value {
+            color: #ff3939;
+        }
+
+        .stepper.purple .stepper-btn svg {
+            fill: #bf39ff;
+        }
+
+        .stepper.purple .stepper-value {
+            color: #bf39ff;
+        }
+
         /* Column stepper - vertical orientation */
         .col-req .stepper {
             width: 100%;
@@ -543,12 +1024,109 @@
         .cell {
             width: 68px;
             height: 68px;
-            background: #111;
+            /* Variables for theming and borders */
+            --bg-color: #111;
+            --border-color: #1a1a1a;
+            
+            /* Border Shadows - Color Layer (3px) */
+            --bs-t-c: 0 0 0 0 transparent;
+            --bs-r-c: 0 0 0 0 transparent;
+            --bs-b-c: 0 0 0 0 transparent;
+            --bs-l-c: 0 0 0 0 transparent;
+            
+            /* Border Shadows - Black Layer (3px + 4px = 7px) */
+            --bs-t-b: 0 0 0 0 transparent;
+            --bs-r-b: 0 0 0 0 transparent;
+            --bs-b-b: 0 0 0 0 transparent;
+            --bs-l-b: 0 0 0 0 transparent;
+
+            /* Corner Patching Variables - Default to none */
+            --c-tl: none;
+            --c-tr: none;
+            --c-bl: none;
+            --c-br: none;
+
+            /* Default Grid Line */
+            --grid-line: inset 0 0 0 1px #1a1a1a;
+
+            background: var(--bg-color);
             border-radius: 0;
             cursor: pointer;
             transition: all 0.15s ease;
-            border: 1px solid #1a1a1a;
+            /* Removed CSS border to prevent miter issues */
             position: relative;
+            z-index: 1;
+            
+            /* Only grid line on the cell itself */
+            box-shadow: var(--grid-line); 
+        }
+
+        /* Corner Patch Definitions: Mitered joints for Inner Corners 
+           (Reduced size to 2.0px/5.0px to prevent visual bulging) */
+        .cell.corner-tl { --c-tl: linear-gradient(135deg, var(--border-color) 1.55px, #000 1.55px, #000 4px, transparent 4px); }
+        .cell.corner-tr { --c-tr: linear-gradient(225deg, var(--border-color) 1.55px, #000 1.55px, #000 4px, transparent 4px); }
+        .cell.corner-br { --c-br: linear-gradient(315deg, var(--border-color) 1.55px, #000 1.55px, #000 4px, transparent 4px); }
+        .cell.corner-bl { --c-bl: linear-gradient(45deg,  var(--border-color) 1.55px, #000 1.55px, #000 4px, transparent 4px); }
+
+        /* Render Borders and Corners on ::before for Colored Cells */
+        .cell.green::before, .cell.blue::before, .cell.red::before, .cell.purple::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: transparent;
+            pointer-events: none;
+            z-index: 2; /* Above background */
+            display: block !important;
+            
+            /* Borders */
+            box-shadow: 
+                var(--bs-t-c), var(--bs-r-c), var(--bs-b-c), var(--bs-l-c),
+                var(--bs-t-b), var(--bs-r-b), var(--bs-b-b), var(--bs-l-b);
+                
+            /* Corners */
+            background-image: var(--c-tl), var(--c-tr), var(--c-bl), var(--c-br);
+            background-position: top left, top right, bottom left, bottom right;
+            background-size: 8px 8px;
+            background-repeat: no-repeat;
+        }
+
+        /* HIDE the default Center Dot (::after) on colored cells */
+        .cell.green::after, .cell.blue::after, .cell.red::after, .cell.purple::after {
+            display: none;
+        }
+
+        /* SHOW the Lock Icon (::after) on Locked/Blocked cells */
+        .cell.locked-green::after,
+        .cell.locked-blue::after,
+        .cell.locked-red::after,
+        .cell.locked-purple::after,
+        .cell.blocked::after {
+            display: block !important;
+            z-index: 10;
+        }
+
+        /* Dynamic border application using variables */
+        /* Note: We use inset shadows. Color (2px) is drawn ON TOP of Black (5px). 
+           So visible black is 3px wide starting at 2px offset. */
+        .cell.border-top {
+            z-index: 10;
+            --bs-t-c: inset 0 2px 0 0 var(--border-color);
+            --bs-t-b: inset 0 5px 0 0 #000000;
+        }
+        .cell.border-right {
+            z-index: 10;
+            --bs-r-c: inset -2px 0 0 0 var(--border-color);
+            --bs-r-b: inset -5px 0 0 0 #000000;
+        }
+        .cell.border-bottom {
+            z-index: 10;
+            --bs-b-c: inset 0 -2px 0 0 var(--border-color);
+            --bs-b-b: inset 0 -5px 0 0 #000000;
+        }
+        .cell.border-left {
+            z-index: 10;
+            --bs-l-c: inset 2px 0 0 0 var(--border-color);
+            --bs-l-b: inset 5px 0 0 0 #000000;
         }
 
         /* X pattern texture */
@@ -562,6 +1140,7 @@
             pointer-events: none;
             mask: radial-gradient(circle at center, transparent 12%, black 12%);
             -webkit-mask: radial-gradient(circle at center, transparent 12%, black 12%);
+            z-index: 0;
         }
 
         /* Center dot */
@@ -575,6 +1154,7 @@
             background: #1a1a1a;
             transform: translate(-50%, -50%);
             pointer-events: none;
+            z-index: 0;
         }
 
         .cell:hover {
@@ -611,45 +1191,54 @@
             background-repeat: no-repeat;
         }
 
+        /* Color Themes */
         .cell.green {
-            background: #1a5c1a;
-            border-color: #1a5c1a;
+            --bg-color: #1a5c1a;
+            --bg-alt: #0d3d0d;
+            --border-color: #39ff14;
+            --grid-line: 0 0 0 0 transparent; /* Hide grid line */
+            border-color: transparent; /* Hide default grid border */
+            z-index: 5;
         }
-
-        .cell.green::before,
-        .cell.green::after {
-            display: none;
-        }
-
-        .cell.green.shade-alt {
-            background: #145214;
-            border-color: #145214;
-        }
-
-        .cell.green.border-top { border-top: 3px solid #39ff14; }
-        .cell.green.border-right { border-right: 3px solid #39ff14; }
-        .cell.green.border-bottom { border-bottom: 3px solid #39ff14; }
-        .cell.green.border-left { border-left: 3px solid #39ff14; }
-
         .cell.blue {
-            background: #0066a0;
-            border-color: #0066a0;
+            --bg-color: #0066a0;
+            --bg-alt: #003d60;
+            --border-color: #00bfff;
+            --grid-line: 0 0 0 0 transparent;
+            border-color: transparent;
+            z-index: 5;
+        }
+        .cell.red {
+            --bg-color: #8b1a1a;
+            --bg-alt: #4d0f0f;
+            --border-color: #ff3939;
+            --grid-line: 0 0 0 0 transparent;
+            border-color: transparent;
+            z-index: 5;
+        }
+        .cell.purple {
+            --bg-color: #5c1a8b;
+            --bg-alt: #300d47;
+            --border-color: #bf39ff;
+            --grid-line: 0 0 0 0 transparent;
+            border-color: transparent;
+            z-index: 5;
+        }
+        
+        /* Apply alternate shade if present */
+        .cell.shade-alt {
+            background: var(--bg-alt, var(--bg-color));
         }
 
+
+
+        /* Hide pattern for colored cells */
+        .cell.green::before,
         .cell.blue::before,
-        .cell.blue::after {
+        .cell.red::before,
+        .cell.purple::before {
             display: none;
         }
-
-        .cell.blue.shade-alt {
-            background: #005080;
-            border-color: #005080;
-        }
-
-        .cell.blue.border-top { border-top: 3px solid #00bfff; }
-        .cell.blue.border-right { border-right: 3px solid #00bfff; }
-        .cell.blue.border-bottom { border-bottom: 3px solid #00bfff; }
-        .cell.blue.border-left { border-left: 3px solid #00bfff; }
 
         /* Locked cells */
         .cell.locked-green {
@@ -665,18 +1254,34 @@
         }
 
         .cell.locked-green::before,
-        .cell.locked-blue::before {
+        .cell.locked-blue::before,
+        .cell.locked-red::before,
+        .cell.locked-purple::before {
             display: none;
         }
 
         .cell.locked-green::after,
-        .cell.locked-blue::after {
+        .cell.locked-blue::after,
+        .cell.locked-red::after,
+        .cell.locked-purple::after {
             width: 16px;
             height: 16px;
             background: none;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='rgba(255,255,255,0.3)'%3E%3Cpath d='M12 1C8.676 1 6 3.676 6 7v2H4v14h16V9h-2V7c0-3.324-2.676-6-6-6zm0 2c2.276 0 4 1.724 4 4v2H8V7c0-2.276 1.724-4 4-4z'/%3E%3C/svg%3E");
             background-size: contain;
             background-repeat: no-repeat;
+        }
+
+        .cell.locked-red {
+            background: #8b1a1a;
+            border: 2px dashed #ff3939;
+            box-shadow: inset 0 0 15px rgba(255, 57, 57, 0.2);
+        }
+
+        .cell.locked-purple {
+            background: #5c1a8b;
+            border: 2px dashed #bf39ff;
+            box-shadow: inset 0 0 15px rgba(191, 57, 255, 0.2);
         }
 
         /* Action Buttons */
@@ -774,6 +1379,14 @@
 
         .solution-mini-cell.blue {
             background: #00bfff;
+        }
+
+        .solution-mini-cell.red {
+            background: #ff3939;
+        }
+
+        .solution-mini-cell.purple {
+            background: #bf39ff;
         }
 
         .solution-mini-cell.blocked {
@@ -876,6 +1489,18 @@
             border-color: #2d4a7a;
         }
 
+        .cell-mode-btn.red.active {
+            background: #3a1a1a;
+            color: #ff3939;
+            border-color: #5a2d2d;
+        }
+
+        .cell-mode-btn.purple.active {
+            background: #2a1a3a;
+            color: #bf39ff;
+            border-color: #4a2d5a;
+        }
+
         /* Fit All Pieces checkbox */
         .fit-mode-container {
             display: flex;
@@ -950,11 +1575,48 @@
         .fit-mode-checkbox.active .checkbox-label {
             color: #39ff14;
         }
+
+        /* Fix: Strategic Z-Index Layering */
+        /* "Future" borders (Right/Bottom) must be higher than "Past" borders 
+           to prevent the next cell in the DOM from covering the previous cell's border. */
+        
+        /* Tier 1: Top/Left borders (Safe, naturally above previous neighbors) */
+        .cell.border-top,
+        .cell.border-left {
+            z-index: 50 !important;
+        }
+
+        /* Tier 2: Bottom borders (Must be above the neighbor below) */
+        .cell.border-bottom {
+            z-index: 60 !important;
+        }
+
+        /* Tier 3: Right borders (Must be above the neighbor to the right) */
+        .cell.border-right {
+            z-index: 70 !important;
+        }
+        
+        /* Tier 4: Corner case - Right + Bottom combined */
+        .cell.border-right.border-bottom {
+            z-index: 80 !important;
+        }
     </style>
 </head>
 <body>
+    <div class="toast-container" id="toastContainer"></div>
     <div class="container">
         <h1>Originium Circuitry Solver</h1>
+
+        <!-- Mode Toggle -->
+        <div class="mode-toggle-container">
+            <div class="mode-toggle">
+                <button class="mode-toggle-btn active" id="solverModeBtn" onclick="setMode('solver')">Solver</button>
+                <button class="mode-toggle-btn" id="puzzleModeBtn" onclick="setMode('puzzle')">Puzzle</button>
+            </div>
+        </div>
+
+        <!-- Solver Mode UI -->
+        <div id="solverUI">
 
         <!-- Configuration Panel -->
         <div class="config-panel">
@@ -1052,16 +1714,89 @@
                 <li>Click Solve to find valid configurations using the defined shapes</li>
             </ul>
         </div>
+
+        </div><!-- End Solver UI -->
+
+        <!-- Puzzle Mode UI -->
+        <div id="puzzleUI" style="display: none;">
+            <div class="puzzle-config-panel">
+                <h2>Puzzle Configuration</h2>
+
+                <div class="puzzle-difficulty-selector">
+                    <h3>Difficulty</h3>
+                    <div class="difficulty-buttons">
+                        <button class="difficulty-btn" data-difficulty="easy" onclick="setDifficulty('easy')">Easy</button>
+                        <button class="difficulty-btn active" data-difficulty="medium" onclick="setDifficulty('medium')">Medium</button>
+                        <button class="difficulty-btn" data-difficulty="hard" onclick="setDifficulty('hard')">Hard</button>
+                        <button class="difficulty-btn" data-difficulty="expert" onclick="setDifficulty('expert')">Expert</button>
+                        <button class="difficulty-btn" data-difficulty="master" onclick="setDifficulty('master')">Master</button>
+                    </div>
+                </div>
+
+                <div class="puzzle-custom-config">
+                    <h3>Custom Settings</h3>
+                    <div class="custom-config-grid">
+                        <div class="config-item">
+                            <label>Grid Size</label>
+                            <div class="size-inputs">
+                                <input type="number" id="puzzleRows" min="4" max="10" value="5">
+                                <span>x</span>
+                                <input type="number" id="puzzleCols" min="4" max="10" value="5">
+                            </div>
+                        </div>
+                        <div class="config-item">
+                            <label>Colors</label>
+                            <div class="color-toggles">
+                                <label class="color-toggle green active"><input type="checkbox" checked onchange="togglePuzzleColor('green')"> Green</label>
+                                <label class="color-toggle blue active"><input type="checkbox" checked onchange="togglePuzzleColor('blue')"> Blue</label>
+                                <label class="color-toggle red"><input type="checkbox" onchange="togglePuzzleColor('red')"> Red</label>
+                                <label class="color-toggle purple"><input type="checkbox" onchange="togglePuzzleColor('purple')"> Purple</label>
+                            </div>
+                        </div>
+                        <div class="config-item">
+                            <label>Features</label>
+                            <div class="feature-toggles">
+                                <label class="feature-toggle"><input type="checkbox" id="enableBlockers" checked> Blockers</label>
+                                <label class="feature-toggle"><input type="checkbox" id="enableLocks"> Locked Cells</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-generate-puzzle" id="generatePuzzleBtn" onclick="generatePuzzle()">Generate Puzzle</button>
+            </div>
+
+            <div class="puzzle-play-area" id="puzzlePlayArea" style="display: none;">
+                <!-- Puzzle grid and shape palette will be rendered here -->
+            </div>
+        </div><!-- End Puzzle UI -->
+
     </div>
 
     <script src="shapes.js"></script>
     <script src="solver.js"></script>
+    <script src="puzzle-generator.js"></script>
     <script>
         // SVG icons
         const upArrow = `<svg viewBox="0 0 24 24"><path d="M7 14l5-5 5 5z"/></svg>`;
         const downArrow = `<svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>`;
 
-        let cellMode = 'none'; // 'none', 'blocked', 'locked-green', 'locked-blue'
+        let currentMode = 'solver'; // 'solver' or 'puzzle'
+        let cellMode = 'none'; // 'none', 'blocked', 'locked-green', 'locked-blue', 'locked-red', 'locked-purple'
+
+        // Toast notification system
+        function showToast(message, type = 'info', duration = 3000) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.add('fade-out');
+                setTimeout(() => toast.remove(), 300);
+            }, duration);
+        }
         let barInputMode = true; // Default to bar/grid mode
         let gridState = [];
         let requirements = { rows: [], cols: [] };
@@ -1070,6 +1805,22 @@
         let shapeCounts = new Map(); // Track shape ID -> count for solving
         let fitAllPiecesMode = false; // When true, ignore requirements, just fit all pieces
         let hideBlue = false; // When true, hide blue inputs and center green
+        let enabledColors = ['green', 'blue']; // Colors enabled for current puzzle
+        const ALL_COLORS = ['green', 'blue', 'red', 'purple'];
+
+        function setMode(mode) {
+            currentMode = mode;
+            document.getElementById('solverModeBtn').classList.toggle('active', mode === 'solver');
+            document.getElementById('puzzleModeBtn').classList.toggle('active', mode === 'puzzle');
+
+            // Show/hide mode-specific UI
+            document.getElementById('solverUI').style.display = mode === 'solver' ? 'block' : 'none';
+            document.getElementById('puzzleUI').style.display = mode === 'puzzle' ? 'block' : 'none';
+
+            if (mode === 'puzzle') {
+                initPuzzleMode();
+            }
+        }
 
         function setCellMode(mode) {
             cellMode = mode;
@@ -1658,7 +2409,7 @@
                 const c = parseInt(cell.dataset.col);
                 const key = `${r},${c}`;
 
-                // Reset classes
+                // Reset classes and inline styles
                 cell.className = 'cell';
 
                 const cellState = gridState[r][c];
@@ -1673,8 +2424,8 @@
                     const info = cellShapeMap.get(key);
                     cell.classList.add(info.color);
 
-                    // Alternating shade based on cell index within shape
-                    if (info.cellIndex % 2 === 1) {
+                    // Alternating shade based on checkerboard pattern (row + col parity)
+                    if ((r + c) % 2 === 1) {
                         cell.classList.add('shade-alt');
                     }
 
@@ -1684,19 +2435,16 @@
                     const bottomKey = `${r + 1},${c}`;
                     const leftKey = `${r},${c - 1}`;
 
+                    const hasTop = !info.cellSet.has(topKey);
+                    const hasRight = !info.cellSet.has(rightKey);
+                    const hasBottom = !info.cellSet.has(bottomKey);
+                    const hasLeft = !info.cellSet.has(leftKey);
+
                     // Add border if neighbor is not part of same shape
-                    if (!info.cellSet.has(topKey)) {
-                        cell.classList.add('border-top');
-                    }
-                    if (!info.cellSet.has(rightKey)) {
-                        cell.classList.add('border-right');
-                    }
-                    if (!info.cellSet.has(bottomKey)) {
-                        cell.classList.add('border-bottom');
-                    }
-                    if (!info.cellSet.has(leftKey)) {
-                        cell.classList.add('border-left');
-                    }
+                    if (hasTop) cell.classList.add('border-top');
+                    if (hasRight) cell.classList.add('border-right');
+                    if (hasBottom) cell.classList.add('border-bottom');
+                    if (hasLeft) cell.classList.add('border-left');
                 }
             });
         }
@@ -1785,6 +2533,1251 @@
             }
 
             console.log('Shape counts:', Object.fromEntries(shapeCounts));
+        }
+
+        // Puzzle Mode Functions
+        let puzzleConfig = {
+            difficulty: 'medium',
+            gridRows: 5,
+            gridCols: 5,
+            colors: ['green', 'blue'],
+            blockers: true,
+            locks: false
+        };
+
+        let currentPuzzle = null;
+
+        function initPuzzleMode() {
+            console.log('Puzzle mode initialized');
+        }
+
+        function setDifficulty(difficulty) {
+            puzzleConfig.difficulty = difficulty;
+            document.querySelectorAll('.difficulty-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.difficulty === difficulty);
+            });
+
+            // Apply preset values
+            const presets = {
+                easy: { rows: 4, cols: 4, colors: ['green'], blockers: false, locks: false },
+                medium: { rows: 5, cols: 5, colors: ['green', 'blue'], blockers: true, locks: false },
+                hard: { rows: 6, cols: 6, colors: ['green', 'blue'], blockers: true, locks: true },
+                expert: { rows: 7, cols: 7, colors: ['green', 'blue', 'red'], blockers: true, locks: true },
+                master: { rows: 8, cols: 8, colors: ['green', 'blue', 'red', 'purple'], blockers: true, locks: true }
+            };
+
+            const preset = presets[difficulty];
+            if (preset) {
+                document.getElementById('puzzleRows').value = preset.rows;
+                document.getElementById('puzzleCols').value = preset.cols;
+                document.getElementById('enableBlockers').checked = preset.blockers;
+                document.getElementById('enableLocks').checked = preset.locks;
+
+                // Update color toggles
+                document.querySelectorAll('.color-toggle').forEach(toggle => {
+                    const color = toggle.classList.contains('green') ? 'green' :
+                                  toggle.classList.contains('blue') ? 'blue' :
+                                  toggle.classList.contains('red') ? 'red' : 'purple';
+                    const isEnabled = preset.colors.includes(color);
+                    toggle.classList.toggle('active', isEnabled);
+                    toggle.querySelector('input').checked = isEnabled;
+                });
+
+                puzzleConfig.colors = [...preset.colors];
+            }
+        }
+
+        function togglePuzzleColor(color) {
+            const toggle = document.querySelector(`.color-toggle.${color}`);
+            const isActive = toggle.classList.toggle('active');
+
+            if (isActive) {
+                if (!puzzleConfig.colors.includes(color)) {
+                    puzzleConfig.colors.push(color);
+                }
+            } else {
+                puzzleConfig.colors = puzzleConfig.colors.filter(c => c !== color);
+            }
+
+            // Ensure at least one color is selected
+            if (puzzleConfig.colors.length === 0) {
+                puzzleConfig.colors = ['green'];
+                document.querySelector('.color-toggle.green').classList.add('active');
+                document.querySelector('.color-toggle.green input').checked = true;
+            }
+        }
+
+        function generatePuzzle() {
+            puzzleConfig.gridRows = parseInt(document.getElementById('puzzleRows').value) || 5;
+            puzzleConfig.gridCols = parseInt(document.getElementById('puzzleCols').value) || 5;
+            puzzleConfig.blockers = document.getElementById('enableBlockers').checked;
+            puzzleConfig.locks = document.getElementById('enableLocks').checked;
+
+            // Get button and show loading state
+            const btn = document.getElementById('generatePuzzleBtn');
+            const originalText = btn.textContent;
+            btn.textContent = 'Generating...';
+            btn.disabled = true;
+
+            console.log('Generating puzzle with config:', puzzleConfig);
+
+            // Use setTimeout to allow UI to update before blocking generation
+            setTimeout(() => {
+                const puzzle = PuzzleGenerator.generate({
+                    gridRows: puzzleConfig.gridRows,
+                    gridCols: puzzleConfig.gridCols,
+                    colors: puzzleConfig.colors,
+                    blockers: puzzleConfig.blockers,
+                    locks: puzzleConfig.locks
+                });
+
+                // Restore button
+                btn.textContent = originalText;
+                btn.disabled = false;
+
+                if (puzzle) {
+                    currentPuzzle = puzzle;
+                    renderPuzzlePlayArea(puzzle);
+                    showToast('Puzzle generated!', 'success', 2000);
+                } else {
+                    showToast('Failed to generate puzzle. Try different settings.', 'error', 4000);
+                }
+            }, 50);
+        }
+
+        function renderPuzzlePlayArea(puzzle) {
+            const playArea = document.getElementById('puzzlePlayArea');
+            playArea.style.display = 'block';
+            playArea.innerHTML = '';
+
+            // Create puzzle container
+            const container = document.createElement('div');
+            container.className = 'puzzle-container';
+            container.innerHTML = `
+                <div class="puzzle-main">
+                    <div class="puzzle-grid-area">
+                        <div class="puzzle-col-requirements" id="puzzleColReqs"></div>
+                        <div class="puzzle-grid-row">
+                            <div class="puzzle-row-requirements" id="puzzleRowReqs"></div>
+                            <div class="puzzle-grid" id="puzzleGrid"></div>
+                        </div>
+                    </div>
+                    <div class="puzzle-shape-palette" id="puzzleShapePalette">
+                        <h3>Shapes</h3>
+                        <div class="palette-shapes" id="paletteShapes"></div>
+                    </div>
+                </div>
+                <div class="puzzle-actions">
+                    <button class="btn btn-primary" onclick="resetPuzzle()">Reset</button>
+                    <button class="btn btn-primary" onclick="generatePuzzle()">New Puzzle</button>
+                    <button class="btn btn-primary" onclick="showOneHint()" title="Show where one piece goes">Hint</button>
+                    <button class="btn btn-primary" onclick="showSolution()" title="Show the full solution">Solution</button>
+                </div>
+            `;
+            playArea.appendChild(container);
+
+            // Render components
+            renderPuzzleGrid(puzzle);
+            renderPuzzleRequirements(puzzle);
+            renderPuzzleShapePalette(puzzle);
+        }
+
+        function renderPuzzleGrid(puzzle) {
+            const grid = document.getElementById('puzzleGrid');
+            const cellSize = puzzle.grid.length > 6 ? (puzzle.grid.length > 8 ? 48 : 56) : 68;
+
+            grid.style.display = 'grid';
+            grid.style.gridTemplateColumns = `repeat(${puzzle.grid[0].length}, ${cellSize}px)`;
+            grid.style.gap = '0';
+            grid.innerHTML = '';
+
+            for (let r = 0; r < puzzle.grid.length; r++) {
+                for (let c = 0; c < puzzle.grid[0].length; c++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.style.width = cellSize + 'px';
+                    cell.style.height = cellSize + 'px';
+                    cell.dataset.row = r;
+                    cell.dataset.col = c;
+
+                    const state = puzzle.grid[r][c];
+
+                    // Determine the PLAYABLE state (not the solved state)
+                    // The grid contains the solution - we need to show initial puzzle state
+                    let playableState = 'empty';
+
+                    // Check if this cell is a blocker
+                    const isBlocker = puzzle.blockers && puzzle.blockers.some(
+                        ([br, bc]) => br === r && bc === c
+                    );
+
+                    // Check if this cell is a lock
+                    let lockColor = null;
+                    if (puzzle.locks) {
+                        for (const [color, positions] of Object.entries(puzzle.locks)) {
+                            if (positions.some(([lr, lc]) => lr === r && lc === c)) {
+                                lockColor = color;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (isBlocker) {
+                        cell.classList.add('blocked');
+                        playableState = 'blocked';
+                    } else if (lockColor) {
+                        cell.classList.add(`locked-${lockColor}`);
+                        playableState = `locked-${lockColor}`;
+                    }
+
+                    // Store states for puzzle
+                    cell.dataset.originalState = playableState;
+                    cell.dataset.currentState = playableState;
+
+                    // Right-click to remove placed shapes
+                    cell.addEventListener('contextmenu', handleCellRightClick);
+
+                    grid.appendChild(cell);
+                }
+            }
+        }
+
+        function renderPuzzleRequirements(puzzle) {
+            const colReqs = document.getElementById('puzzleColReqs');
+            const rowReqs = document.getElementById('puzzleRowReqs');
+            const colors = puzzleConfig.colors;
+
+            // Column requirements
+            colReqs.innerHTML = '';
+            colReqs.style.display = 'flex';
+            colReqs.style.gap = '0';
+            colReqs.style.marginLeft = '60px'; // Spacer for row reqs
+
+            for (let c = 0; c < puzzle.requirements.cols.length; c++) {
+                const colReq = document.createElement('div');
+                colReq.className = 'puzzle-col-req';
+                colReq.style.width = (puzzle.grid.length > 6 ? (puzzle.grid.length > 8 ? 48 : 56) : 68) + 'px';
+                colReq.style.display = 'flex';
+                colReq.style.justifyContent = 'center';
+                colReq.style.gap = '1px';
+
+                for (const color of colors) {
+                    const count = puzzle.requirements.cols[c][color] || 0;
+                    if (count > 0) {
+                        const bar = createPrescriptiveBar(color, count, 'col', c);
+                        colReq.appendChild(bar);
+                    }
+                }
+
+                colReqs.appendChild(colReq);
+            }
+
+            // Row requirements
+            rowReqs.innerHTML = '';
+            rowReqs.style.display = 'flex';
+            rowReqs.style.flexDirection = 'column';
+            rowReqs.style.gap = '0';
+
+            for (let r = 0; r < puzzle.requirements.rows.length; r++) {
+                const rowReq = document.createElement('div');
+                rowReq.className = 'puzzle-row-req';
+                rowReq.style.height = (puzzle.grid.length > 6 ? (puzzle.grid.length > 8 ? 48 : 56) : 68) + 'px';
+                rowReq.style.display = 'flex';
+                rowReq.style.flexDirection = 'column';
+                rowReq.style.justifyContent = 'center';
+                rowReq.style.gap = '1px';
+                rowReq.style.width = '60px';
+
+                for (const color of colors) {
+                    const count = puzzle.requirements.rows[r][color] || 0;
+                    if (count > 0) {
+                        const bar = createPrescriptiveBar(color, count, 'row', r);
+                        rowReq.appendChild(bar);
+                    }
+                }
+
+                rowReqs.appendChild(rowReq);
+            }
+        }
+
+        function createPrescriptiveBar(color, totalCount, type, index) {
+            const container = document.createElement('div');
+            container.className = `prescriptive-bar ${color}`;
+            container.dataset.color = color;
+            container.dataset.type = type;
+            container.dataset.index = index;
+            container.dataset.required = totalCount;
+
+            // Max segments based on grid size (for consistent sizing)
+            const maxSegments = type === 'col' ? currentPuzzle.grid.length : currentPuzzle.grid[0].length;
+
+            // Calculate current fill from locked cells
+            let currentFill = 0;
+            if (currentPuzzle) {
+                if (type === 'col') {
+                    for (let r = 0; r < currentPuzzle.grid.length; r++) {
+                        const cell = currentPuzzle.grid[r][index];
+                        if (cell === `locked-${color}`) currentFill++;
+                    }
+                } else {
+                    for (let c = 0; c < currentPuzzle.grid[0].length; c++) {
+                        const cell = currentPuzzle.grid[index][c];
+                        if (cell === `locked-${color}`) currentFill++;
+                    }
+                }
+            }
+
+            container.dataset.filled = currentFill;
+
+            // Fixed bar dimensions based on grid max
+            const isRow = type === 'row';
+            container.style.display = 'flex';
+            container.style.flexDirection = isRow ? 'row-reverse' : 'column-reverse';
+            container.style.gap = '1px';
+
+            // Fixed size: calculate segment size based on max, then multiply
+            const segmentSize = Math.floor((55 - (maxSegments - 1)) / maxSegments);
+
+            if (isRow) {
+                container.style.width = '55px';
+                container.style.height = '14px';
+            } else {
+                container.style.width = '14px';
+                container.style.height = '55px';
+            }
+
+            // Only render the segments we need (totalCount), but size them consistently
+            for (let i = 0; i < totalCount; i++) {
+                const segment = document.createElement('div');
+                segment.className = 'prescriptive-segment';
+
+                if (isRow) {
+                    segment.style.width = segmentSize + 'px';
+                    segment.style.height = '100%';
+                } else {
+                    segment.style.width = '100%';
+                    segment.style.height = segmentSize + 'px';
+                }
+
+                // Set border color based on color
+                const colorMap = {
+                    green: '#39ff14',
+                    blue: '#00bfff',
+                    red: '#ff3939',
+                    purple: '#bf39ff'
+                };
+                const borderColor = colorMap[color] || '#39ff14';
+                segment.style.border = `2px solid ${borderColor}`;
+                segment.style.borderRadius = '1px';
+
+                if (i < currentFill) {
+                    segment.classList.add('filled');
+                    segment.style.background = borderColor;
+                }
+
+                container.appendChild(segment);
+            }
+
+            return container;
+        }
+
+        function renderPuzzleShapePalette(puzzle) {
+            const palette = document.getElementById('paletteShapes');
+            palette.innerHTML = '';
+
+            for (const color of puzzleConfig.colors) {
+                const shapes = puzzle.shapes[color] || [];
+
+                for (const shape of shapes) {
+                    const shapeEl = document.createElement('div');
+                    shapeEl.className = `palette-shape ${color}`;
+                    shapeEl.dataset.shapeId = shape.shapeId;
+                    shapeEl.dataset.color = color;
+                    shapeEl.dataset.rotationIndex = shape.rotationIndex;
+                    // Store solution position for hints
+                    shapeEl.dataset.solutionRow = shape.position[0];
+                    shapeEl.dataset.solutionCol = shape.position[1];
+                    shapeEl.style.cursor = 'grab';
+
+                    // Render shape preview
+                    const shapeData = SHAPE_LIBRARY[shape.shapeId];
+                    const rotation = shapeData.rotations[shape.rotationIndex];
+                    const bounds = getShapeBounds(rotation);
+
+                    const preview = document.createElement('div');
+                    preview.className = 'shape-preview-grid';
+                    preview.style.display = 'grid';
+                    preview.style.gridTemplateColumns = `repeat(${bounds.width}, 12px)`;
+                    preview.style.gap = '1px';
+
+                    const cellSet = new Set(rotation.map(([r, c]) => `${r},${c}`));
+
+                    for (let r = 0; r < bounds.height; r++) {
+                        for (let c = 0; c < bounds.width; c++) {
+                            const cell = document.createElement('div');
+                            cell.style.width = '12px';
+                            cell.style.height = '12px';
+                            cell.style.borderRadius = '1px';
+
+                            if (cellSet.has(`${r},${c}`)) {
+                                cell.style.background = color === 'green' ? '#39ff14' :
+                                                        color === 'blue' ? '#00bfff' :
+                                                        color === 'red' ? '#ff3939' : '#bf39ff';
+                            } else {
+                                cell.style.background = '#1a1a1a';
+                            }
+
+                            preview.appendChild(cell);
+                        }
+                    }
+
+                    shapeEl.appendChild(preview);
+                    palette.appendChild(shapeEl);
+
+                    // Add drag handlers
+                    shapeEl.addEventListener('mousedown', handleShapeMouseDown);
+                }
+            }
+        }
+
+        // Custom drag system state
+        let dragState = {
+            active: false,
+            shapeId: null,
+            color: null,
+            rotationIndex: 0,
+            sourceElement: null,
+            ghost: null,
+            gridCellSize: 68,
+            lastGridCell: null
+        };
+
+        function handleShapeMouseDown(e) {
+            const shapeEl = e.target.closest('.palette-shape');
+            if (!shapeEl || e.button !== 0) return;
+
+            e.preventDefault();
+
+            const shapeId = shapeEl.dataset.shapeId;
+            const color = shapeEl.dataset.color;
+            const rotationIndex = parseInt(shapeEl.dataset.rotationIndex);
+
+            // Get grid cell size
+            const cellSize = currentPuzzle.grid.length > 6 ?
+                (currentPuzzle.grid.length > 8 ? 48 : 56) : 68;
+
+            dragState = {
+                active: true,
+                shapeId,
+                color,
+                rotationIndex,
+                sourceElement: shapeEl,
+                ghost: null,
+                gridCellSize: cellSize,
+                lastGridCell: null
+            };
+
+            // Create ghost element
+            createDragGhost(e.clientX, e.clientY);
+
+            // Hide source element
+            shapeEl.style.opacity = '0.3';
+
+            // Add document-level listeners
+            document.addEventListener('mousemove', handleDragMove);
+            document.addEventListener('mouseup', handleDragEnd);
+            document.addEventListener('keydown', handleDragKeyDown);
+        }
+
+        function createDragGhost(x, y) {
+            if (dragState.ghost) {
+                dragState.ghost.remove();
+            }
+
+            const shapeData = SHAPE_LIBRARY[dragState.shapeId];
+            const rotation = shapeData.rotations[dragState.rotationIndex];
+            const bounds = getShapeBounds(rotation);
+            const cellSize = dragState.gridCellSize;
+
+            const ghost = document.createElement('div');
+            ghost.id = 'drag-ghost';
+            ghost.style.cssText = `
+                position: fixed;
+                pointer-events: none;
+                z-index: 10000;
+                opacity: 0.8;
+                display: grid;
+                grid-template-columns: repeat(${bounds.width}, ${cellSize}px);
+                grid-template-rows: repeat(${bounds.height}, ${cellSize}px);
+                gap: 0;
+            `;
+
+            // Build cell set for border checking
+            const cellSet = new Set(rotation.map(([r, c]) => `${r},${c}`));
+
+            // Create cells for the shape
+            let cellIndex = 0;
+            for (let r = 0; r < bounds.height; r++) {
+                for (let c = 0; c < bounds.width; c++) {
+                    const cell = document.createElement('div');
+                    cell.style.width = cellSize + 'px';
+                    cell.style.height = cellSize + 'px';
+
+                    // Check if this cell is part of the shape
+                    const isShapeCell = rotation.some(([sr, sc]) => sr === r && sc === c);
+
+                    if (isShapeCell) {
+                        cell.className = `cell ${dragState.color}`;
+                        cell.style.boxSizing = 'border-box';
+
+                        // Alternating shade based on checkerboard pattern (relative to shape bounds)
+                        if ((r + c) % 2 === 1) {
+                            cell.classList.add('shade-alt');
+                        }
+
+                        // Check neighbors for border edges
+                        const topKey = `${r - 1},${c}`;
+                        const rightKey = `${r},${c + 1}`;
+                        const bottomKey = `${r + 1},${c}`;
+                        const leftKey = `${r},${c - 1}`;
+                        
+                        // Check diagonals for Inner Corners
+                        const tlKey = `${r - 1},${c - 1}`;
+                        const trKey = `${r - 1},${c + 1}`;
+                        const brKey = `${r + 1},${c + 1}`;
+                        const blKey = `${r + 1},${c - 1}`;
+
+                        const hasTop = !cellSet.has(topKey);
+                        const hasRight = !cellSet.has(rightKey);
+                        const hasBottom = !cellSet.has(bottomKey);
+                        const hasLeft = !cellSet.has(leftKey);
+
+                        // Apply Borders
+                        if (hasTop) cell.classList.add('border-top');
+                        if (hasRight) cell.classList.add('border-right');
+                        if (hasBottom) cell.classList.add('border-bottom');
+                        if (hasLeft) cell.classList.add('border-left');
+                        
+                        // Apply Inner Corners (If neighbors exist but diagonal is empty)
+                        if (!hasTop && !hasLeft && !cellSet.has(tlKey)) cell.classList.add('corner-tl');
+                        if (!hasTop && !hasRight && !cellSet.has(trKey)) cell.classList.add('corner-tr');
+                        if (!hasBottom && !hasRight && !cellSet.has(brKey)) cell.classList.add('corner-br');
+                        if (!hasBottom && !hasLeft && !cellSet.has(blKey)) cell.classList.add('corner-bl');
+                    } else {
+                        cell.style.background = 'transparent';
+                    }
+
+                    ghost.appendChild(cell);
+                }
+            }
+
+            // Position centered on cursor
+            const ghostWidth = bounds.width * cellSize;
+            const ghostHeight = bounds.height * cellSize;
+            ghost.style.left = (x - ghostWidth / 2) + 'px';
+            ghost.style.top = (y - ghostHeight / 2) + 'px';
+
+            document.body.appendChild(ghost);
+            dragState.ghost = ghost;
+        }
+
+        function handleDragMove(e) {
+            if (!dragState.active || !dragState.ghost) return;
+
+            const shapeData = SHAPE_LIBRARY[dragState.shapeId];
+            const rotation = shapeData.rotations[dragState.rotationIndex];
+            const bounds = getShapeBounds(rotation);
+            const cellSize = dragState.gridCellSize;
+
+            const ghostWidth = bounds.width * cellSize;
+            const ghostHeight = bounds.height * cellSize;
+
+            // Update ghost position
+            dragState.ghost.style.left = (e.clientX - ghostWidth / 2) + 'px';
+            dragState.ghost.style.top = (e.clientY - ghostHeight / 2) + 'px';
+
+            // Check if over puzzle grid and highlight cells
+            const puzzleGrid = document.getElementById('puzzleGrid');
+            if (!puzzleGrid) return;
+
+            const gridRect = puzzleGrid.getBoundingClientRect();
+            const gridX = e.clientX - gridRect.left;
+            const gridY = e.clientY - gridRect.top;
+
+            // Clear previous highlights
+            clearGridHighlights();
+
+            // Check if cursor is within grid bounds
+            if (gridX >= 0 && gridX < gridRect.width && gridY >= 0 && gridY < gridRect.height) {
+                // Calculate grid cell under cursor
+                const col = Math.floor(gridX / cellSize);
+                const row = Math.floor(gridY / cellSize);
+
+                // Adjust to place shape centered/offset from cursor
+                const startRow = row - Math.floor(bounds.height / 2);
+                const startCol = col - Math.floor(bounds.width / 2);
+
+                dragState.lastGridCell = { row: startRow, col: startCol };
+
+                // Check validity and highlight cells
+                const validity = checkPlacementValidity(startRow, startCol, rotation);
+                highlightPlacementCells(startRow, startCol, rotation, validity);
+            } else {
+                dragState.lastGridCell = null;
+            }
+        }
+
+        function handleDragKeyDown(e) {
+            if (!dragState.active) return;
+
+            if (e.key === 'r' || e.key === 'R') {
+                e.preventDefault();
+
+                // Rotate to next rotation
+                const shapeData = SHAPE_LIBRARY[dragState.shapeId];
+                dragState.rotationIndex = (dragState.rotationIndex + 1) % shapeData.rotations.length;
+
+                // Recreate ghost with new rotation
+                const ghost = dragState.ghost;
+                if (ghost) {
+                    const rect = ghost.getBoundingClientRect();
+                    const centerX = rect.left + rect.width / 2;
+                    const centerY = rect.top + rect.height / 2;
+                    createDragGhost(centerX, centerY);
+                }
+
+                // Update grid highlights
+                if (dragState.lastGridCell) {
+                    clearGridHighlights();
+                    const shapeData = SHAPE_LIBRARY[dragState.shapeId];
+                    const rotation = shapeData.rotations[dragState.rotationIndex];
+                    const validity = checkPlacementValidity(
+                        dragState.lastGridCell.row,
+                        dragState.lastGridCell.col,
+                        rotation
+                    );
+                    highlightPlacementCells(
+                        dragState.lastGridCell.row,
+                        dragState.lastGridCell.col,
+                        rotation,
+                        validity
+                    );
+                }
+            }
+        }
+
+        function handleDragEnd(e) {
+            if (!dragState.active) return;
+
+            // Remove listeners
+            document.removeEventListener('mousemove', handleDragMove);
+            document.removeEventListener('mouseup', handleDragEnd);
+            document.removeEventListener('keydown', handleDragKeyDown);
+
+            // Try to place shape
+            let placed = false;
+            if (dragState.lastGridCell) {
+                const shapeData = SHAPE_LIBRARY[dragState.shapeId];
+                const rotation = shapeData.rotations[dragState.rotationIndex];
+                const validity = checkPlacementValidity(
+                    dragState.lastGridCell.row,
+                    dragState.lastGridCell.col,
+                    rotation
+                );
+
+                if (validity.valid) {
+                    placeShapeOnGrid(
+                        dragState.lastGridCell.row,
+                        dragState.lastGridCell.col,
+                        rotation,
+                        dragState.color,
+                        dragState.shapeId,
+                        dragState.rotationIndex
+                    );
+                    placed = true;
+
+                    // Remove shape from palette
+                    if (dragState.sourceElement) {
+                        dragState.sourceElement.remove();
+                    }
+                }
+            }
+
+            // Restore source element if not placed
+            if (!placed && dragState.sourceElement) {
+                dragState.sourceElement.style.opacity = '1';
+            }
+
+            // Clean up
+            clearGridHighlights();
+            if (dragState.ghost) {
+                dragState.ghost.remove();
+            }
+
+            dragState = {
+                active: false,
+                shapeId: null,
+                color: null,
+                rotationIndex: 0,
+                sourceElement: null,
+                ghost: null,
+                gridCellSize: 68,
+                lastGridCell: null
+            };
+        }
+
+        function checkPlacementValidity(startRow, startCol, rotation) {
+            const result = { valid: true, cells: [] };
+
+            for (const [dr, dc] of rotation) {
+                const r = startRow + dr;
+                const c = startCol + dc;
+
+                const cellInfo = { row: r, col: c, valid: true };
+
+                // Check bounds
+                if (r < 0 || r >= currentPuzzle.grid.length ||
+                    c < 0 || c >= currentPuzzle.grid[0].length) {
+                    cellInfo.valid = false;
+                    result.valid = false;
+                } else {
+                    // Check cell state
+                    const gridCell = document.querySelector(
+                        `#puzzleGrid .cell[data-row="${r}"][data-col="${c}"]`
+                    );
+                    if (gridCell) {
+                        const state = gridCell.dataset.currentState;
+                        if (state !== 'empty') {
+                            cellInfo.valid = false;
+                            result.valid = false;
+                        }
+                    }
+                }
+
+                result.cells.push(cellInfo);
+            }
+
+            return result;
+        }
+
+        function highlightPlacementCells(startRow, startCol, rotation, validity) {
+            for (const cellInfo of validity.cells) {
+                if (cellInfo.row < 0 || cellInfo.row >= currentPuzzle.grid.length ||
+                    cellInfo.col < 0 || cellInfo.col >= currentPuzzle.grid[0].length) {
+                    continue;
+                }
+
+                const gridCell = document.querySelector(
+                    `#puzzleGrid .cell[data-row="${cellInfo.row}"][data-col="${cellInfo.col}"]`
+                );
+                if (gridCell) {
+                    if (validity.valid) {
+                        gridCell.classList.add('placement-valid');
+                    } else {
+                        gridCell.classList.add('placement-invalid');
+                    }
+                }
+            }
+        }
+
+        function clearGridHighlights() {
+            document.querySelectorAll('#puzzleGrid .cell').forEach(cell => {
+                cell.classList.remove('placement-valid', 'placement-invalid');
+            });
+        }
+
+        function placeShapeOnGrid(startRow, startCol, rotation, color, shapeId, rotationIndex) {
+            // Build a set of all cells in this shape for neighbor checking
+            const cellSet = new Set(rotation.map(([dr, dc]) => `${startRow + dr},${startCol + dc}`));
+
+            rotation.forEach(([dr, dc], cellIndex) => {
+                const r = startRow + dr;
+                const c = startCol + dc;
+
+                const gridCell = document.querySelector(
+                    `#puzzleGrid .cell[data-row="${r}"][data-col="${c}"]`
+                );
+                if (gridCell) {
+                    gridCell.classList.add(color);
+                    gridCell.classList.add('placed');
+                    gridCell.dataset.currentState = color;
+                    gridCell.dataset.placedShapeId = shapeId;
+                    gridCell.dataset.placedRotation = rotationIndex;
+
+                    // Alternating shade based on checkerboard pattern (row + col parity)
+                    if ((r + c) % 2 === 1) {
+                        gridCell.classList.add('shade-alt');
+                    }
+
+                    // Check neighbors for border edges
+                    const topKey = `${r - 1},${c}`;
+                    const rightKey = `${r},${c + 1}`;
+                    const bottomKey = `${r + 1},${c}`;
+                    const leftKey = `${r},${c - 1}`;
+
+                    // Check diagonals for Inner Corners
+                    const tlKey = `${r - 1},${c - 1}`;
+                    const trKey = `${r - 1},${c + 1}`;
+                    const brKey = `${r + 1},${c + 1}`;
+                    const blKey = `${r + 1},${c - 1}`;
+
+                    const hasTop = !cellSet.has(topKey);
+                    const hasRight = !cellSet.has(rightKey);
+                    const hasBottom = !cellSet.has(bottomKey);
+                    const hasLeft = !cellSet.has(leftKey);
+
+                    // Apply Borders
+                    if (hasTop) gridCell.classList.add('border-top');
+                    if (hasRight) gridCell.classList.add('border-right');
+                    if (hasBottom) gridCell.classList.add('border-bottom');
+                    if (hasLeft) gridCell.classList.add('border-left');
+
+                    // Apply Inner Corners
+                    if (!hasTop && !hasLeft && !cellSet.has(tlKey)) gridCell.classList.add('corner-tl');
+                    if (!hasTop && !hasRight && !cellSet.has(trKey)) gridCell.classList.add('corner-tr');
+                    if (!hasBottom && !hasRight && !cellSet.has(brKey)) gridCell.classList.add('corner-br');
+                    if (!hasBottom && !hasLeft && !cellSet.has(blKey)) gridCell.classList.add('corner-bl');
+                }
+            });
+
+            // Update requirements bars
+            updatePuzzleBars();
+
+            // Check win condition
+            checkWinCondition();
+        }
+
+        function updatePuzzleBars() {
+            if (!currentPuzzle) return;
+
+            const colors = puzzleConfig.colors;
+            const grid = currentPuzzle.grid;
+            const rows = grid.length;
+            const cols = grid[0].length;
+
+            // Count current fills per row/col/color
+            for (let r = 0; r < rows; r++) {
+                for (const color of colors) {
+                    let count = 0;
+                    for (let c = 0; c < cols; c++) {
+                        const cell = document.querySelector(
+                            `#puzzleGrid .cell[data-row="${r}"][data-col="${c}"]`
+                        );
+                        if (cell && (cell.dataset.currentState === color ||
+                            cell.dataset.currentState === `locked-${color}`)) {
+                            count++;
+                        }
+                    }
+
+                    // Update row bar
+                    const bar = document.querySelector(
+                        `.prescriptive-bar[data-type="row"][data-index="${r}"][data-color="${color}"]`
+                    );
+                    if (bar) {
+                        const required = parseInt(bar.dataset.required);
+                        const segments = bar.querySelectorAll('.prescriptive-segment');
+                        const colorMap = {
+                            green: '#39ff14',
+                            blue: '#00bfff',
+                            red: '#ff3939',
+                            purple: '#bf39ff'
+                        };
+
+                        segments.forEach((seg, i) => {
+                            if (i < count) {
+                                seg.classList.add('filled');
+                                seg.style.background = colorMap[color];
+                            } else {
+                                seg.classList.remove('filled');
+                                seg.style.background = 'transparent';
+                            }
+                        });
+
+                        // Error state if exceeded
+                        if (count > required) {
+                            bar.classList.add('error');
+                        } else {
+                            bar.classList.remove('error');
+                        }
+                    }
+                }
+            }
+
+            for (let c = 0; c < cols; c++) {
+                for (const color of colors) {
+                    let count = 0;
+                    for (let r = 0; r < rows; r++) {
+                        const cell = document.querySelector(
+                            `#puzzleGrid .cell[data-row="${r}"][data-col="${c}"]`
+                        );
+                        if (cell && (cell.dataset.currentState === color ||
+                            cell.dataset.currentState === `locked-${color}`)) {
+                            count++;
+                        }
+                    }
+
+                    // Update col bar
+                    const bar = document.querySelector(
+                        `.prescriptive-bar[data-type="col"][data-index="${c}"][data-color="${color}"]`
+                    );
+                    if (bar) {
+                        const required = parseInt(bar.dataset.required);
+                        const segments = bar.querySelectorAll('.prescriptive-segment');
+                        const colorMap = {
+                            green: '#39ff14',
+                            blue: '#00bfff',
+                            red: '#ff3939',
+                            purple: '#bf39ff'
+                        };
+
+                        segments.forEach((seg, i) => {
+                            if (i < count) {
+                                seg.classList.add('filled');
+                                seg.style.background = colorMap[color];
+                            } else {
+                                seg.classList.remove('filled');
+                                seg.style.background = 'transparent';
+                            }
+                        });
+
+                        // Error state if exceeded
+                        if (count > required) {
+                            bar.classList.add('error');
+                        } else {
+                            bar.classList.remove('error');
+                        }
+                    }
+                }
+            }
+        }
+
+        function handleCellRightClick(e) {
+            e.preventDefault();
+            const cell = e.target.closest('.cell');
+            if (!cell || !cell.classList.contains('placed')) return;
+
+            const shapeId = cell.dataset.placedShapeId;
+            const rotationIndex = parseInt(cell.dataset.placedRotation);
+
+            // Find color from cell class
+            let color = null;
+            for (const c of puzzleConfig.colors) {
+                if (cell.classList.contains(c)) {
+                    color = c;
+                    break;
+                }
+            }
+            if (!color) return;
+
+            // Find all cells of this placed shape
+            const allPlacedCells = document.querySelectorAll(
+                `#puzzleGrid .cell.placed[data-placed-shape-id="${shapeId}"]`
+            );
+
+            // Find connected cells (same shape instance)
+            const shapeData = SHAPE_LIBRARY[shapeId];
+            const rotation = shapeData.rotations[rotationIndex];
+
+            // Get origin of this shape by finding min row/col
+            let minRow = Infinity, minCol = Infinity;
+            allPlacedCells.forEach(c => {
+                if (c.classList.contains(color)) {
+                    const r = parseInt(c.dataset.row);
+                    const col = parseInt(c.dataset.col);
+                    if (r < minRow) minRow = r;
+                    if (col < minCol) minCol = col;
+                }
+            });
+
+            // Remove all cells of this shape instance
+            for (const [dr, dc] of rotation) {
+                const r = minRow + dr;
+                const c = minCol + dc;
+                const gridCell = document.querySelector(
+                    `#puzzleGrid .cell[data-row="${r}"][data-col="${c}"]`
+                );
+                if (gridCell && gridCell.classList.contains('placed')) {
+                    gridCell.classList.remove(color, 'placed', 'shade-alt',
+                        'border-top', 'border-right', 'border-bottom', 'border-left');
+                    gridCell.dataset.currentState = 'empty';
+                    delete gridCell.dataset.placedShapeId;
+                    delete gridCell.dataset.placedRotation;
+                }
+            }
+
+            // Add shape back to palette
+            addShapeToPalette(shapeId, color, rotationIndex);
+
+            // Update bars
+            updatePuzzleBars();
+        }
+
+        function addShapeToPalette(shapeId, color, rotationIndex) {
+            const palette = document.getElementById('paletteShapes');
+
+            const shapeEl = document.createElement('div');
+            shapeEl.className = `palette-shape ${color}`;
+            shapeEl.dataset.shapeId = shapeId;
+            shapeEl.dataset.color = color;
+            shapeEl.dataset.rotationIndex = rotationIndex;
+            shapeEl.style.cursor = 'grab';
+
+            const shapeData = SHAPE_LIBRARY[shapeId];
+            const rotation = shapeData.rotations[rotationIndex];
+            const bounds = getShapeBounds(rotation);
+
+            const preview = document.createElement('div');
+            preview.className = 'shape-preview-grid';
+            preview.style.display = 'grid';
+            preview.style.gridTemplateColumns = `repeat(${bounds.width}, 12px)`;
+            preview.style.gridTemplateRows = `repeat(${bounds.height}, 12px)`;
+            preview.style.gap = '1px';
+
+            for (let r = 0; r < bounds.height; r++) {
+                for (let c = 0; c < bounds.width; c++) {
+                    const cell = document.createElement('div');
+                    cell.style.width = '12px';
+                    cell.style.height = '12px';
+
+                    const isShapeCell = rotation.some(([sr, sc]) => sr === r && sc === c);
+                    if (isShapeCell) {
+                        cell.className = `shape-preview-cell ${color}`;
+                    } else {
+                        cell.style.background = 'transparent';
+                    }
+
+                    preview.appendChild(cell);
+                }
+            }
+
+            shapeEl.appendChild(preview);
+            shapeEl.addEventListener('mousedown', handleShapeMouseDown);
+            palette.appendChild(shapeEl);
+        }
+
+        function checkWinCondition() {
+            if (!currentPuzzle) return;
+
+            // Check if palette is empty
+            const remainingShapes = document.querySelectorAll('#paletteShapes .palette-shape');
+            if (remainingShapes.length > 0) return;
+
+            // Check all requirements are met exactly
+            const bars = document.querySelectorAll('.prescriptive-bar');
+            for (const bar of bars) {
+                if (bar.classList.contains('error')) return;
+
+                const required = parseInt(bar.dataset.required);
+                const filled = bar.querySelectorAll('.prescriptive-segment.filled').length;
+                if (filled !== required) return;
+            }
+
+            // Win!
+            showToast('🎉 Puzzle Complete! Congratulations!', 'success', 5000);
+        }
+
+        function clearCellsForPlacement(startRow, startCol, rotation) {
+            // Clear any placed shapes from cells needed for this placement
+            // Returns array of shapes that were removed (to add back to palette)
+            const removedShapes = [];
+            const cellsToProcess = new Set();
+
+            // Collect all cells that need to be cleared
+            for (const [dr, dc] of rotation) {
+                const r = startRow + dr;
+                const c = startCol + dc;
+                const gridCell = document.querySelector(
+                    `#puzzleGrid .cell[data-row="${r}"][data-col="${c}"]`
+                );
+                if (gridCell && gridCell.classList.contains('placed')) {
+                    cellsToProcess.add(`${r},${c}`);
+                }
+            }
+
+            // For each cell with a placed shape, find and remove the entire shape
+            const processedShapes = new Set();
+            cellsToProcess.forEach(cellKey => {
+                const [r, c] = cellKey.split(',').map(Number);
+                const gridCell = document.querySelector(
+                    `#puzzleGrid .cell[data-row="${r}"][data-col="${c}"]`
+                );
+                if (!gridCell || !gridCell.classList.contains('placed')) return;
+
+                const placedShapeId = gridCell.dataset.placedShapeId;
+                const placedRotation = parseInt(gridCell.dataset.placedRotation);
+
+                // Find the color
+                let placedColor = null;
+                for (const col of puzzleConfig.colors) {
+                    if (gridCell.classList.contains(col)) {
+                        placedColor = col;
+                        break;
+                    }
+                }
+                if (!placedColor) return;
+
+                // Create unique key for this shape instance
+                const shapeKey = `${placedShapeId}-${placedColor}-${r}-${c}`;
+                if (processedShapes.has(shapeKey)) return;
+
+                // Find all cells of this shape and get its origin
+                const shapeData = SHAPE_LIBRARY[placedShapeId];
+                const shapeRotation = shapeData.rotations[placedRotation];
+
+                // Find origin by checking which offset makes this cell match
+                let originRow = null, originCol = null;
+                for (const [dr, dc] of shapeRotation) {
+                    const testOriginR = r - dr;
+                    const testOriginC = c - dc;
+                    // Verify this origin works for all cells
+                    let valid = true;
+                    for (const [dr2, dc2] of shapeRotation) {
+                        const checkCell = document.querySelector(
+                            `#puzzleGrid .cell[data-row="${testOriginR + dr2}"][data-col="${testOriginC + dc2}"]`
+                        );
+                        if (!checkCell || !checkCell.classList.contains('placed') ||
+                            checkCell.dataset.placedShapeId !== placedShapeId) {
+                            valid = false;
+                            break;
+                        }
+                    }
+                    if (valid) {
+                        originRow = testOriginR;
+                        originCol = testOriginC;
+                        break;
+                    }
+                }
+
+                if (originRow === null) return;
+
+                // Mark this shape as processed
+                processedShapes.add(`${placedShapeId}-${placedColor}-${originRow}-${originCol}`);
+
+                // Remove all cells of this shape
+                for (const [dr, dc] of shapeRotation) {
+                    const cellR = originRow + dr;
+                    const cellC = originCol + dc;
+                    const cell = document.querySelector(
+                        `#puzzleGrid .cell[data-row="${cellR}"][data-col="${cellC}"]`
+                    );
+                    if (cell) {
+                        cell.classList.remove(placedColor, 'placed', 'shade-alt',
+                            'border-top', 'border-right', 'border-bottom', 'border-left');
+                                cell.dataset.currentState = 'empty';
+                        delete cell.dataset.placedShapeId;
+                        delete cell.dataset.placedRotation;
+                    }
+                }
+
+                // Track removed shape to add back to palette
+                removedShapes.push({
+                    shapeId: placedShapeId,
+                    color: placedColor,
+                    rotationIndex: placedRotation
+                });
+            });
+
+            return removedShapes;
+        }
+
+        function showOneHint() {
+            if (!currentPuzzle) return;
+
+            // Get remaining shapes from palette
+            const remainingShapes = document.querySelectorAll('#paletteShapes .palette-shape');
+            if (remainingShapes.length === 0) {
+                showToast('No shapes left to hint!', 'info', 2000);
+                return;
+            }
+
+            // Pick a random shape
+            const randomIndex = Math.floor(Math.random() * remainingShapes.length);
+            const shapeEl = remainingShapes[randomIndex];
+
+            // Get solution position from data attributes
+            const shapeId = shapeEl.dataset.shapeId;
+            const color = shapeEl.dataset.color;
+            const rotationIndex = parseInt(shapeEl.dataset.rotationIndex);
+            const solutionRow = parseInt(shapeEl.dataset.solutionRow);
+            const solutionCol = parseInt(shapeEl.dataset.solutionCol);
+
+            // Get the rotation cells
+            const shapeData = SHAPE_LIBRARY[shapeId];
+            const rotation = shapeData.rotations[rotationIndex];
+
+            // Clear any incorrectly placed shapes from the solution cells
+            const removedShapes = clearCellsForPlacement(solutionRow, solutionCol, rotation);
+
+            // Add removed shapes back to palette
+            for (const shape of removedShapes) {
+                addShapeToPalette(shape.shapeId, shape.color, shape.rotationIndex);
+            }
+
+            // Place the shape at its solution position
+            placeShapeOnGrid(solutionRow, solutionCol, rotation, color, shapeId, rotationIndex);
+
+            // Remove from palette
+            shapeEl.remove();
+
+            // Update bars after all changes
+            updatePuzzleBars();
+
+            showToast('Hint: placed one shape', 'info', 2000);
+
+            // Check win condition
+            checkWinCondition();
+        }
+
+        function showSolution() {
+            if (!currentPuzzle) return;
+
+            // First, clear ALL placed shapes from the grid
+            const allPlacedCells = document.querySelectorAll('#puzzleGrid .cell.placed');
+            allPlacedCells.forEach(cell => {
+                for (const color of puzzleConfig.colors) {
+                    cell.classList.remove(color);
+                }
+                cell.classList.remove('placed', 'shade-alt',
+                    'border-top', 'border-right', 'border-bottom', 'border-left');
+                cell.dataset.currentState = 'empty';
+                delete cell.dataset.placedShapeId;
+                delete cell.dataset.placedRotation;
+            });
+
+            // Clear the palette
+            const palette = document.getElementById('paletteShapes');
+            palette.innerHTML = '';
+
+            // Place ALL shapes from the original puzzle at their solution positions
+            for (const color of puzzleConfig.colors) {
+                const shapes = currentPuzzle.shapes[color] || [];
+                for (const shape of shapes) {
+                    const shapeData = SHAPE_LIBRARY[shape.shapeId];
+                    const rotation = shapeData.rotations[shape.rotationIndex];
+                    placeShapeOnGrid(
+                        shape.position[0],
+                        shape.position[1],
+                        rotation,
+                        color,
+                        shape.shapeId,
+                        shape.rotationIndex
+                    );
+                }
+            }
+
+            // Update bars
+            updatePuzzleBars();
+
+            showToast('Solution revealed!', 'info', 3000);
+
+            // Check win
+            checkWinCondition();
+        }
+
+        function resetPuzzle() {
+            if (currentPuzzle) {
+                renderPuzzlePlayArea(currentPuzzle);
+            }
         }
 
         window.onload = function() {
