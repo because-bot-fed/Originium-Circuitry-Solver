@@ -5047,11 +5047,18 @@
                 return;
             }
 
-            // Check if tapped on the floating ghost (to dismiss or interact)
+            // Check if tapped on the floating ghost - resume dragging
             if (target && target.closest('#touch-drag-ghost')) {
-                // Tapping on ghost itself could cycle rotation
                 e.preventDefault();
-                handleMobileRotate();
+                // Resume dragging from this position
+                touchDragState.phase = 'dragging';
+                touchDragState.lastTouchPos = { x: touch.clientX, y: touch.clientY };
+                if (touchDragState.ghost) {
+                    touchDragState.ghost.classList.remove('awaiting-action');
+                }
+                hideMobileRotateButton();
+                document.removeEventListener('touchstart', handleAwaitingActionTap);
+                console.log('Resumed dragging from ghost tap');
                 return;
             }
 
