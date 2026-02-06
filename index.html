@@ -4518,6 +4518,12 @@
             const shapeEl = e.target.closest('.palette-shape');
             if (!shapeEl || e.button !== 0) return;
 
+            // Don't allow starting a new drag while one is in progress
+            if (dragState.active) {
+                console.log('Drag already in progress, ignoring new click');
+                return;
+            }
+
             e.preventDefault();
 
             const shapeId = shapeEl.dataset.shapeId;
@@ -4835,6 +4841,12 @@
             // 2. Device has touch capability (auto-detected)
             // 3. Device has coarse pointer (touch primary input)
             if (!mobileMode && !DeviceCapabilities.hasTouch) return;
+
+            // Don't allow starting a new drag while one is in progress
+            if (touchDragState.phase !== 'idle') {
+                console.log('Drag already in progress, ignoring new touch');
+                return;
+            }
 
             const shapeEl = e.target.closest('.palette-shape');
             if (!shapeEl) return;
