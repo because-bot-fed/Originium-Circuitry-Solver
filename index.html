@@ -2561,6 +2561,56 @@
             font-style: italic;
             font-size: 0.85rem;
         }
+
+        /* Touch anchor for mobile drag */
+        .touch-anchor {
+            position: absolute;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            border: 3px solid #fff;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5), inset 0 0 10px rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            pointer-events: auto;
+            z-index: 10001;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .touch-anchor::before {
+            content: '';
+            width: 12px;
+            height: 12px;
+            background: #fff;
+            border-radius: 50%;
+        }
+
+        .touch-anchor.awaiting-action {
+            animation: anchorPulse 1s ease-in-out infinite;
+            border-color: #39ff14;
+            box-shadow: 0 0 15px rgba(57, 255, 20, 0.6), inset 0 0 10px rgba(57, 255, 20, 0.3);
+        }
+
+        .touch-anchor.awaiting-action::before {
+            background: #39ff14;
+        }
+
+        .touch-anchor.awaiting-action::after {
+            content: 'TAP';
+            position: absolute;
+            bottom: -20px;
+            font-size: 10px;
+            font-weight: bold;
+            color: #39ff14;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.8);
+        }
+
+        @keyframes anchorPulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.15); }
+        }
     </style>
 </head>
 <body>
@@ -4967,6 +5017,14 @@
                 }
             }
 
+            // Add touch anchor at the center of the ghost
+            const anchor = document.createElement('div');
+            anchor.id = 'touch-anchor';
+            anchor.className = 'touch-anchor';
+            anchor.style.left = (ghostWidth / 2) + 'px';
+            anchor.style.top = (ghostHeight / 2) + 'px';
+            ghost.appendChild(anchor);
+
             document.body.appendChild(ghost);
             touchDragState.ghost = ghost;
         }
@@ -5028,9 +5086,11 @@
             // Transition to awaiting-action phase
             touchDragState.phase = 'awaiting-action';
 
-            // Make ghost interactive
+            // Make ghost interactive and highlight anchor
             if (touchDragState.ghost) {
                 touchDragState.ghost.classList.add('awaiting-action');
+                const anchor = touchDragState.ghost.querySelector('.touch-anchor');
+                if (anchor) anchor.classList.add('awaiting-action');
             }
 
             // Show rotate button near the ghost
@@ -5057,6 +5117,46 @@
             if (target && target.closest('#mobileRotateBtn')) {
                 // Rotate is handled by its own handler
                 return;
+            }
+
+            // Check if tapped on the touch anchor - confirm placement at current position
+            if (target && target.closest('.touch-anchor')) {
+                e.preventDefault();
+
+                // Try to place at the last known grid position
+                if (touchDragState.lastGridCell) {
+                    const shapeData = SHAPE_LIBRARY[touchDragState.shapeId];
+                    const rotation = shapeData.rotations[touchDragState.rotationIndex];
+                    const validity = checkPlacementValidity(
+                        touchDragState.lastGridCell.row,
+                        touchDragState.lastGridCell.col,
+                        rotation
+                    );
+
+                    if (validity.valid) {
+                        if (touchDragState.sourceElement) {
+                            touchDragState.sourceElement.remove();
+                        }
+
+                        placeShapeOnGrid(
+                            touchDragState.lastGridCell.row,
+                            touchDragState.lastGridCell.col,
+                            rotation,
+                            touchDragState.color,
+                            touchDragState.shapeId,
+                            touchDragState.rotationIndex
+                        );
+
+                        finishTouchDrag(true);
+                        return;
+                    } else {
+                        showToast('Invalid placement position', 'error', 1500);
+                        return;
+                    }
+                } else {
+                    showToast('Move shape over the grid first', 'info', 1500);
+                    return;
+                }
             }
 
             // Check if tap coordinates are within the grid bounds (by position, not by target)
@@ -5110,14 +5210,16 @@
                 }
             }
 
-            // Check if tapped on the floating ghost (not over grid) - resume dragging
-            if (target && target.closest('#touch-drag-ghost')) {
+            // Check if tapped on the floating ghost (not anchor, not over grid) - resume dragging
+            if (target && target.closest('#touch-drag-ghost') && !target.closest('.touch-anchor')) {
                 e.preventDefault();
                 // Resume dragging from this position
                 touchDragState.phase = 'dragging';
                 touchDragState.lastTouchPos = { x: touch.clientX, y: touch.clientY };
                 if (touchDragState.ghost) {
                     touchDragState.ghost.classList.remove('awaiting-action');
+                    const anchor = touchDragState.ghost.querySelector('.touch-anchor');
+                    if (anchor) anchor.classList.remove('awaiting-action');
                 }
                 hideMobileRotateButton();
                 document.removeEventListener('touchstart', handleAwaitingActionTap);
@@ -5145,6 +5247,8 @@
 
                 if (touchDragState.phase === 'awaiting-action') {
                     touchDragState.ghost.classList.add('awaiting-action');
+                    const anchor = touchDragState.ghost.querySelector('.touch-anchor');
+                    if (anchor) anchor.classList.add('awaiting-action');
                 }
             }
 
