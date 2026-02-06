@@ -2308,12 +2308,6 @@
 
         .touch-floating-shape.awaiting-action {
             pointer-events: auto;
-            animation: floatPulse 1.5s ease-in-out infinite;
-        }
-
-        @keyframes floatPulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.02); }
         }
 
         /* Missing Piece Editor Modal */
@@ -2562,15 +2556,14 @@
             font-size: 0.85rem;
         }
 
-        /* Touch anchor for mobile drag */
+        /* Touch anchor for mobile drag - simple grab/place handle */
         .touch-anchor {
             position: absolute;
-            width: 44px;
-            height: 44px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.3);
-            border: 3px solid #fff;
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5), inset 0 0 10px rgba(255, 255, 255, 0.2);
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(255, 255, 255, 0.8);
             transform: translate(-50%, -50%);
             pointer-events: auto;
             z-index: 10001;
@@ -2581,35 +2574,10 @@
 
         .touch-anchor::before {
             content: '';
-            width: 12px;
-            height: 12px;
-            background: #fff;
+            width: 8px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.8);
             border-radius: 50%;
-        }
-
-        .touch-anchor.awaiting-action {
-            animation: anchorPulse 1s ease-in-out infinite;
-            border-color: #39ff14;
-            box-shadow: 0 0 15px rgba(57, 255, 20, 0.6), inset 0 0 10px rgba(57, 255, 20, 0.3);
-        }
-
-        .touch-anchor.awaiting-action::before {
-            background: #39ff14;
-        }
-
-        .touch-anchor.awaiting-action::after {
-            content: 'TAP';
-            position: absolute;
-            bottom: -20px;
-            font-size: 10px;
-            font-weight: bold;
-            color: #39ff14;
-            text-shadow: 0 0 5px rgba(0, 0, 0, 0.8);
-        }
-
-        @keyframes anchorPulse {
-            0%, 100% { transform: translate(-50%, -50%) scale(1); }
-            50% { transform: translate(-50%, -50%) scale(1.15); }
         }
     </style>
 </head>
@@ -5081,17 +5049,49 @@
         function handleTouchDragEnd(e) {
             if (touchDragState.phase !== 'dragging') return;
 
-            // Don't prevent default here - we want to allow other touch interactions
+            // Check if this was a tap on the anchor (minimal movement) - if so, place the piece
+            if (touchDragState.anchorTouchStart) {
+                const dx = touchDragState.lastTouchPos.x - touchDragState.anchorTouchStart.x;
+                const dy = touchDragState.lastTouchPos.y - touchDragState.anchorTouchStart.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                // If barely moved (< 15px), treat as tap to place
+                if (distance < 15 && touchDragState.lastGridCell) {
+                    const shapeData = SHAPE_LIBRARY[touchDragState.shapeId];
+                    const rotation = shapeData.rotations[touchDragState.rotationIndex];
+                    const validity = checkPlacementValidity(
+                        touchDragState.lastGridCell.row,
+                        touchDragState.lastGridCell.col,
+                        rotation
+                    );
+
+                    if (validity.valid) {
+                        if (touchDragState.sourceElement) {
+                            touchDragState.sourceElement.remove();
+                        }
+
+                        placeShapeOnGrid(
+                            touchDragState.lastGridCell.row,
+                            touchDragState.lastGridCell.col,
+                            rotation,
+                            touchDragState.color,
+                            touchDragState.shapeId,
+                            touchDragState.rotationIndex
+                        );
+
+                        finishTouchDrag(true);
+                        touchDragState.anchorTouchStart = null;
+                        return;
+                    } else {
+                        showToast('Invalid placement', 'error', 1500);
+                    }
+                }
+
+                touchDragState.anchorTouchStart = null;
+            }
 
             // Transition to awaiting-action phase
             touchDragState.phase = 'awaiting-action';
-
-            // Make ghost interactive and highlight anchor
-            if (touchDragState.ghost) {
-                touchDragState.ghost.classList.add('awaiting-action');
-                const anchor = touchDragState.ghost.querySelector('.touch-anchor');
-                if (anchor) anchor.classList.add('awaiting-action');
-            }
 
             // Show rotate button near the ghost
             showMobileRotateButton();
@@ -5119,44 +5119,23 @@
                 return;
             }
 
-            // Check if tapped on the touch anchor - confirm placement at current position
+            // Check if touched the anchor - this starts drag OR places on quick tap
             if (target && target.closest('.touch-anchor')) {
                 e.preventDefault();
 
-                // Try to place at the last known grid position
-                if (touchDragState.lastGridCell) {
-                    const shapeData = SHAPE_LIBRARY[touchDragState.shapeId];
-                    const rotation = shapeData.rotations[touchDragState.rotationIndex];
-                    const validity = checkPlacementValidity(
-                        touchDragState.lastGridCell.row,
-                        touchDragState.lastGridCell.col,
-                        rotation
-                    );
+                // Resume dragging, but track start position to detect tap vs drag
+                touchDragState.phase = 'dragging';
+                touchDragState.anchorTouchStart = { x: touch.clientX, y: touch.clientY };
+                touchDragState.lastTouchPos = { x: touch.clientX, y: touch.clientY };
 
-                    if (validity.valid) {
-                        if (touchDragState.sourceElement) {
-                            touchDragState.sourceElement.remove();
-                        }
-
-                        placeShapeOnGrid(
-                            touchDragState.lastGridCell.row,
-                            touchDragState.lastGridCell.col,
-                            rotation,
-                            touchDragState.color,
-                            touchDragState.shapeId,
-                            touchDragState.rotationIndex
-                        );
-
-                        finishTouchDrag(true);
-                        return;
-                    } else {
-                        showToast('Invalid placement position', 'error', 1500);
-                        return;
-                    }
-                } else {
-                    showToast('Move shape over the grid first', 'info', 1500);
-                    return;
+                if (touchDragState.ghost) {
+                    touchDragState.ghost.classList.remove('awaiting-action');
+                    const anchor = touchDragState.ghost.querySelector('.touch-anchor');
+                    if (anchor) anchor.classList.remove('awaiting-action');
                 }
+                hideMobileRotateButton();
+                document.removeEventListener('touchstart', handleAwaitingActionTap);
+                return;
             }
 
             // Check if tap coordinates are within the grid bounds (by position, not by target)
