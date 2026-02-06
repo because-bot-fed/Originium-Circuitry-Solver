@@ -3,6 +3,17 @@
  * Generates solvable puzzles with configurable difficulty
  */
 
+// Logging utility - suppressed during benchmark mode
+function generatorLog(...args) {
+    if (!window.BENCHMARK_MODE) console.log(...args);
+}
+function generatorWarn(...args) {
+    if (!window.BENCHMARK_MODE) console.warn(...args);
+}
+function generatorError(...args) {
+    if (!window.BENCHMARK_MODE) console.error(...args);
+}
+
 const PuzzleGenerator = {
     config: null,
     shapes: null,
@@ -21,7 +32,7 @@ const PuzzleGenerator = {
             shapePool: config.shapePool || Object.keys(SHAPE_LIBRARY)
         };
 
-        console.log('Starting puzzle generation with config:', this.config);
+        generatorLog('Starting puzzle generation with config:', this.config);
 
         // Time-based retry: try for up to 4 seconds total
         const maxDuration = 4000;
@@ -32,12 +43,12 @@ const PuzzleGenerator = {
             attempts++;
             const result = this._attemptGeneration();
             if (result.success) {
-                console.log(`Puzzle generated successfully after ${attempts} attempts in ${Date.now() - startTime}ms`);
+                generatorLog(`Puzzle generated successfully after ${attempts} attempts in ${Date.now() - startTime}ms`);
                 return result.puzzle;
             }
         }
 
-        console.error(`Failed to generate puzzle after ${attempts} attempts in ${Date.now() - startTime}ms`);
+        generatorError(`Failed to generate puzzle after ${attempts} attempts in ${Date.now() - startTime}ms`);
         return null;
     },
 
@@ -47,26 +58,26 @@ const PuzzleGenerator = {
     _attemptGeneration() {
         // Phase 1: Budget allocation
         const budget = this._allocateBudget();
-        console.log('Budget allocated:', budget);
+        generatorLog('Budget allocated:', budget);
 
         // Phase 2: Shape selection per color
         const shapeSelection = this._selectShapes(budget);
         if (!shapeSelection.success) {
             return { success: false, reason: 'Shape selection failed' };
         }
-        console.log('Shapes selected:', shapeSelection);
+        generatorLog('Shapes selected:', shapeSelection);
 
         // Phase 3: Blocker/Lock budget
         const blockerLockBudget = this._calculateBlockerLockBudget(budget, shapeSelection);
-        console.log('Blocker/Lock budget:', blockerLockBudget);
+        generatorLog('Blocker/Lock budget:', blockerLockBudget);
 
         // Phase 4: Lock color distribution
         const lockDistribution = this._distributeLocks(blockerLockBudget);
-        console.log('Lock distribution:', lockDistribution);
+        generatorLog('Lock distribution:', lockDistribution);
 
         // Phase 5: Placement strategy
         const strategy = Math.random() < 0.5 ? 'symmetrical' : 'chaotic';
-        console.log('Placement strategy:', strategy);
+        generatorLog('Placement strategy:', strategy);
 
         // Phase 6: Place shapes and validate solution
         const placementResult = this._placeAndValidate(shapeSelection, blockerLockBudget, lockDistribution, strategy);
@@ -182,7 +193,7 @@ const PuzzleGenerator = {
             const deficit = budget.reserveNeeded - totalRemainder;
             // This would require re-selecting shapes for the last color with reduced budget
             // For now, we'll work with what we have
-            console.warn(`Remainder deficit: ${deficit}`);
+            generatorWarn(`Remainder deficit: ${deficit}`);
         }
 
         let blockerBudget = 0;

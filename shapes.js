@@ -27,6 +27,12 @@ const SHAPE_DEFINITIONS = {
         cells: [[0, 0], [0, 1], [0, 2]]
     },
 
+    // 4-block line (I-tetromino)
+    "line-4": {
+        name: "4-Block Line",
+        cells: [[0, 0], [0, 1], [0, 2], [0, 3]]
+    },
+
     // 3-block L shape
     "L-3": {
         name: "3-Block L",
@@ -230,17 +236,69 @@ function getShapeBounds(cells) {
 function buildShapeLibrary() {
     const library = {};
 
+    // Load built-in shapes
     for (const [id, definition] of Object.entries(SHAPE_DEFINITIONS)) {
         const rotations = getAllRotations(definition.cells);
         library[id] = {
             name: definition.name,
             baseShape: definition.cells,
             rotations: rotations,
-            cellCount: definition.cells.length
+            cellCount: definition.cells.length,
+            isCustom: false
         };
     }
 
+    // Load custom shapes from localStorage
+    loadCustomShapesIntoLibrary(library);
+
     return library;
+}
+
+/**
+ * Load custom shapes from localStorage into the library
+ */
+function loadCustomShapesIntoLibrary(library) {
+    try {
+        const customShapes = JSON.parse(localStorage.getItem('customShapes') || '{}');
+        for (const [id, definition] of Object.entries(customShapes)) {
+            const rotations = getAllRotations(definition.cells);
+            library[id] = {
+                name: definition.name,
+                baseShape: definition.cells,
+                rotations: rotations,
+                cellCount: definition.cells.length,
+                isCustom: true
+            };
+        }
+    } catch (e) {
+        console.warn('Failed to load custom shapes from localStorage:', e);
+    }
+}
+
+/**
+ * Refresh the SHAPE_LIBRARY with any new custom shapes
+ * Call this after adding/removing custom shapes
+ */
+function refreshShapeLibrary() {
+    // Clear and rebuild
+    for (const key of Object.keys(SHAPE_LIBRARY)) {
+        delete SHAPE_LIBRARY[key];
+    }
+
+    // Reload built-in shapes
+    for (const [id, definition] of Object.entries(SHAPE_DEFINITIONS)) {
+        const rotations = getAllRotations(definition.cells);
+        SHAPE_LIBRARY[id] = {
+            name: definition.name,
+            baseShape: definition.cells,
+            rotations: rotations,
+            cellCount: definition.cells.length,
+            isCustom: false
+        };
+    }
+
+    // Reload custom shapes
+    loadCustomShapesIntoLibrary(SHAPE_LIBRARY);
 }
 
 // Export for use in solver

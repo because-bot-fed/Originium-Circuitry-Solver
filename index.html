@@ -377,6 +377,94 @@
             margin-bottom: 25px;
         }
 
+        .puzzle-custom-config.hidden {
+            display: none;
+        }
+
+        .custom-mode-toggle {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #333;
+        }
+
+        .custom-mode-toggle label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            color: #888;
+            font-size: 0.85rem;
+        }
+
+        .custom-mode-toggle input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .custom-mode-toggle label:hover {
+            color: #aaa;
+        }
+
+        .difficulty-help {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .help-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            background: #333;
+            border: 1px solid #444;
+            border-radius: 50%;
+            color: #888;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .help-btn:hover {
+            background: #444;
+            color: #aaa;
+            border-color: #555;
+        }
+
+        .help-tooltip {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            margin-top: 10px;
+            padding: 12px 15px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            line-height: 1.6;
+            color: #aaa;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        .help-tooltip.visible {
+            display: block;
+        }
+
+        .help-tooltip .help-q {
+            color: #39ff14;
+            font-weight: bold;
+        }
+
+        .puzzle-difficulty-selector {
+            position: relative;
+        }
+
         .custom-config-grid {
             display: flex;
             flex-direction: column;
@@ -1684,6 +1772,159 @@
         }
 
         /* ============================================
+           BENCHMARK PANEL - Temporary Testing Infrastructure
+           ============================================ */
+
+        .benchmark-toggle {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            z-index: 9999;
+            padding: 6px 10px;
+            background: rgba(30, 30, 30, 0.9);
+            border: 1px solid #ff6b35;
+            border-radius: 6px;
+            font-size: 11px;
+            color: #ff6b35;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s ease;
+        }
+
+        .benchmark-toggle:hover {
+            background: rgba(255, 107, 53, 0.2);
+        }
+
+        .benchmark-panel {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10000;
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            background: #1a1a1a;
+            border: 2px solid #ff6b35;
+            border-radius: 10px;
+            padding: 20px;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+        }
+
+        .benchmark-panel.visible {
+            display: block;
+        }
+
+        .benchmark-panel h2 {
+            margin: 0 0 15px 0;
+            color: #ff6b35;
+            font-size: 1.3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .benchmark-panel .close-btn {
+            background: none;
+            border: 1px solid #666;
+            color: #888;
+            padding: 4px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .benchmark-panel .close-btn:hover {
+            border-color: #ff3939;
+            color: #ff3939;
+        }
+
+        .benchmark-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #333;
+        }
+
+        .benchmark-controls label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #aaa;
+            font-size: 12px;
+        }
+
+        .benchmark-controls input[type="number"] {
+            width: 60px;
+            padding: 4px;
+            background: #2a2a2a;
+            border: 1px solid #444;
+            color: #fff;
+            border-radius: 4px;
+        }
+
+        .benchmark-controls .btn {
+            padding: 8px 16px;
+        }
+
+        .benchmark-results {
+            font-family: monospace;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .benchmark-results table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .benchmark-results th,
+        .benchmark-results td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #333;
+        }
+
+        .benchmark-results th {
+            color: #39ff14;
+            background: #252525;
+        }
+
+        .benchmark-results tr:hover {
+            background: #252525;
+        }
+
+        .benchmark-results .difficulty-easy { color: #39ff14; }
+        .benchmark-results .difficulty-medium { color: #00bfff; }
+        .benchmark-results .difficulty-hard { color: #ff9f1c; }
+        .benchmark-results .difficulty-expert { color: #ff3939; }
+        .benchmark-results .difficulty-master { color: #bf39ff; }
+
+        .benchmark-progress {
+            padding: 10px;
+            background: #252525;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        .benchmark-progress-bar {
+            height: 20px;
+            background: #333;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .benchmark-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #39ff14, #00bfff);
+            transition: width 0.2s ease;
+        }
+
+        /* ============================================
            MOBILE SUPPORT - CSS Custom Properties
            ============================================ */
 
@@ -2073,10 +2314,292 @@
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.02); }
         }
+
+        /* Missing Piece Editor Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.visible {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 24px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            color: #fff;
+            font-size: 1.3rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: #888;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .modal-close:hover {
+            color: #fff;
+        }
+
+        .missing-piece-info {
+            background: #252525;
+            border: 1px solid #333;
+            border-radius: 4px;
+            padding: 12px;
+            margin-bottom: 20px;
+            font-size: 0.85rem;
+            color: #aaa;
+            line-height: 1.5;
+        }
+
+        .missing-piece-info strong {
+            color: #39ff14;
+        }
+
+        .shape-editor-grid {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 2px;
+            background: #333;
+            padding: 2px;
+            border-radius: 4px;
+            margin-bottom: 16px;
+            aspect-ratio: 1;
+            max-width: 320px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .shape-editor-cell {
+            aspect-ratio: 1;
+            background: #1a1a1a;
+            border: 1px solid #444;
+            cursor: pointer;
+            transition: background 0.1s, border-color 0.1s;
+        }
+
+        .shape-editor-cell:hover {
+            border-color: #39ff14;
+        }
+
+        .shape-editor-cell.filled {
+            background: #39ff14;
+            border-color: #2db80e;
+        }
+
+        .shape-name-input {
+            width: 100%;
+            padding: 10px 12px;
+            background: #252525;
+            border: 1px solid #444;
+            border-radius: 4px;
+            color: #fff;
+            font-size: 0.95rem;
+            margin-bottom: 16px;
+        }
+
+        .shape-name-input:focus {
+            outline: none;
+            border-color: #39ff14;
+        }
+
+        .shape-name-input::placeholder {
+            color: #666;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .modal-buttons .btn {
+            padding: 10px 20px;
+        }
+
+        .btn-save {
+            background: #39ff14;
+            color: #000;
+        }
+
+        .btn-save:hover {
+            background: #2db80e;
+        }
+
+        .btn-exit {
+            background: #444;
+            color: #fff;
+        }
+
+        .btn-exit:hover {
+            background: #555;
+        }
+
+        .custom-shapes-list {
+            margin-top: 20px;
+            border-top: 1px solid #333;
+            padding-top: 16px;
+        }
+
+        .custom-shapes-list h3 {
+            font-size: 1rem;
+            margin-bottom: 12px;
+            color: #888;
+        }
+
+        .custom-shape-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: #252525;
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+
+        .custom-shape-item .shape-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .custom-shape-preview {
+            display: grid;
+            gap: 1px;
+            background: #333;
+            padding: 2px;
+            border-radius: 2px;
+        }
+
+        .custom-shape-preview .cell {
+            width: 8px;
+            height: 8px;
+            background: #1a1a1a;
+        }
+
+        .custom-shape-preview .cell.filled {
+            background: #39ff14;
+        }
+
+        .preview-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .custom-shape-name {
+            color: #fff;
+            font-size: 0.9rem;
+        }
+
+        .custom-shape-cells {
+            color: #888;
+            font-size: 0.8rem;
+        }
+
+        .btn-delete-shape {
+            background: #ff3939;
+            color: #fff;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .btn-delete-shape:hover {
+            background: #cc2e2e;
+        }
+
+        .btn-missing-piece {
+            background: #333;
+            color: #aaa;
+            border: 1px solid #444;
+            padding: 8px 16px;
+            margin-top: 12px;
+            font-size: 0.85rem;
+        }
+
+        .btn-missing-piece:hover {
+            background: #444;
+            color: #fff;
+            border-color: #555;
+        }
+
+        .no-custom-shapes {
+            color: #666;
+            font-style: italic;
+            font-size: 0.85rem;
+        }
     </style>
 </head>
 <body>
     <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Missing Piece Editor Modal -->
+    <div class="modal-overlay" id="missingPieceModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Missing Piece Editor</h2>
+                <button class="modal-close" onclick="closeMissingPieceEditor()">&times;</button>
+            </div>
+
+            <div class="missing-piece-info">
+                <strong>Note:</strong> Custom shapes are saved to your browser's local storage.
+                They will persist between page reloads, but only for <em>your</em> browser.<br><br>
+                If you believe a shape is missing from the default set, please notify the author
+                so it can be added for all users.
+            </div>
+
+            <input type="text" class="shape-name-input" id="customShapeName"
+                   placeholder="Enter shape name (e.g., 'My Custom L')" maxlength="50">
+
+            <div class="shape-editor-grid" id="shapeEditorGrid">
+                <!-- 8x8 grid cells will be generated by JavaScript -->
+            </div>
+
+            <div class="modal-buttons">
+                <button class="btn btn-exit" onclick="closeMissingPieceEditor()">Exit</button>
+                <button class="btn btn-save" onclick="saveCustomShape()">Save Shape</button>
+            </div>
+
+            <div class="custom-shapes-list" id="customShapesList">
+                <h3>Your Custom Shapes</h3>
+                <div id="customShapesContainer">
+                    <!-- Custom shapes will be listed here -->
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Mobile Mode Toggle (unobtrusive, bottom-right corner) -->
     <label class="mobile-toggle" title="Force mobile mode for testing">
@@ -2087,6 +2610,43 @@
     <!-- Mobile-specific UI elements (hidden until needed) -->
     <button class="mobile-rotate-btn" id="mobileRotateBtn" title="Rotate shape">↻</button>
     <button class="mobile-undo-btn" id="mobileUndoBtn">↩ Undo Removal</button>
+
+    <!-- Benchmark Panel Toggle (bottom-left corner) -->
+    <button class="benchmark-toggle" onclick="toggleBenchmarkPanel()">📊 Benchmark</button>
+
+    <!-- Benchmark Panel (hidden by default) -->
+    <div class="benchmark-panel" id="benchmarkPanel">
+        <h2>
+            Difficulty Benchmark Tool
+            <button class="close-btn" onclick="toggleBenchmarkPanel()">✕ Close</button>
+        </h2>
+        <div class="benchmark-controls">
+            <label>
+                Mode:
+                <select id="benchmarkMode" onchange="updateBenchmarkModeInfo()">
+                    <option value="presets">Presets Only (5 configs)</option>
+                    <option value="all">All Combinations (80 configs)</option>
+                </select>
+            </label>
+            <label>
+                Samples per config:
+                <input type="number" id="benchmarkSamples" value="10" min="1" max="100">
+            </label>
+            <span id="benchmarkModeInfo" style="color: #666; font-size: 10px; margin-left: 5px;">(50 total puzzles)</span>
+            <button class="btn btn-primary" onclick="runBenchmark()">Run Benchmark</button>
+            <button class="btn" onclick="clearBenchmarkResults()">Clear Results</button>
+        </div>
+        <div class="benchmark-progress" id="benchmarkProgress" style="display: none;">
+            <div>Running: <span id="benchmarkStatus">...</span></div>
+            <div class="benchmark-progress-bar">
+                <div class="benchmark-progress-fill" id="benchmarkProgressFill" style="width: 0%"></div>
+            </div>
+        </div>
+        <div class="benchmark-results" id="benchmarkResults">
+            <p style="color: #888;">Click "Run Benchmark" to generate puzzles at each difficulty and measure solver complexity.</p>
+            <p style="color: #888; font-size: 11px;">This will generate puzzles, then solve them while measuring nodes explored and time taken.</p>
+        </div>
+    </div>
 
     <div class="container">
         <h1>Originium Circuitry Solver</h1>
@@ -2131,6 +2691,7 @@
                 <div class="shape-selector-title">Shapes</div>
                 <div class="shape-selector-grid" id="shapeGrid"></div>
                 <button class="hide-blue-btn" id="hideBlueBtn" onclick="toggleHideBlue()">Hide Blue</button>
+                <button class="btn btn-missing-piece" onclick="openMissingPieceEditor()" style="width:100%; margin-top:8px;">Missing Piece?</button>
             </div>
 
             <div class="puzzle-wrapper">
@@ -2207,7 +2768,12 @@
                 <h2>Puzzle Configuration</h2>
 
                 <div class="puzzle-difficulty-selector">
-                    <h3>Difficulty</h3>
+                    <h3 class="difficulty-help">Difficulty <span class="help-btn" onclick="toggleDifficultyHelp(event)">?</span></h3>
+                    <div class="help-tooltip" id="difficultyHelpTooltip">
+                        <span class="help-q">Q: How is the difficulty calculated?</span><br><br>
+                        A: The solver was run against every combination of grid size, number of colors, and blocker/lock configuration. Difficulty is a reflection of how much TIME it took the solver script to solve each puzzle type.<br><br>
+                        If the preset difficulties do not align with your expectations or preferences, try the <strong>Custom Settings</strong> option below.
+                    </div>
                     <div class="difficulty-buttons">
                         <button class="difficulty-btn" data-difficulty="easy" onclick="setDifficulty('easy')">Easy</button>
                         <button class="difficulty-btn active" data-difficulty="medium" onclick="setDifficulty('medium')">Medium</button>
@@ -2215,9 +2781,15 @@
                         <button class="difficulty-btn" data-difficulty="expert" onclick="setDifficulty('expert')">Expert</button>
                         <button class="difficulty-btn" data-difficulty="master" onclick="setDifficulty('master')">Master</button>
                     </div>
+                    <div class="custom-mode-toggle">
+                        <label>
+                            <input type="checkbox" id="customModeToggle" onchange="toggleCustomMode()">
+                            Use Custom Settings
+                        </label>
+                    </div>
                 </div>
 
-                <div class="puzzle-custom-config">
+                <div class="puzzle-custom-config hidden" id="customSettingsPanel">
                     <h3>Custom Settings</h3>
                     <div class="custom-config-grid">
                         <div class="config-item">
@@ -2248,6 +2820,7 @@
                 </div>
 
                 <button class="btn btn-generate-puzzle" id="generatePuzzleBtn" onclick="generatePuzzle()">Generate Puzzle</button>
+                <button class="btn btn-missing-piece" onclick="openMissingPieceEditor()">Missing Piece?</button>
             </div>
 
             <div class="puzzle-play-area" id="puzzlePlayArea" style="display: none;">
@@ -3062,7 +3635,7 @@
                 const item = document.createElement('div');
                 item.className = 'shape-selector-item';
                 item.dataset.shapeId = id;
-                item.title = `${shape.name} (click: +1, shift+click: -1)`;
+                item.title = `${shape.name} (click: +1, right-click or shift+click: -1)`;
 
                 const baseShape = shape.rotations[0];
                 const bounds = getShapeBounds(baseShape);
@@ -3091,23 +3664,23 @@
                 badge.textContent = '1';
                 item.appendChild(badge);
 
-                item.onclick = (e) => handleShapeClick(id, item, e);
+                item.onclick = (e) => handleShapeClick(id, item, e, false);
                 item.oncontextmenu = (e) => {
                     e.preventDefault();
-                    handleShapeClick(id, item, { ...e, button: 2 });
+                    handleShapeClick(id, item, e, true);
                 };
 
                 grid.appendChild(item);
             }
         }
 
-        function handleShapeClick(shapeId, element, event) {
-            event.preventDefault();
+        function handleShapeClick(shapeId, element, event, isRightClick = false) {
+            if (event.preventDefault) event.preventDefault();
 
             const currentCount = shapeCounts.get(shapeId) || 0;
             let newCount;
 
-            if (event.button === 2 || event.shiftKey) {
+            if (isRightClick || event.shiftKey) {
                 // Right-click or shift+click: decrement
                 newCount = Math.max(0, currentCount - 1);
             } else {
@@ -3133,8 +3706,97 @@
         }
 
         // Puzzle Mode Functions
+
+        // Difficulty pools based on benchmark data
+        // Each config: { gridRows, gridCols, colors, blockers, locks }
+        const DIFFICULTY_POOLS = {
+            easy: [
+                { gridRows: 4, gridCols: 4, colors: ['green'], blockers: true, locks: true },
+                { gridRows: 4, gridCols: 4, colors: ['green', 'blue', 'red'], blockers: true, locks: true },
+                { gridRows: 4, gridCols: 4, colors: ['green'], blockers: false, locks: true },
+                { gridRows: 4, gridCols: 4, colors: ['green', 'blue'], blockers: false, locks: true },
+                { gridRows: 4, gridCols: 4, colors: ['green', 'blue'], blockers: true, locks: false },
+                { gridRows: 4, gridCols: 4, colors: ['green', 'blue'], blockers: true, locks: true },
+                { gridRows: 4, gridCols: 4, colors: ['green', 'blue', 'red'], blockers: false, locks: true },
+                { gridRows: 5, gridCols: 5, colors: ['green', 'blue', 'red'], blockers: true, locks: false },
+                { gridRows: 4, gridCols: 4, colors: ['green'], blockers: true, locks: false },
+                { gridRows: 4, gridCols: 4, colors: ['green', 'blue', 'red'], blockers: true, locks: false },
+                { gridRows: 5, gridCols: 5, colors: ['green', 'blue', 'red'], blockers: true, locks: true }
+            ],
+            medium: [
+                { gridRows: 5, gridCols: 5, colors: ['green'], blockers: true, locks: false },
+                { gridRows: 5, gridCols: 5, colors: ['green'], blockers: true, locks: true },
+                { gridRows: 6, gridCols: 6, colors: ['green', 'blue', 'red'], blockers: true, locks: true },
+                { gridRows: 6, gridCols: 6, colors: ['green', 'blue', 'red', 'purple'], blockers: false, locks: true },
+                { gridRows: 6, gridCols: 6, colors: ['green', 'blue', 'red', 'purple'], blockers: true, locks: true },
+                { gridRows: 6, gridCols: 6, colors: ['green', 'blue', 'red', 'purple'], blockers: true, locks: false },
+                { gridRows: 4, gridCols: 4, colors: ['green', 'blue'], blockers: false, locks: false },
+                { gridRows: 6, gridCols: 6, colors: ['green', 'blue', 'red'], blockers: true, locks: false },
+                { gridRows: 6, gridCols: 6, colors: ['green', 'blue'], blockers: true, locks: true },
+                { gridRows: 5, gridCols: 5, colors: ['green', 'blue'], blockers: true, locks: true },
+                { gridRows: 5, gridCols: 5, colors: ['green', 'blue', 'red', 'purple'], blockers: true, locks: false },
+                { gridRows: 4, gridCols: 4, colors: ['green', 'blue', 'red', 'purple'], blockers: false, locks: false },
+                { gridRows: 5, gridCols: 5, colors: ['green', 'blue'], blockers: true, locks: false },
+                { gridRows: 5, gridCols: 5, colors: ['green', 'blue', 'red'], blockers: false, locks: true },
+                { gridRows: 5, gridCols: 5, colors: ['green', 'blue', 'red', 'purple'], blockers: true, locks: true },
+                { gridRows: 4, gridCols: 4, colors: ['green', 'blue', 'red'], blockers: false, locks: false },
+                { gridRows: 5, gridCols: 5, colors: ['green', 'blue'], blockers: false, locks: true },
+                { gridRows: 5, gridCols: 5, colors: ['green', 'blue', 'red', 'purple'], blockers: false, locks: true }
+            ],
+            hard: [
+                { gridRows: 7, gridCols: 7, colors: ['green', 'blue', 'red'], blockers: false, locks: true },
+                { gridRows: 7, gridCols: 7, colors: ['green', 'blue', 'red'], blockers: true, locks: true },
+                { gridRows: 8, gridCols: 8, colors: ['green'], blockers: true, locks: false },
+                { gridRows: 6, gridCols: 6, colors: ['green', 'blue', 'red', 'purple'], blockers: false, locks: false },
+                { gridRows: 7, gridCols: 7, colors: ['green', 'blue', 'red', 'purple'], blockers: true, locks: true },
+                { gridRows: 5, gridCols: 5, colors: ['green', 'blue', 'red'], blockers: false, locks: false },
+                { gridRows: 7, gridCols: 7, colors: ['green', 'blue', 'red', 'purple'], blockers: true, locks: false },
+                { gridRows: 5, gridCols: 5, colors: ['green', 'blue'], blockers: false, locks: false },
+                { gridRows: 6, gridCols: 6, colors: ['green', 'blue'], blockers: true, locks: false },
+                { gridRows: 4, gridCols: 4, colors: ['green'], blockers: false, locks: false },
+                { gridRows: 7, gridCols: 7, colors: ['green', 'blue', 'red', 'purple'], blockers: false, locks: true },
+                { gridRows: 5, gridCols: 5, colors: ['green', 'blue', 'red', 'purple'], blockers: false, locks: false },
+                { gridRows: 5, gridCols: 5, colors: ['green'], blockers: false, locks: true },
+                { gridRows: 6, gridCols: 6, colors: ['green', 'blue', 'red'], blockers: false, locks: true }
+            ],
+            expert: [
+                { gridRows: 6, gridCols: 6, colors: ['green'], blockers: false, locks: false },
+                { gridRows: 6, gridCols: 6, colors: ['green'], blockers: false, locks: true },
+                { gridRows: 6, gridCols: 6, colors: ['green', 'blue'], blockers: false, locks: false },
+                { gridRows: 7, gridCols: 7, colors: ['green', 'blue'], blockers: true, locks: true },
+                { gridRows: 8, gridCols: 8, colors: ['green', 'blue'], blockers: true, locks: false },
+                { gridRows: 5, gridCols: 5, colors: ['green'], blockers: false, locks: false },
+                { gridRows: 7, gridCols: 7, colors: ['green'], blockers: false, locks: true },
+                { gridRows: 6, gridCols: 6, colors: ['green'], blockers: true, locks: true },
+                { gridRows: 8, gridCols: 8, colors: ['green'], blockers: true, locks: true },
+                { gridRows: 7, gridCols: 7, colors: ['green', 'blue', 'red'], blockers: true, locks: false },
+                { gridRows: 7, gridCols: 7, colors: ['green'], blockers: true, locks: true },
+                { gridRows: 7, gridCols: 7, colors: ['green', 'blue'], blockers: false, locks: true },
+                { gridRows: 7, gridCols: 7, colors: ['green', 'blue', 'red', 'purple'], blockers: false, locks: false },
+                { gridRows: 8, gridCols: 8, colors: ['green', 'blue', 'red', 'purple'], blockers: true, locks: true },
+                { gridRows: 8, gridCols: 8, colors: ['green', 'blue'], blockers: false, locks: true },
+                { gridRows: 6, gridCols: 6, colors: ['green'], blockers: true, locks: false },
+                { gridRows: 8, gridCols: 8, colors: ['green', 'blue', 'red', 'purple'], blockers: true, locks: false },
+                { gridRows: 6, gridCols: 6, colors: ['green', 'blue'], blockers: false, locks: true },
+                { gridRows: 8, gridCols: 8, colors: ['green', 'blue', 'red', 'purple'], blockers: false, locks: true },
+                { gridRows: 6, gridCols: 6, colors: ['green', 'blue', 'red'], blockers: false, locks: false }
+            ],
+            master: [
+                { gridRows: 8, gridCols: 8, colors: ['green', 'blue'], blockers: true, locks: true },
+                { gridRows: 7, gridCols: 7, colors: ['green', 'blue', 'red'], blockers: false, locks: false },
+                { gridRows: 7, gridCols: 7, colors: ['green', 'blue'], blockers: true, locks: false },
+                { gridRows: 8, gridCols: 8, colors: ['green', 'blue', 'red'], blockers: false, locks: true },
+                { gridRows: 7, gridCols: 7, colors: ['green'], blockers: true, locks: false },
+                { gridRows: 8, gridCols: 8, colors: ['green', 'blue', 'red'], blockers: true, locks: false },
+                { gridRows: 8, gridCols: 8, colors: ['green', 'blue', 'red'], blockers: true, locks: true },
+                { gridRows: 7, gridCols: 7, colors: ['green', 'blue'], blockers: false, locks: false },
+                { gridRows: 8, gridCols: 8, colors: ['green'], blockers: false, locks: true }
+            ]
+        };
+
         let puzzleConfig = {
             difficulty: 'medium',
+            useCustom: false,
             gridRows: 5,
             gridCols: 5,
             colors: ['green', 'blue'],
@@ -3148,40 +3810,299 @@
             console.log('Puzzle mode initialized');
         }
 
+        function toggleDifficultyHelp(event) {
+            event.stopPropagation();
+            const tooltip = document.getElementById('difficultyHelpTooltip');
+            tooltip.classList.toggle('visible');
+
+            // Close on click outside
+            if (tooltip.classList.contains('visible')) {
+                setTimeout(() => {
+                    document.addEventListener('click', closeDifficultyHelp);
+                }, 0);
+            }
+        }
+
+        function closeDifficultyHelp() {
+            const tooltip = document.getElementById('difficultyHelpTooltip');
+            tooltip.classList.remove('visible');
+            document.removeEventListener('click', closeDifficultyHelp);
+        }
+
+        // ============================================
+        // MISSING PIECE EDITOR
+        // ============================================
+
+        let shapeEditorState = [];  // 8x8 grid state
+
+        function openMissingPieceEditor() {
+            // Initialize 8x8 grid state
+            shapeEditorState = Array(8).fill(null).map(() => Array(8).fill(false));
+
+            // Build the grid
+            const grid = document.getElementById('shapeEditorGrid');
+            grid.innerHTML = '';
+
+            for (let r = 0; r < 8; r++) {
+                for (let c = 0; c < 8; c++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'shape-editor-cell';
+                    cell.dataset.row = r;
+                    cell.dataset.col = c;
+                    cell.addEventListener('click', () => toggleShapeEditorCell(r, c));
+                    grid.appendChild(cell);
+                }
+            }
+
+            // Clear name input
+            document.getElementById('customShapeName').value = '';
+
+            // Load and display existing custom shapes
+            renderCustomShapesList();
+
+            // Show modal
+            document.getElementById('missingPieceModal').classList.add('visible');
+        }
+
+        function closeMissingPieceEditor() {
+            document.getElementById('missingPieceModal').classList.remove('visible');
+        }
+
+        function toggleShapeEditorCell(row, col) {
+            shapeEditorState[row][col] = !shapeEditorState[row][col];
+
+            // Update visual
+            const grid = document.getElementById('shapeEditorGrid');
+            const cellIndex = row * 8 + col;
+            const cell = grid.children[cellIndex];
+            cell.classList.toggle('filled', shapeEditorState[row][col]);
+        }
+
+        function saveCustomShape() {
+            // Get filled cells
+            const cells = [];
+            for (let r = 0; r < 8; r++) {
+                for (let c = 0; c < 8; c++) {
+                    if (shapeEditorState[r][c]) {
+                        cells.push([r, c]);
+                    }
+                }
+            }
+
+            // Validate: need at least 1 cell
+            if (cells.length === 0) {
+                showToast('Please fill in at least one cell', 'error', 2000);
+                return;
+            }
+
+            // Validate: must be contiguous
+            if (!isContiguous(cells)) {
+                showToast('Shape must be contiguous (all cells connected)', 'error', 3000);
+                return;
+            }
+
+            // Get name
+            let name = document.getElementById('customShapeName').value.trim();
+            if (!name) {
+                name = `Custom ${cells.length}-Block`;
+            }
+
+            // Normalize cells to start from (0,0)
+            const minRow = Math.min(...cells.map(([r, c]) => r));
+            const minCol = Math.min(...cells.map(([r, c]) => c));
+            const normalizedCells = cells.map(([r, c]) => [r - minRow, c - minCol]);
+
+            // Generate unique ID
+            const id = `custom-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
+
+            // Load existing custom shapes
+            let customShapes = {};
+            try {
+                customShapes = JSON.parse(localStorage.getItem('customShapes') || '{}');
+            } catch (e) {}
+
+            // Check for duplicates (same shape already exists)
+            for (const [existingId, existing] of Object.entries(customShapes)) {
+                if (shapesEqual(existing.cells, normalizedCells)) {
+                    showToast(`This shape already exists as "${existing.name}"`, 'error', 3000);
+                    return;
+                }
+            }
+
+            // Also check against built-in shapes
+            for (const [builtInId, builtIn] of Object.entries(SHAPE_DEFINITIONS)) {
+                if (shapesEqual(builtIn.cells, normalizedCells)) {
+                    showToast(`This shape already exists as "${builtIn.name}" (built-in)`, 'error', 3000);
+                    return;
+                }
+            }
+
+            // Save to localStorage
+            customShapes[id] = {
+                name: name,
+                cells: normalizedCells
+            };
+            localStorage.setItem('customShapes', JSON.stringify(customShapes));
+
+            // Refresh the shape library
+            refreshShapeLibrary();
+
+            // Clear editor
+            shapeEditorState = Array(8).fill(null).map(() => Array(8).fill(false));
+            const grid = document.getElementById('shapeEditorGrid');
+            Array.from(grid.children).forEach(cell => cell.classList.remove('filled'));
+            document.getElementById('customShapeName').value = '';
+
+            // Refresh list
+            renderCustomShapesList();
+
+            // Refresh the solver's shape selector if it exists
+            if (typeof renderShapeSelector === 'function') {
+                renderShapeSelector();
+            }
+
+            showToast(`Shape "${name}" saved!`, 'success', 2000);
+        }
+
+        function isContiguous(cells) {
+            if (cells.length <= 1) return true;
+
+            const cellSet = new Set(cells.map(([r, c]) => `${r},${c}`));
+            const visited = new Set();
+            const queue = [cells[0]];
+            visited.add(`${cells[0][0]},${cells[0][1]}`);
+
+            while (queue.length > 0) {
+                const [r, c] = queue.shift();
+
+                // Check 4-directional neighbors
+                const neighbors = [[r-1, c], [r+1, c], [r, c-1], [r, c+1]];
+                for (const [nr, nc] of neighbors) {
+                    const key = `${nr},${nc}`;
+                    if (cellSet.has(key) && !visited.has(key)) {
+                        visited.add(key);
+                        queue.push([nr, nc]);
+                    }
+                }
+            }
+
+            return visited.size === cells.length;
+        }
+
+        function renderCustomShapesList() {
+            const container = document.getElementById('customShapesContainer');
+            let customShapes = {};
+            try {
+                customShapes = JSON.parse(localStorage.getItem('customShapes') || '{}');
+            } catch (e) {}
+
+            if (Object.keys(customShapes).length === 0) {
+                container.innerHTML = '<p class="no-custom-shapes">No custom shapes saved yet.</p>';
+                return;
+            }
+
+            container.innerHTML = '';
+
+            for (const [id, shape] of Object.entries(customShapes)) {
+                const item = document.createElement('div');
+                item.className = 'custom-shape-item';
+
+                // Calculate bounds for preview
+                const cells = shape.cells;
+                const maxRow = Math.max(...cells.map(([r, c]) => r)) + 1;
+                const maxCol = Math.max(...cells.map(([r, c]) => c)) + 1;
+                const cellSet = new Set(cells.map(([r, c]) => `${r},${c}`));
+
+                // Build preview grid
+                const preview = document.createElement('div');
+                preview.className = 'custom-shape-preview';
+                preview.style.gridTemplateColumns = `repeat(${maxCol}, 8px)`;
+
+                for (let r = 0; r < maxRow; r++) {
+                    for (let c = 0; c < maxCol; c++) {
+                        const cell = document.createElement('div');
+                        cell.className = 'cell' + (cellSet.has(`${r},${c}`) ? ' filled' : '');
+                        preview.appendChild(cell);
+                    }
+                }
+
+                item.innerHTML = `
+                    <div class="shape-info">
+                        <div class="preview-container"></div>
+                        <div>
+                            <div class="custom-shape-name">${shape.name}</div>
+                            <div class="custom-shape-cells">${cells.length} cells</div>
+                        </div>
+                    </div>
+                    <button class="btn-delete-shape" onclick="deleteCustomShape('${id}')">Delete</button>
+                `;
+                item.querySelector('.preview-container').appendChild(preview);
+
+                container.appendChild(item);
+            }
+        }
+
+        function deleteCustomShape(id) {
+            let customShapes = {};
+            try {
+                customShapes = JSON.parse(localStorage.getItem('customShapes') || '{}');
+            } catch (e) {}
+
+            const shapeName = customShapes[id]?.name || 'Shape';
+            delete customShapes[id];
+
+            localStorage.setItem('customShapes', JSON.stringify(customShapes));
+
+            // Refresh the shape library
+            refreshShapeLibrary();
+
+            // Refresh list
+            renderCustomShapesList();
+
+            // Refresh the solver's shape selector if it exists
+            if (typeof renderShapeSelector === 'function') {
+                renderShapeSelector();
+            }
+
+            showToast(`Deleted "${shapeName}"`, 'info', 2000);
+        }
+
+        function toggleCustomMode() {
+            const customToggle = document.getElementById('customModeToggle');
+            const customPanel = document.getElementById('customSettingsPanel');
+            puzzleConfig.useCustom = customToggle.checked;
+
+            if (puzzleConfig.useCustom) {
+                customPanel.classList.remove('hidden');
+                // Clear active difficulty button when using custom
+                document.querySelectorAll('.difficulty-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+            } else {
+                customPanel.classList.add('hidden');
+                // Re-activate the current difficulty button
+                document.querySelectorAll('.difficulty-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.difficulty === puzzleConfig.difficulty);
+                });
+            }
+        }
+
         function setDifficulty(difficulty) {
             puzzleConfig.difficulty = difficulty;
+
+            // If custom mode is on, turn it off when selecting a preset difficulty
+            if (puzzleConfig.useCustom) {
+                puzzleConfig.useCustom = false;
+                document.getElementById('customModeToggle').checked = false;
+                document.getElementById('customSettingsPanel').classList.add('hidden');
+            }
+
             document.querySelectorAll('.difficulty-btn').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.difficulty === difficulty);
             });
 
-            // Apply preset values
-            const presets = {
-                easy: { rows: 4, cols: 4, colors: ['green'], blockers: false, locks: false },
-                medium: { rows: 5, cols: 5, colors: ['green', 'blue'], blockers: true, locks: false },
-                hard: { rows: 6, cols: 6, colors: ['green', 'blue'], blockers: true, locks: true },
-                expert: { rows: 7, cols: 7, colors: ['green', 'blue', 'red'], blockers: true, locks: true },
-                master: { rows: 8, cols: 8, colors: ['green', 'blue', 'red', 'purple'], blockers: true, locks: true }
-            };
-
-            const preset = presets[difficulty];
-            if (preset) {
-                document.getElementById('puzzleRows').value = preset.rows;
-                document.getElementById('puzzleCols').value = preset.cols;
-                document.getElementById('enableBlockers').checked = preset.blockers;
-                document.getElementById('enableLocks').checked = preset.locks;
-
-                // Update color toggles
-                document.querySelectorAll('.color-toggle').forEach(toggle => {
-                    const color = toggle.classList.contains('green') ? 'green' :
-                                  toggle.classList.contains('blue') ? 'blue' :
-                                  toggle.classList.contains('red') ? 'red' : 'purple';
-                    const isEnabled = preset.colors.includes(color);
-                    toggle.classList.toggle('active', isEnabled);
-                    toggle.querySelector('input').checked = isEnabled;
-                });
-
-                puzzleConfig.colors = [...preset.colors];
-            }
+            // Note: We no longer update the custom settings panel when selecting a difficulty
+            // The pool system will pick a random config when generating
         }
 
         function togglePuzzleColor(color) {
@@ -3205,10 +4126,41 @@
         }
 
         function generatePuzzle() {
-            puzzleConfig.gridRows = parseInt(document.getElementById('puzzleRows').value) || 5;
-            puzzleConfig.gridCols = parseInt(document.getElementById('puzzleCols').value) || 5;
-            puzzleConfig.blockers = document.getElementById('enableBlockers').checked;
-            puzzleConfig.locks = document.getElementById('enableLocks').checked;
+            let genConfig;
+
+            if (puzzleConfig.useCustom) {
+                // Use custom settings from the UI
+                genConfig = {
+                    gridRows: parseInt(document.getElementById('puzzleRows').value) || 5,
+                    gridCols: parseInt(document.getElementById('puzzleCols').value) || 5,
+                    colors: [...puzzleConfig.colors],
+                    blockers: document.getElementById('enableBlockers').checked,
+                    locks: document.getElementById('enableLocks').checked
+                };
+            } else {
+                // Use pool-based selection
+                const pool = DIFFICULTY_POOLS[puzzleConfig.difficulty];
+                if (!pool || pool.length === 0) {
+                    showToast('No configurations available for this difficulty', 'error', 3000);
+                    return;
+                }
+                // Pick a random config from the pool
+                const randomConfig = pool[Math.floor(Math.random() * pool.length)];
+                genConfig = {
+                    gridRows: randomConfig.gridRows,
+                    gridCols: randomConfig.gridCols,
+                    colors: [...randomConfig.colors],
+                    blockers: randomConfig.blockers,
+                    locks: randomConfig.locks
+                };
+            }
+
+            // Store the active config for the puzzle
+            puzzleConfig.gridRows = genConfig.gridRows;
+            puzzleConfig.gridCols = genConfig.gridCols;
+            puzzleConfig.colors = genConfig.colors;
+            puzzleConfig.blockers = genConfig.blockers;
+            puzzleConfig.locks = genConfig.locks;
 
             // Get button and show loading state
             const btn = document.getElementById('generatePuzzleBtn');
@@ -3216,16 +4168,16 @@
             btn.textContent = 'Generating...';
             btn.disabled = true;
 
-            console.log('Generating puzzle with config:', puzzleConfig);
+            console.log('Generating puzzle with config:', genConfig);
 
             // Use setTimeout to allow UI to update before blocking generation
             setTimeout(() => {
                 const puzzle = PuzzleGenerator.generate({
-                    gridRows: puzzleConfig.gridRows,
-                    gridCols: puzzleConfig.gridCols,
-                    colors: puzzleConfig.colors,
-                    blockers: puzzleConfig.blockers,
-                    locks: puzzleConfig.locks
+                    gridRows: genConfig.gridRows,
+                    gridCols: genConfig.gridCols,
+                    colors: genConfig.colors,
+                    blockers: genConfig.blockers,
+                    locks: genConfig.locks
                 });
 
                 // Restore button
@@ -3795,6 +4747,11 @@
                 );
 
                 if (validity.valid) {
+                    // Remove shape from palette BEFORE placing (so win check sees empty palette)
+                    if (dragState.sourceElement) {
+                        dragState.sourceElement.remove();
+                    }
+
                     placeShapeOnGrid(
                         dragState.lastGridCell.row,
                         dragState.lastGridCell.col,
@@ -3804,11 +4761,6 @@
                         dragState.rotationIndex
                     );
                     placed = true;
-
-                    // Remove shape from palette
-                    if (dragState.sourceElement) {
-                        dragState.sourceElement.remove();
-                    }
                 }
             }
 
@@ -4126,7 +5078,12 @@
                 const validity = checkPlacementValidity(startRow, startCol, rotation);
 
                 if (validity.valid) {
-                    // Place the shape
+                    // Remove from palette BEFORE placing (so win check sees empty palette)
+                    if (touchDragState.sourceElement) {
+                        touchDragState.sourceElement.remove();
+                    }
+
+                    // Place the shape (this internally calls updatePuzzleBars and checkWinCondition)
                     placeShapeOnGrid(
                         startRow,
                         startCol,
@@ -4136,17 +5093,8 @@
                         touchDragState.rotationIndex
                     );
 
-                    // Remove from palette
-                    if (touchDragState.sourceElement) {
-                        touchDragState.sourceElement.remove();
-                    }
-
                     // Clean up
                     finishTouchDrag(true);
-
-                    // Update bars and check win
-                    updatePuzzleBars();
-                    checkWinCondition();
                 } else {
                     // Invalid placement - show feedback
                     showToast('Invalid placement', 'error', 1500);
@@ -4875,6 +5823,7 @@
 
             // Check all requirements are met exactly
             const bars = document.querySelectorAll('.prescriptive-bar');
+
             for (const bar of bars) {
                 if (bar.classList.contains('error')) return;
 
@@ -4884,7 +5833,7 @@
             }
 
             // Win!
-            showToast('🎉 Puzzle Complete! Congratulations!', 'success', 5000);
+            showToast('Puzzle Complete! Congratulations!', 'success', 5000);
         }
 
         function clearCellsForPlacement(startRow, startCol, rotation) {
@@ -5093,10 +6042,651 @@
             }
         }
 
+        // ============================================
+        // BENCHMARK SYSTEM - Temporary Testing Infrastructure
+        // ============================================
+
+        // Solver metrics tracking
+        let solverMetrics = {
+            nodesExplored: 0,
+            placementsTried: 0,
+            backtracks: 0,
+            startTime: 0,
+            endTime: 0
+        };
+
+        function resetSolverMetrics() {
+            solverMetrics = {
+                nodesExplored: 0,
+                placementsTried: 0,
+                backtracks: 0,
+                startTime: performance.now(),
+                endTime: 0
+            };
+        }
+
+        function finishSolverMetrics() {
+            solverMetrics.endTime = performance.now();
+            return {
+                ...solverMetrics,
+                timeMs: solverMetrics.endTime - solverMetrics.startTime
+            };
+        }
+
+        // Instrumented solver that tracks metrics
+        function instrumentedSolveForColor(color, placements, gridRows, gridCols, rowReqs, colReqs, forbiddenCells) {
+            const solutions = [];
+            const forbiddenSet = new Set(forbiddenCells.map(([r, c]) => `${r},${c}`));
+
+            const validPlacements = placements.filter(p => {
+                return !p.cells.some(([r, c]) => forbiddenSet.has(`${r},${c}`));
+            });
+
+            validPlacements.sort((a, b) => {
+                const aMin = Math.min(...a.cells.map(([r, c]) => r * 100 + c));
+                const bMin = Math.min(...b.cells.map(([r, c]) => r * 100 + c));
+                return aMin - bMin;
+            });
+
+            const rowCounts = Array(gridRows).fill(0);
+            const colCounts = Array(gridCols).fill(0);
+            const usedCells = new Set();
+            const currentPlacements = [];
+
+            function backtrack(startIdx) {
+                solverMetrics.nodesExplored++;
+
+                if (countsMatch(rowCounts, colCounts, rowReqs, colReqs, color)) {
+                    solutions.push({
+                        placements: [...currentPlacements],
+                        cells: Array.from(usedCells).map(s => s.split(',').map(Number))
+                    });
+                    if (solutions.length >= 1) return; // Stop at first solution for benchmark
+                }
+
+                if (countsExceed(rowCounts, colCounts, rowReqs, colReqs, color)) {
+                    solverMetrics.backtracks++;
+                    return;
+                }
+
+                for (let i = startIdx; i < validPlacements.length; i++) {
+                    const placement = validPlacements[i];
+                    solverMetrics.placementsTried++;
+
+                    const overlaps = placement.cells.some(([r, c]) => usedCells.has(`${r},${c}`));
+                    if (overlaps) continue;
+
+                    currentPlacements.push(placement);
+                    for (const [r, c] of placement.cells) {
+                        usedCells.add(`${r},${c}`);
+                        rowCounts[r]++;
+                        colCounts[c]++;
+                    }
+
+                    backtrack(i + 1);
+
+                    if (solutions.length >= 1) return;
+
+                    currentPlacements.pop();
+                    for (const [r, c] of placement.cells) {
+                        usedCells.delete(`${r},${c}`);
+                        rowCounts[r]--;
+                        colCounts[c]--;
+                    }
+                }
+            }
+
+            backtrack(0);
+            return solutions;
+        }
+
+        // Instrumented main solver
+        function instrumentedRunSolver(gridRows, gridCols, gridState, rowReqs, colReqs, enabledShapes, colors) {
+            resetSolverMetrics();
+
+            // Collect all forbidden cells (blocked OR locked)
+            const blockedCells = [];
+            for (let r = 0; r < gridRows; r++) {
+                for (let c = 0; c < gridCols; c++) {
+                    const state = gridState[r][c] || 'empty';
+                    // Treat both 'blocked' and 'locked-*' as forbidden
+                    if (state === 'blocked' || (typeof state === 'string' && state.startsWith('locked-'))) {
+                        blockedCells.push([r, c]);
+                    }
+                }
+            }
+
+            const allPlacements = generateAllPlacements(gridRows, gridCols, blockedCells, enabledShapes);
+
+            if (allPlacements.length === 0) {
+                return { success: false, metrics: finishSolverMetrics() };
+            }
+
+            let currentForbidden = [...blockedCells];
+            const colorSolutions = {};
+
+            for (const color of colors) {
+                const hasReq = rowReqs.some(r => (r[color] || 0) > 0) || colReqs.some(c => (c[color] || 0) > 0);
+
+                if (hasReq) {
+                    const solutions = instrumentedSolveForColor(
+                        color, allPlacements, gridRows, gridCols, rowReqs, colReqs, currentForbidden
+                    );
+
+                    if (solutions.length === 0) {
+                        return { success: false, metrics: finishSolverMetrics() };
+                    }
+
+                    colorSolutions[color] = solutions[0];
+                    currentForbidden = [...currentForbidden, ...solutions[0].cells];
+                }
+            }
+
+            return { success: true, solutions: colorSolutions, metrics: finishSolverMetrics() };
+        }
+
+        // Difficulty presets - MUST MATCH UI setDifficulty() presets exactly
+        const DIFFICULTY_PRESETS = {
+            easy: { gridRows: 4, gridCols: 4, colors: ['green'], blockers: false, locks: false },
+            medium: { gridRows: 5, gridCols: 5, colors: ['green', 'blue'], blockers: true, locks: false },
+            hard: { gridRows: 6, gridCols: 6, colors: ['green', 'blue'], blockers: true, locks: true },
+            expert: { gridRows: 7, gridCols: 7, colors: ['green', 'blue', 'red'], blockers: true, locks: true },
+            master: { gridRows: 8, gridCols: 8, colors: ['green', 'blue', 'red', 'purple'], blockers: true, locks: true }
+        };
+
+        // Generate all 80 combinations (uses ALL_COLORS defined earlier)
+        function generateAllCombinations() {
+            const combinations = [];
+            const gridSizes = [4, 5, 6, 7, 8];
+            const colorCounts = [1, 2, 3, 4];
+            const blockerOptions = [false, true];
+            const lockOptions = [false, true];
+
+            for (const size of gridSizes) {
+                for (const colorCount of colorCounts) {
+                    for (const blockers of blockerOptions) {
+                        for (const locks of lockOptions) {
+                            const colors = ALL_COLORS.slice(0, colorCount);
+                            const id = `${size}x${size}_${colorCount}c_${blockers ? 'B' : 'b'}_${locks ? 'L' : 'l'}`;
+                            combinations.push({
+                                id,
+                                gridRows: size,
+                                gridCols: size,
+                                colors,
+                                blockers,
+                                locks
+                            });
+                        }
+                    }
+                }
+            }
+            return combinations;
+        }
+
+        const ALL_COMBINATIONS = generateAllCombinations();
+
+        // Update mode info display
+        function updateBenchmarkModeInfo() {
+            const mode = document.getElementById('benchmarkMode').value;
+            const samples = parseInt(document.getElementById('benchmarkSamples').value) || 10;
+            const configs = mode === 'presets' ? 5 : 80;
+            const total = configs * samples;
+            document.getElementById('benchmarkModeInfo').textContent = `(${total} total puzzles)`;
+        }
+
+        // Toggle benchmark panel
+        function toggleBenchmarkPanel() {
+            const panel = document.getElementById('benchmarkPanel');
+            panel.classList.toggle('visible');
+        }
+
+        // Clear benchmark results
+        function clearBenchmarkResults() {
+            document.getElementById('benchmarkResults').innerHTML =
+                '<p style="color: #888;">Click "Run Benchmark" to generate puzzles at each difficulty and measure solver complexity.</p>';
+        }
+
+        // Run the full benchmark
+        async function runBenchmark() {
+            const mode = document.getElementById('benchmarkMode').value;
+            const samplesPerConfig = parseInt(document.getElementById('benchmarkSamples').value) || 10;
+            const progressDiv = document.getElementById('benchmarkProgress');
+            const statusSpan = document.getElementById('benchmarkStatus');
+            const progressFill = document.getElementById('benchmarkProgressFill');
+            const resultsDiv = document.getElementById('benchmarkResults');
+
+            progressDiv.style.display = 'block';
+            resultsDiv.innerHTML = '<p>Running benchmark...</p>';
+
+            // Suppress console logging during benchmark
+            window.BENCHMARK_MODE = true;
+
+            // Select configurations based on mode
+            let configs;
+            if (mode === 'presets') {
+                configs = Object.entries(DIFFICULTY_PRESETS).map(([name, preset]) => ({
+                    id: name,
+                    ...preset
+                }));
+            } else {
+                configs = ALL_COMBINATIONS;
+            }
+
+            const totalSteps = configs.length * samplesPerConfig;
+            let currentStep = 0;
+
+            const allResults = {};
+
+            for (const config of configs) {
+                const configId = config.id;
+                const preset = config;
+                const samples = [];
+
+                for (let i = 0; i < samplesPerConfig; i++) {
+                    currentStep++;
+                    statusSpan.textContent = `${configId} (${i + 1}/${samplesPerConfig})`;
+                    progressFill.style.width = ((currentStep / totalSteps) * 100) + '%';
+
+                    // Allow UI to update
+                    await new Promise(resolve => setTimeout(resolve, 10));
+
+                    // Generate a puzzle with this difficulty
+                    const puzzle = PuzzleGenerator.generate({
+                        gridRows: preset.gridRows,
+                        gridCols: preset.gridCols,
+                        colors: preset.colors,
+                        blockers: preset.blockers,
+                        locks: preset.locks
+                    });
+
+                    if (!puzzle) {
+                        samples.push({
+                            success: false,
+                            timeMs: 0,
+                            nodesExplored: 0,
+                            failReason: 'generation'
+                        });
+                        continue;
+                    }
+
+                    // Build the requirements and grid state for the solver
+                    const gridState = [];
+                    for (let r = 0; r < preset.gridRows; r++) {
+                        gridState[r] = [];
+                        for (let c = 0; c < preset.gridCols; c++) {
+                            gridState[r][c] = 'empty';
+                        }
+                    }
+
+                    // Add blockers
+                    for (const [r, c] of puzzle.blockers || []) {
+                        gridState[r][c] = 'blocked';
+                    }
+
+                    // Add locked cells and track their contributions
+                    const lockedContributions = {
+                        rows: Array(preset.gridRows).fill(null).map(() => ({})),
+                        cols: Array(preset.gridCols).fill(null).map(() => ({}))
+                    };
+
+                    // Initialize contributions for all colors
+                    for (let r = 0; r < preset.gridRows; r++) {
+                        for (const color of preset.colors) {
+                            lockedContributions.rows[r][color] = 0;
+                        }
+                    }
+                    for (let c = 0; c < preset.gridCols; c++) {
+                        for (const color of preset.colors) {
+                            lockedContributions.cols[c][color] = 0;
+                        }
+                    }
+
+                    // Mark locked cells as forbidden and count their contributions
+                    for (const color of preset.colors) {
+                        const colorLocks = puzzle.locks[color] || [];
+                        for (const [r, c] of colorLocks) {
+                            gridState[r][c] = `locked-${color}`;
+                            lockedContributions.rows[r][color]++;
+                            lockedContributions.cols[c][color]++;
+                        }
+                    }
+
+                    // Adjust requirements by subtracting locked cell contributions
+                    // (solver only needs to place shapes to cover the remaining requirement)
+                    const adjustedRowReqs = puzzle.requirements.rows.map((req, r) => {
+                        const adjusted = {};
+                        for (const color of preset.colors) {
+                            adjusted[color] = (req[color] || 0) - (lockedContributions.rows[r][color] || 0);
+                        }
+                        return adjusted;
+                    });
+
+                    const adjustedColReqs = puzzle.requirements.cols.map((req, c) => {
+                        const adjusted = {};
+                        for (const color of preset.colors) {
+                            adjusted[color] = (req[color] || 0) - (lockedContributions.cols[c][color] || 0);
+                        }
+                        return adjusted;
+                    });
+
+                    const rowReqs = adjustedRowReqs;
+                    const colReqs = adjustedColReqs;
+
+                    // Get enabled shapes from the puzzle
+                    const enabledShapes = new Set();
+                    for (const color of preset.colors) {
+                        const shapes = puzzle.shapes[color] || [];
+                        for (const shape of shapes) {
+                            enabledShapes.add(shape.shapeId);
+                        }
+                    }
+
+                    // Run instrumented solver
+                    const result = instrumentedRunSolver(
+                        preset.gridRows,
+                        preset.gridCols,
+                        gridState,
+                        rowReqs,
+                        colReqs,
+                        Array.from(enabledShapes),
+                        preset.colors
+                    );
+
+                    samples.push({
+                        success: result.success,
+                        timeMs: result.metrics.timeMs,
+                        nodesExplored: result.metrics.nodesExplored,
+                        placementsTried: result.metrics.placementsTried,
+                        backtracks: result.metrics.backtracks,
+                        failReason: result.success ? null : 'solver'
+                    });
+                }
+
+                // Calculate statistics
+                const successfulSamples = samples.filter(s => s.success);
+                const generationFailures = samples.filter(s => !s.success && s.failReason === 'generation').length;
+                const solverFailures = samples.filter(s => !s.success && s.failReason !== 'generation').length;
+                const stats = {
+                    total: samples.length,
+                    successful: successfulSamples.length,
+                    generationFailures,
+                    solverFailures,
+                    avgTimeMs: successfulSamples.length > 0 ?
+                        successfulSamples.reduce((a, b) => a + b.timeMs, 0) / successfulSamples.length : 0,
+                    medianTimeMs: successfulSamples.length > 0 ?
+                        getMedian(successfulSamples.map(s => s.timeMs)) : 0,
+                    avgNodes: successfulSamples.length > 0 ?
+                        successfulSamples.reduce((a, b) => a + b.nodesExplored, 0) / successfulSamples.length : 0,
+                    medianNodes: successfulSamples.length > 0 ?
+                        getMedian(successfulSamples.map(s => s.nodesExplored)) : 0,
+                    avgPlacements: successfulSamples.length > 0 ?
+                        successfulSamples.reduce((a, b) => a + b.placementsTried, 0) / successfulSamples.length : 0,
+                    maxNodes: successfulSamples.length > 0 ?
+                        Math.max(...successfulSamples.map(s => s.nodesExplored)) : 0,
+                    minNodes: successfulSamples.length > 0 ?
+                        Math.min(...successfulSamples.map(s => s.nodesExplored)) : 0
+                };
+
+                allResults[configId] = { preset, stats, samples };
+            }
+
+            // Re-enable console logging
+            window.BENCHMARK_MODE = false;
+
+            progressDiv.style.display = 'none';
+            displayBenchmarkResults(allResults, mode);
+        }
+
+        function getMedian(arr) {
+            if (arr.length === 0) return 0;
+            const sorted = [...arr].sort((a, b) => a - b);
+            const mid = Math.floor(sorted.length / 2);
+            return sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+        }
+
+        function displayBenchmarkResults(results, mode) {
+            const resultsDiv = document.getElementById('benchmarkResults');
+
+            // Sort by median nodes to see actual difficulty
+            const sortedByComplexity = Object.entries(results)
+                .sort((a, b) => b[1].stats.medianNodes - a[1].stats.medianNodes);
+
+            let html = `
+                <h3 style="color: #39ff14; margin-bottom: 10px;">Results Summary (${mode === 'presets' ? 'Presets' : 'All 80 Combinations'})</h3>
+                <p style="color: #888; margin-bottom: 10px; font-size: 11px;">
+                    Higher nodes explored = more backtracking = potentially harder puzzle.<br>
+                    "Gen Fail" = puzzle generation failed. "Solve Fail" = solver couldn't find solution.
+                </p>
+            `;
+
+            if (mode === 'presets') {
+                // Original presets display
+                html += `
+                    <h4 style="color: #aaa; margin: 15px 0 10px;">Presets Being Tested:</h4>
+                    <table style="margin-bottom: 15px; font-size: 11px;">
+                        <tr><th>Difficulty</th><th>Grid</th><th>Colors</th><th>Blockers</th><th>Locks</th></tr>
+                        ${Object.entries(DIFFICULTY_PRESETS).map(([name, p]) =>
+                            `<tr class="difficulty-${name}">
+                                <td>${name}</td>
+                                <td>${p.gridRows}x${p.gridCols}</td>
+                                <td>${p.colors.length} (${p.colors.join(', ')})</td>
+                                <td>${p.blockers ? '✓' : '✗'}</td>
+                                <td>${p.locks ? '✓' : '✗'}</td>
+                            </tr>`
+                        ).join('')}
+                    </table>
+                `;
+            }
+
+            html += `
+                <h4 style="color: #aaa; margin: 15px 0 10px;">Ranked by Actual Complexity (median nodes explored):</h4>
+                <table style="font-size: ${mode === 'all' ? '10px' : '12px'};">
+                    <tr>
+                        <th>Rank</th>
+                        <th>Config</th>
+                        <th>Grid</th>
+                        <th>Colors</th>
+                        <th>B</th>
+                        <th>L</th>
+                        <th>Success</th>
+                        <th>Median Nodes</th>
+                        <th>Avg Time (ms)</th>
+                        <th>Range</th>
+                    </tr>
+            `;
+
+            let rank = 1;
+            for (const [configId, data] of sortedByComplexity) {
+                const diffClass = mode === 'presets' ? `difficulty-${configId}` : '';
+                const successRate = data.stats.successful / data.stats.total;
+                const successColor = successRate >= 0.8 ? '#39ff14' : successRate >= 0.5 ? '#ff9f1c' : '#ff3939';
+                html += `
+                    <tr>
+                        <td><strong>#${rank}</strong></td>
+                        <td class="${diffClass}" style="font-family: monospace;">${configId}</td>
+                        <td>${data.preset.gridRows}x${data.preset.gridCols}</td>
+                        <td>${data.preset.colors.length}</td>
+                        <td>${data.preset.blockers ? '✓' : '✗'}</td>
+                        <td>${data.preset.locks ? '✓' : '✗'}</td>
+                        <td style="color: ${successColor};">${data.stats.successful}/${data.stats.total}</td>
+                        <td><strong>${Math.round(data.stats.medianNodes)}</strong></td>
+                        <td>${data.stats.avgTimeMs.toFixed(2)}</td>
+                        <td>${data.stats.minNodes} - ${data.stats.maxNodes}</td>
+                    </tr>
+                `;
+                rank++;
+            }
+
+            html += '</table>';
+
+            if (mode === 'presets') {
+                // Add comparison with expected order (only for presets mode)
+                const expectedOrder = ['easy', 'medium', 'hard', 'expert', 'master'];
+                const actualOrder = sortedByComplexity.map(([d]) => d);
+
+                html += `
+                    <h4 style="color: #aaa; margin: 20px 0 10px;">Order Comparison:</h4>
+                    <div style="display: flex; gap: 20px; margin-bottom: 15px;">
+                        <div>
+                            <strong style="color: #888;">Expected (current labels):</strong><br>
+                            ${expectedOrder.map((d, i) => `${i + 1}. ${d}`).join('<br>')}
+                        </div>
+                        <div>
+                            <strong style="color: #39ff14;">Actual (by complexity):</strong><br>
+                            ${actualOrder.map((d, i) => `${i + 1}. ${d}`).join('<br>')}
+                        </div>
+                    </div>
+                `;
+            } else {
+                // For all combinations mode, show summary statistics
+                const byGridSize = {};
+                const byColorCount = {};
+                const byBlockers = { true: [], false: [] };
+                const byLocks = { true: [], false: [] };
+
+                for (const [configId, data] of Object.entries(results)) {
+                    const grid = `${data.preset.gridRows}x${data.preset.gridCols}`;
+                    const colors = data.preset.colors.length;
+
+                    if (!byGridSize[grid]) byGridSize[grid] = [];
+                    byGridSize[grid].push(data.stats.medianNodes);
+
+                    if (!byColorCount[colors]) byColorCount[colors] = [];
+                    byColorCount[colors].push(data.stats.medianNodes);
+
+                    byBlockers[data.preset.blockers].push(data.stats.medianNodes);
+                    byLocks[data.preset.locks].push(data.stats.medianNodes);
+                }
+
+                const calcMedian = arr => {
+                    if (arr.length === 0) return 0;
+                    const sorted = [...arr].sort((a, b) => a - b);
+                    const mid = Math.floor(sorted.length / 2);
+                    return sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+                };
+
+                html += `
+                    <h4 style="color: #aaa; margin: 20px 0 10px;">Factor Analysis (median of medians):</h4>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 15px;">
+                        <div>
+                            <strong style="color: #888;">By Grid Size:</strong><br>
+                            ${Object.entries(byGridSize).map(([grid, nodes]) =>
+                                `${grid}: ${Math.round(calcMedian(nodes))} nodes`
+                            ).join('<br>')}
+                        </div>
+                        <div>
+                            <strong style="color: #888;">By Color Count:</strong><br>
+                            ${Object.entries(byColorCount).map(([count, nodes]) =>
+                                `${count} color${count > 1 ? 's' : ''}: ${Math.round(calcMedian(nodes))} nodes`
+                            ).join('<br>')}
+                        </div>
+                        <div>
+                            <strong style="color: #888;">By Blockers:</strong><br>
+                            With: ${Math.round(calcMedian(byBlockers[true]))} nodes<br>
+                            Without: ${Math.round(calcMedian(byBlockers[false]))} nodes
+                        </div>
+                        <div>
+                            <strong style="color: #888;">By Locks:</strong><br>
+                            With: ${Math.round(calcMedian(byLocks[true]))} nodes<br>
+                            Without: ${Math.round(calcMedian(byLocks[false]))} nodes
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Show observation about order (no conclusions - just data)
+            html += `
+                <div style="padding: 15px; background: rgba(100, 100, 100, 0.2); border: 1px solid #666; border-radius: 6px; margin-top: 15px;">
+                    <strong style="color: #aaa;">📊 Data collected - review before drawing conclusions</strong>
+                    <p style="color: #888; margin: 10px 0 0; font-size: 12px;">
+                        Check "Gen Fail" column - high generation failures may skew results.<br>
+                        Only puzzles that successfully generated AND were solved are counted in node stats.
+                    </p>
+                </div>
+            `;
+
+            // Add detailed stats table (only for presets mode - too verbose for 80 configs)
+            if (mode === 'presets') {
+                html += `
+                    <h4 style="color: #aaa; margin: 20px 0 10px;">Detailed Statistics:</h4>
+                    <table>
+                        <tr>
+                            <th>Difficulty</th>
+                            <th>Success</th>
+                            <th>Gen Fail</th>
+                            <th>Solve Fail</th>
+                            <th>Avg Nodes</th>
+                            <th>Avg Placements</th>
+                            <th>Median Time (ms)</th>
+                        </tr>
+                `;
+
+                for (const [configId, data] of Object.entries(results)) {
+                    const diffClass = `difficulty-${configId}`;
+                    html += `
+                        <tr>
+                            <td class="${diffClass}">${configId}</td>
+                            <td>${data.stats.successful}/${data.stats.total}</td>
+                            <td style="color: #ff9f1c;">${data.stats.generationFailures}</td>
+                            <td style="color: #ff3939;">${data.stats.solverFailures}</td>
+                            <td>${Math.round(data.stats.avgNodes)}</td>
+                            <td>${Math.round(data.stats.avgPlacements)}</td>
+                            <td>${data.stats.medianTimeMs.toFixed(2)}</td>
+                        </tr>
+                    `;
+                }
+
+                html += '</table>';
+            } else {
+                // For all combinations mode, show failure summary
+                const failedConfigs = Object.entries(results)
+                    .filter(([_, data]) => data.stats.generationFailures > 0 || data.stats.solverFailures > 0)
+                    .sort((a, b) => (b[1].stats.generationFailures + b[1].stats.solverFailures) -
+                                    (a[1].stats.generationFailures + a[1].stats.solverFailures));
+
+                if (failedConfigs.length > 0) {
+                    html += `
+                        <h4 style="color: #aaa; margin: 20px 0 10px;">Configurations with Failures (${failedConfigs.length}):</h4>
+                        <table style="font-size: 10px;">
+                            <tr>
+                                <th>Config</th>
+                                <th>Gen Fail</th>
+                                <th>Solve Fail</th>
+                                <th>Success Rate</th>
+                            </tr>
+                    `;
+
+                    for (const [configId, data] of failedConfigs) {
+                        const successRate = ((data.stats.successful / data.stats.total) * 100).toFixed(0);
+                        html += `
+                            <tr>
+                                <td style="font-family: monospace;">${configId}</td>
+                                <td style="color: #ff9f1c;">${data.stats.generationFailures}</td>
+                                <td style="color: #ff3939;">${data.stats.solverFailures}</td>
+                                <td>${successRate}%</td>
+                            </tr>
+                        `;
+                    }
+
+                    html += '</table>';
+                } else {
+                    html += '<p style="color: #39ff14; margin-top: 15px;">All configurations had 100% success rate.</p>';
+                }
+            }
+
+            resultsDiv.innerHTML = html;
+        }
+
         window.onload = function() {
             generateGrid();
             renderShapeSelector();
             setTimeout(updateSliderToggle, 0);
+
+            // Update benchmark mode info when samples change
+            const samplesInput = document.getElementById('benchmarkSamples');
+            if (samplesInput) {
+                samplesInput.addEventListener('input', updateBenchmarkModeInfo);
+            }
         };
     </script>
 </body>
