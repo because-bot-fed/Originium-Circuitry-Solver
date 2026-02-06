@@ -4936,13 +4936,14 @@
             ghost.style.cssText = `
                 position: fixed;
                 z-index: 10000;
-                opacity: 0.9;
+                opacity: 0.55;
                 display: grid;
                 grid-template-columns: repeat(${bounds.width}, ${cellSize}px);
                 grid-template-rows: repeat(${bounds.height}, ${cellSize}px);
                 gap: 0;
                 left: ${x - ghostWidth / 2}px;
-                top: ${y - ghostHeight / 2 - 60}px;
+                top: ${y - ghostHeight / 2}px;
+                pointer-events: none;
             `;
 
             // Build cell set for border checking
@@ -5028,7 +5029,7 @@
             const targetX = touch.clientX + offsetX;
             const targetY = touch.clientY + offsetY;
             touchDragState.ghost.style.left = (targetX - ghostWidth / 2) + 'px';
-            touchDragState.ghost.style.top = (targetY - ghostHeight / 2 - 60) + 'px';
+            touchDragState.ghost.style.top = (targetY - ghostHeight / 2) + 'px';
 
             // Check if over puzzle grid and highlight cells
             const puzzleGrid = document.getElementById('puzzleGrid');
@@ -5143,7 +5144,7 @@
                 if (touchDragState.ghost) {
                     const ghostRect = touchDragState.ghost.getBoundingClientRect();
                     const ghostCenterX = ghostRect.left + ghostRect.width / 2;
-                    const ghostCenterY = ghostRect.top + ghostRect.height / 2 + 60; // Account for the 60px offset
+                    const ghostCenterY = ghostRect.top + ghostRect.height / 2;
                     touchDragState.dragOffset = {
                         x: ghostCenterX - touch.clientX,
                         y: ghostCenterY - touch.clientY
@@ -5241,7 +5242,7 @@
             if (touchDragState.ghost) {
                 const rect = touchDragState.ghost.getBoundingClientRect();
                 const centerX = rect.left + rect.width / 2;
-                const centerY = rect.top + rect.height / 2 + 60; // Account for offset
+                const centerY = rect.top + rect.height / 2;
                 createTouchDragGhost(centerX, centerY);
 
                 if (touchDragState.phase === 'awaiting-action') {
