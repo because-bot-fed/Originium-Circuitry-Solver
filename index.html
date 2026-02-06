@@ -5280,9 +5280,20 @@
             if (!rotateBtn || !touchDragState.ghost) return;
 
             const ghostRect = touchDragState.ghost.getBoundingClientRect();
+            const buttonWidth = 56; // Approximate button width
+            const screenWidth = window.innerWidth;
 
-            // Position to the right of the ghost
-            rotateBtn.style.left = (ghostRect.right + 10) + 'px';
+            // Check if button would be off-screen on the right
+            const rightPosition = ghostRect.right + 10 + buttonWidth;
+
+            if (rightPosition > screenWidth) {
+                // Position to the left of the ghost instead
+                rotateBtn.style.left = (ghostRect.left - buttonWidth - 10) + 'px';
+            } else {
+                // Position to the right of the ghost
+                rotateBtn.style.left = (ghostRect.right + 10) + 'px';
+            }
+
             rotateBtn.style.top = (ghostRect.top + ghostRect.height / 2 - 28) + 'px';
             rotateBtn.classList.add('visible');
         }
