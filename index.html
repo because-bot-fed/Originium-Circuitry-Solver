@@ -5041,13 +5041,64 @@
             const touch = e.touches[0];
             const target = document.elementFromPoint(touch.clientX, touch.clientY);
 
-            // Check if tapped on rotate button
+            // Check if tapped on rotate button (highest priority)
             if (target && target.closest('#mobileRotateBtn')) {
                 // Rotate is handled by its own handler
                 return;
             }
 
-            // Check if tapped on the floating ghost - resume dragging
+            // Check if tap coordinates are within the grid bounds (by position, not by target)
+            // This takes priority over ghost so tapping grid area always tries to place
+            const puzzleGrid = document.getElementById('puzzleGrid');
+            if (puzzleGrid) {
+                const gridRect = puzzleGrid.getBoundingClientRect();
+                const gridX = touch.clientX - gridRect.left;
+                const gridY = touch.clientY - gridRect.top;
+
+                // Check if tap is within grid bounds
+                if (gridX >= 0 && gridX < gridRect.width && gridY >= 0 && gridY < gridRect.height) {
+                    e.preventDefault();
+
+                    const shapeData = SHAPE_LIBRARY[touchDragState.shapeId];
+                    const rotation = shapeData.rotations[touchDragState.rotationIndex];
+                    const cellSize = touchDragState.gridCellSize;
+
+                    const col = Math.floor(gridX / cellSize);
+                    const row = Math.floor(gridY / cellSize);
+                    const bounds = getShapeBounds(rotation);
+                    const startRow = row - Math.floor(bounds.height / 2);
+                    const startCol = col - Math.floor(bounds.width / 2);
+
+                    const validity = checkPlacementValidity(startRow, startCol, rotation);
+
+                    if (validity.valid) {
+                        // Remove from palette BEFORE placing (so win check sees empty palette)
+                        if (touchDragState.sourceElement) {
+                            touchDragState.sourceElement.remove();
+                        }
+
+                        // Place the shape (this internally calls updatePuzzleBars and checkWinCondition)
+                        placeShapeOnGrid(
+                            startRow,
+                            startCol,
+                            rotation,
+                            touchDragState.color,
+                            touchDragState.shapeId,
+                            touchDragState.rotationIndex
+                        );
+
+                        // Clean up
+                        finishTouchDrag(true);
+                    } else {
+                        // Invalid placement - show feedback
+                        showToast('Invalid placement', 'error', 1500);
+                    }
+
+                    return;
+                }
+            }
+
+            // Check if tapped on the floating ghost (not over grid) - resume dragging
             if (target && target.closest('#touch-drag-ghost')) {
                 e.preventDefault();
                 // Resume dragging from this position
@@ -5059,55 +5110,6 @@
                 hideMobileRotateButton();
                 document.removeEventListener('touchstart', handleAwaitingActionTap);
                 console.log('Resumed dragging from ghost tap');
-                return;
-            }
-
-            // Check if tapped on grid
-            const puzzleGrid = document.getElementById('puzzleGrid');
-            if (puzzleGrid && target && (target.closest('#puzzleGrid') || puzzleGrid.contains(target))) {
-                e.preventDefault();
-
-                // Try to place at the last known valid position
-                const shapeData = SHAPE_LIBRARY[touchDragState.shapeId];
-                const rotation = shapeData.rotations[touchDragState.rotationIndex];
-
-                // Calculate placement position from tap
-                const gridRect = puzzleGrid.getBoundingClientRect();
-                const gridX = touch.clientX - gridRect.left;
-                const gridY = touch.clientY - gridRect.top;
-                const cellSize = touchDragState.gridCellSize;
-
-                const col = Math.floor(gridX / cellSize);
-                const row = Math.floor(gridY / cellSize);
-                const bounds = getShapeBounds(rotation);
-                const startRow = row - Math.floor(bounds.height / 2);
-                const startCol = col - Math.floor(bounds.width / 2);
-
-                const validity = checkPlacementValidity(startRow, startCol, rotation);
-
-                if (validity.valid) {
-                    // Remove from palette BEFORE placing (so win check sees empty palette)
-                    if (touchDragState.sourceElement) {
-                        touchDragState.sourceElement.remove();
-                    }
-
-                    // Place the shape (this internally calls updatePuzzleBars and checkWinCondition)
-                    placeShapeOnGrid(
-                        startRow,
-                        startCol,
-                        rotation,
-                        touchDragState.color,
-                        touchDragState.shapeId,
-                        touchDragState.rotationIndex
-                    );
-
-                    // Clean up
-                    finishTouchDrag(true);
-                } else {
-                    // Invalid placement - show feedback
-                    showToast('Invalid placement', 'error', 1500);
-                }
-
                 return;
             }
 
