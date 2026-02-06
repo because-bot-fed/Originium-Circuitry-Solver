@@ -4827,7 +4827,9 @@
             gridCellSize: 68,
             lastGridCell: null,
             lastTouchPos: { x: 0, y: 0 },
-            solutionData: null // For hints to work
+            solutionData: null, // For hints to work
+            dragOffset: null, // Offset for resuming drag from anchor
+            anchorTouchStart: null // Track anchor tap vs drag
         };
 
         // Called when mobile mode is toggled ON
@@ -4897,7 +4899,9 @@
                 gridCellSize: cellSize,
                 lastGridCell: null,
                 lastTouchPos: { x: touch.clientX, y: touch.clientY },
-                solutionData
+                solutionData,
+                dragOffset: null,
+                anchorTouchStart: null
             };
 
             // Prevent scrolling during drag
@@ -5016,17 +5020,23 @@
             const ghostWidth = bounds.width * cellSize;
             const ghostHeight = bounds.height * cellSize;
 
-            // Update ghost position (offset above finger)
-            touchDragState.ghost.style.left = (touch.clientX - ghostWidth / 2) + 'px';
-            touchDragState.ghost.style.top = (touch.clientY - ghostHeight / 2 - 60) + 'px';
+            // Apply drag offset if set (when resuming drag from anchor)
+            const offsetX = touchDragState.dragOffset ? touchDragState.dragOffset.x : 0;
+            const offsetY = touchDragState.dragOffset ? touchDragState.dragOffset.y : 0;
+
+            // Update ghost position (offset above finger, plus any drag offset)
+            const targetX = touch.clientX + offsetX;
+            const targetY = touch.clientY + offsetY;
+            touchDragState.ghost.style.left = (targetX - ghostWidth / 2) + 'px';
+            touchDragState.ghost.style.top = (targetY - ghostHeight / 2 - 60) + 'px';
 
             // Check if over puzzle grid and highlight cells
             const puzzleGrid = document.getElementById('puzzleGrid');
             if (!puzzleGrid) return;
 
             const gridRect = puzzleGrid.getBoundingClientRect();
-            const gridX = touch.clientX - gridRect.left;
-            const gridY = touch.clientY - gridRect.top;
+            const gridX = targetX - gridRect.left;
+            const gridY = targetY - gridRect.top;
 
             clearGridHighlights();
 
@@ -5128,7 +5138,17 @@
                 touchDragState.anchorTouchStart = { x: touch.clientX, y: touch.clientY };
                 touchDragState.lastTouchPos = { x: touch.clientX, y: touch.clientY };
 
+                // Calculate drag offset so ghost doesn't jump
+                // The offset is the difference between touch point and where the ghost center should be
                 if (touchDragState.ghost) {
+                    const ghostRect = touchDragState.ghost.getBoundingClientRect();
+                    const ghostCenterX = ghostRect.left + ghostRect.width / 2;
+                    const ghostCenterY = ghostRect.top + ghostRect.height / 2 + 60; // Account for the 60px offset
+                    touchDragState.dragOffset = {
+                        x: ghostCenterX - touch.clientX,
+                        y: ghostCenterY - touch.clientY
+                    };
+
                     touchDragState.ghost.classList.remove('awaiting-action');
                     const anchor = touchDragState.ghost.querySelector('.touch-anchor');
                     if (anchor) anchor.classList.remove('awaiting-action');
@@ -5296,7 +5316,9 @@
                 gridCellSize: 68,
                 lastGridCell: null,
                 lastTouchPos: { x: 0, y: 0 },
-                solutionData: null
+                solutionData: null,
+                dragOffset: null,
+                anchorTouchStart: null
             };
         }
 
