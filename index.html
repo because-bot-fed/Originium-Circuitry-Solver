@@ -2785,6 +2785,42 @@
         <div id="puzzleUI" style="display: none;">
             <div class="puzzle-config-panel">
                 <h2>Puzzle Configuration</h2>
+                
+                <div style="position: relative; text-align: center; margin-bottom: 20px;">
+                    <div class="difficulty-help" style="justify-content: center;">
+                        <span>INSTRUCTIONS</span>
+                        <span class="help-btn" onclick="toggleInstructionsHelp(event)">?</span>
+                    </div>
+                    <div class="help-tooltip" id="instructionsHelpTooltip" style="text-align: left; width: 320px; max-width: 90vw; left: 50%; transform: translateX(-50%); z-index: 200;">
+                        <strong style="color: #39ff14;">OBJECTIVE</strong>
+                        <ul style="margin: 8px 0 15px 15px; list-style: disc; color: #ccc;">
+                            <li>Place <strong>all</strong> shapes from the palette.</li>
+                            <li>Match the <strong>Row & Col Requirements</strong> (colored bars).</li>
+                            <li>Bars must match exactly (no red pulsing).</li>
+                        </ul>
+
+                        <strong style="color: #00bfff;">CONTROLS</strong>
+                        <ul style="margin: 8px 0 15px 15px; list-style: disc; color: #ccc;">
+                            <li><strong>Place:</strong> Drag and drop shapes.</li>
+                            <li><strong>Rotate (Desktop):</strong> Press <strong>'R'</strong> while dragging.</li>
+                            <li><strong>Rotate (Mobile):</strong> Tap the <strong>Rotate</strong> button.</li>
+                            <li><strong>Remove (Desktop):</strong> <strong>Right-click</strong> a placed shape.</li>
+                            <li><strong>Remove (Mobile):</strong> <strong>Double-tap</strong> or <strong>Long-press</strong> to remove.</li>
+                        </ul>
+
+                        <strong style="color: #ff3939;">RULES</strong>
+                        <ul style="margin: 8px 0 15px 15px; list-style: disc; color: #ccc;">
+                            <li><strong>Locks:</strong> Fixed cells (cannot move).</li>
+                            <li><strong>Blockers:</strong> Obstacles (cannot place on top).</li>
+                        </ul>
+                        
+                        <strong style="color: #bf39ff;">TOOLS</strong>
+                        <ul style="margin: 8px 0 0 15px; list-style: disc; color: #ccc;">
+                            <li><strong>Hint:</strong> Places one correct shape.</li>
+                            <li><strong>Solution:</strong> Solves the puzzle.</li>
+                        </ul>
+                    </div>
+                </div>
 
                 <div class="puzzle-difficulty-selector">
                     <h3 class="difficulty-help">Difficulty <span class="help-btn" onclick="toggleDifficultyHelp(event)">?</span></h3>
@@ -3824,6 +3860,7 @@
         };
 
         let currentPuzzle = null;
+        let nextPlacementId = 0; // Unique instance ID for each placed shape
 
         function initPuzzleMode() {
             console.log('Puzzle mode initialized');
@@ -3846,6 +3883,25 @@
             const tooltip = document.getElementById('difficultyHelpTooltip');
             tooltip.classList.remove('visible');
             document.removeEventListener('click', closeDifficultyHelp);
+        }
+
+        function toggleInstructionsHelp(event) {
+            event.stopPropagation();
+            const tooltip = document.getElementById('instructionsHelpTooltip');
+            tooltip.classList.toggle('visible');
+
+            // Close on click outside
+            if (tooltip.classList.contains('visible')) {
+                setTimeout(() => {
+                    document.addEventListener('click', closeInstructionsHelp);
+                }, 0);
+            }
+        }
+
+        function closeInstructionsHelp() {
+            const tooltip = document.getElementById('instructionsHelpTooltip');
+            tooltip.classList.remove('visible');
+            document.removeEventListener('click', closeInstructionsHelp);
         }
 
         // ============================================
@@ -5411,6 +5467,9 @@
         }
 
         function placeShapeOnGrid(startRow, startCol, rotation, color, shapeId, rotationIndex) {
+            // Assign unique instance ID for this placement
+            const placementId = nextPlacementId++;
+
             // Build a set of all cells in this shape for neighbor checking
             const cellSet = new Set(rotation.map(([dr, dc]) => `${startRow + dr},${startCol + dc}`));
 
@@ -5427,6 +5486,7 @@
                     gridCell.dataset.currentState = color;
                     gridCell.dataset.placedShapeId = shapeId;
                     gridCell.dataset.placedRotation = rotationIndex;
+                    gridCell.dataset.placementId = placementId;
 
                     // Alternating shade based on checkerboard pattern (row + col parity)
                     if ((r + c) % 2 === 1) {
@@ -5582,6 +5642,7 @@
 
             const shapeId = cell.dataset.placedShapeId;
             const rotationIndex = parseInt(cell.dataset.placedRotation);
+            const placementId = cell.dataset.placementId;
 
             // Find color from cell class
             let color = null;
@@ -5593,13 +5654,12 @@
             }
             if (!color) return;
 
-            // Find all cells of this placed shape
+            // Find all cells of this specific placement instance
             const allPlacedCells = document.querySelectorAll(
-                `#puzzleGrid .cell.placed[data-placed-shape-id="${shapeId}"]`
+                `#puzzleGrid .cell.placed[data-placement-id="${placementId}"]`
             );
 
-            // Remove all cells of this shape instance directly
-            // This avoids issues where calculating origin/rotation might miss cells
+            // Remove all cells of this shape instance
             allPlacedCells.forEach(gridCell => {
                 gridCell.classList.remove(color, 'placed', 'shade-alt',
                     'border-top', 'border-right', 'border-bottom', 'border-left',
@@ -5607,6 +5667,7 @@
                 gridCell.dataset.currentState = 'empty';
                 delete gridCell.dataset.placedShapeId;
                 delete gridCell.dataset.placedRotation;
+                delete gridCell.dataset.placementId;
             });
 
             // Add shape back to palette
@@ -5729,6 +5790,7 @@
         function removeShapeByCell(cell, showUndo = false) {
             const shapeId = cell.dataset.placedShapeId;
             const rotationIndex = parseInt(cell.dataset.placedRotation);
+            const placementId = cell.dataset.placementId;
 
             // Find color from cell class
             let color = null;
@@ -5740,53 +5802,79 @@
             }
             if (!color) return;
 
-            // Find the origin position of this shape
-            const shapeData = SHAPE_LIBRARY[shapeId];
-            const rotation = shapeData.rotations[rotationIndex];
-            const cellRow = parseInt(cell.dataset.row);
-            const cellCol = parseInt(cell.dataset.col);
+            // Find all cells of this specific placement instance
+            let allPlacedCells;
+            if (placementId) {
+                allPlacedCells = document.querySelectorAll(
+                    `#puzzleGrid .cell.placed[data-placement-id="${placementId}"]`
+                );
+            } else {
+                // Fallback for legacy/error cases: find by shape/rotation/color
+                // This is risky if multiple same shapes are placed, but better than nothing
+                const candidates = document.querySelectorAll(
+                    `#puzzleGrid .cell.placed[data-placed-shape-id="${shapeId}"]`
+                );
+                // Filter by color and rotation manually if needed, or just accept all (simplest for now)
+                allPlacedCells = candidates; 
+            }
 
-            // Find origin by testing offsets
-            let originRow = null, originCol = null;
-            for (const [dr, dc] of rotation) {
-                const testRow = cellRow - dr;
-                const testCol = cellCol - dc;
-                // Verify this is correct origin
-                let valid = true;
-                for (const [dr2, dc2] of rotation) {
-                    const checkCell = document.querySelector(
-                        `#puzzleGrid .cell[data-row="${testRow + dr2}"][data-col="${testCol + dc2}"]`
-                    );
-                    if (!checkCell || !checkCell.classList.contains('placed') ||
-                        checkCell.dataset.placedShapeId !== shapeId) {
-                        valid = false;
+            // Find origin for undo data
+            if (showUndo) {
+                const shapeData = SHAPE_LIBRARY[shapeId];
+                const rotation = shapeData.rotations[rotationIndex];
+                const cellRow = parseInt(cell.dataset.row);
+                const cellCol = parseInt(cell.dataset.col);
+
+                let originRow = null, originCol = null;
+                
+                // Try to find the origin that explains this cell's position
+                for (const [dr, dc] of rotation) {
+                    const testRow = cellRow - dr;
+                    const testCol = cellCol - dc;
+                    
+                    // Verify this origin matches all cells in the shape
+                    let valid = true;
+                    for (const [dr2, dc2] of rotation) {
+                        const checkRow = testRow + dr2;
+                        const checkCol = testCol + dc2;
+                        
+                        // Check if this cell is part of the group we identified
+                        let isPart = false;
+                        for (let i = 0; i < allPlacedCells.length; i++) {
+                            const pCell = allPlacedCells[i];
+                            if (parseInt(pCell.dataset.row) === checkRow && 
+                                parseInt(pCell.dataset.col) === checkCol) {
+                                isPart = true;
+                                break;
+                            }
+                        }
+                        
+                        if (!isPart) {
+                            valid = false;
+                            break;
+                        }
+                    }
+                    
+                    if (valid) {
+                        originRow = testRow;
+                        originCol = testCol;
                         break;
                     }
                 }
-                if (valid) {
-                    originRow = testRow;
-                    originCol = testCol;
-                    break;
+
+                if (originRow !== null) {
+                    lastRemovedShape = {
+                        shapeId,
+                        color,
+                        rotationIndex,
+                        originRow,
+                        originCol,
+                        cells: rotation.map(([dr, dc]) => [originRow + dr, originCol + dc])
+                    };
                 }
             }
 
-            // Store for undo before removing
-            if (showUndo && originRow !== null) {
-                lastRemovedShape = {
-                    shapeId,
-                    color,
-                    rotationIndex,
-                    originRow,
-                    originCol,
-                    cells: rotation.map(([dr, dc]) => [originRow + dr, originCol + dc])
-                };
-            }
-
-            // Find and remove all cells of this placed shape
-            const allPlacedCells = document.querySelectorAll(
-                `#puzzleGrid .cell.placed[data-placed-shape-id="${shapeId}"]`
-            );
-
+            // Remove all cells of this shape instance
             allPlacedCells.forEach(gridCell => {
                 gridCell.classList.remove(color, 'placed', 'shade-alt',
                     'border-top', 'border-right', 'border-bottom', 'border-left',
@@ -5794,6 +5882,7 @@
                 gridCell.dataset.currentState = 'empty';
                 delete gridCell.dataset.placedShapeId;
                 delete gridCell.dataset.placedRotation;
+                delete gridCell.dataset.placementId;
             });
 
             // Add shape back to palette
@@ -5993,8 +6082,8 @@
                 }
             }
 
-            // For each cell with a placed shape, find and remove the entire shape
-            const processedShapes = new Set();
+            // For each cell with a placed shape, find and remove the entire shape by placementId
+            const processedPlacements = new Set();
             cellsToProcess.forEach(cellKey => {
                 const [r, c] = cellKey.split(',').map(Number);
                 const gridCell = document.querySelector(
@@ -6004,6 +6093,11 @@
 
                 const placedShapeId = gridCell.dataset.placedShapeId;
                 const placedRotation = parseInt(gridCell.dataset.placedRotation);
+                const placementId = gridCell.dataset.placementId;
+
+                // Skip if already processed this placement instance
+                if (processedPlacements.has(placementId)) return;
+                processedPlacements.add(placementId);
 
                 // Find the color
                 let placedColor = null;
@@ -6015,59 +6109,20 @@
                 }
                 if (!placedColor) return;
 
-                // Create unique key for this shape instance
-                const shapeKey = `${placedShapeId}-${placedColor}-${r}-${c}`;
-                if (processedShapes.has(shapeKey)) return;
+                // Find and remove all cells of this specific placement instance
+                const allInstanceCells = document.querySelectorAll(
+                    `#puzzleGrid .cell.placed[data-placement-id="${placementId}"]`
+                );
 
-                // Find all cells of this shape and get its origin
-                const shapeData = SHAPE_LIBRARY[placedShapeId];
-                const shapeRotation = shapeData.rotations[placedRotation];
-
-                // Find origin by checking which offset makes this cell match
-                let originRow = null, originCol = null;
-                for (const [dr, dc] of shapeRotation) {
-                    const testOriginR = r - dr;
-                    const testOriginC = c - dc;
-                    // Verify this origin works for all cells
-                    let valid = true;
-                    for (const [dr2, dc2] of shapeRotation) {
-                        const checkCell = document.querySelector(
-                            `#puzzleGrid .cell[data-row="${testOriginR + dr2}"][data-col="${testOriginC + dc2}"]`
-                        );
-                        if (!checkCell || !checkCell.classList.contains('placed') ||
-                            checkCell.dataset.placedShapeId !== placedShapeId) {
-                            valid = false;
-                            break;
-                        }
-                    }
-                    if (valid) {
-                        originRow = testOriginR;
-                        originCol = testOriginC;
-                        break;
-                    }
-                }
-
-                if (originRow === null) return;
-
-                // Mark this shape as processed
-                processedShapes.add(`${placedShapeId}-${placedColor}-${originRow}-${originCol}`);
-
-                // Remove all cells of this shape
-                for (const [dr, dc] of shapeRotation) {
-                    const cellR = originRow + dr;
-                    const cellC = originCol + dc;
-                    const cell = document.querySelector(
-                        `#puzzleGrid .cell[data-row="${cellR}"][data-col="${cellC}"]`
-                    );
-                    if (cell) {
-                        cell.classList.remove(placedColor, 'placed', 'shade-alt',
-                            'border-top', 'border-right', 'border-bottom', 'border-left',
-                            'corner-tl', 'corner-tr', 'corner-br', 'corner-bl');
-                                cell.dataset.currentState = 'empty';
-                        delete cell.dataset.placedShapeId;
-                        delete cell.dataset.placedRotation;
-                    }
-                }
+                allInstanceCells.forEach(cell => {
+                    cell.classList.remove(placedColor, 'placed', 'shade-alt',
+                        'border-top', 'border-right', 'border-bottom', 'border-left',
+                        'corner-tl', 'corner-tr', 'corner-br', 'corner-bl');
+                    cell.dataset.currentState = 'empty';
+                    delete cell.dataset.placedShapeId;
+                    delete cell.dataset.placedRotation;
+                    delete cell.dataset.placementId;
+                });
 
                 // Track removed shape to add back to palette
                 removedShapes.push({
@@ -6143,6 +6198,7 @@
                 cell.dataset.currentState = 'empty';
                 delete cell.dataset.placedShapeId;
                 delete cell.dataset.placedRotation;
+                delete cell.dataset.placementId;
             });
 
             // Clear the palette
