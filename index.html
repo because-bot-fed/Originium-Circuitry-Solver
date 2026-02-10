@@ -93,6 +93,57 @@
             flex-wrap: wrap;
         }
 
+        /* Upload Area */
+        .upload-area {
+            max-width: 350px;
+            margin: 20px auto;
+        }
+
+        .upload-dropzone {
+            position: relative;
+            border: 1px solid #333;
+            border-radius: 3px;
+            padding: 16px 20px;
+            background: #0f0f0f;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .upload-dropzone:hover {
+            border-color: #444;
+            background: #151515;
+        }
+
+        .upload-dropzone.drag-over {
+            border-color: #39ff14;
+            background: rgba(57, 255, 20, 0.05);
+        }
+
+        .upload-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .upload-icon {
+            font-size: 1.5rem;
+            opacity: 0.7;
+        }
+
+        .upload-text {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #aaa;
+        }
+
+        .upload-subtext {
+            font-size: 0.7rem;
+            color: #666;
+        }
+
         .config-group {
             display: flex;
             align-items: center;
@@ -192,6 +243,14 @@
 
         .toast.fade-out {
             animation: toastOut 0.3s ease forwards;
+        }
+
+        .toast-image {
+            max-width: 250px;
+            max-height: 150px;
+            border-radius: 3px;
+            margin-top: 8px;
+            display: block;
         }
 
         @keyframes toastIn {
@@ -2904,6 +2963,18 @@
                         <button class="btn btn-clear" onclick="clearGrid()">Clear</button>
                     </div>
 
+                    <!-- Image Upload Area -->
+                    <div class="upload-area" id="uploadArea">
+                        <div class="upload-dropzone" id="uploadDropzone">
+                            <input type="file" id="imageFileInput" accept="image/*" style="display: none;">
+                            <label for="imageFileInput" class="upload-label">
+                                <span class="upload-icon">📷</span>
+                                <span class="upload-text">Analyze Screenshot</span>
+                                <span class="upload-subtext">Drag, Paste (Ctrl+V), or click</span>
+                            </label>
+                        </div>
+                    </div>
+
                     <!-- Fit All Pieces Mode -->
                     <div class="fit-mode-container">
                         <label class="fit-mode-checkbox" id="fitModeCheckbox" onclick="toggleFitMode()">
@@ -2978,7 +3049,8 @@
                             <li><strong>Rotate (Mobile):</strong> Tap the <strong>Rotate</strong> button.</li>
                             <li><strong>Remove (Desktop):</strong> <strong>Right-click</strong> a placed shape.</li>
                             <li><strong>Remove (Mobile):</strong> <strong>Double-tap</strong> or
-                                <strong>Long-press</strong> to remove.</li>
+                                <strong>Long-press</strong> to remove.
+                            </li>
                         </ul>
 
                         <strong style="color: #ff3939;">RULES</strong>
@@ -3086,11 +3158,20 @@
         let cellMode = 'none'; // 'none', 'blocked', 'locked-green', 'locked-blue', 'locked-red', 'locked-purple'
 
         // Toast notification system
-        function showToast(message, type = 'info', duration = 3000) {
+        function showToast(message, type = 'info', duration = 3000, imageUrl = null) {
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
             toast.textContent = message;
+
+            // Add image if provided
+            if (imageUrl) {
+                const img = document.createElement('img');
+                img.className = 'toast-image';
+                img.src = imageUrl;
+                toast.appendChild(img);
+            }
+
             container.appendChild(toast);
 
             setTimeout(() => {
@@ -3898,6 +3979,76 @@
                     if (hasLeft) cell.classList.add('border-left');
                 }
             });
+        }
+
+        // Image upload and processing
+        let currentPreviewURL = null;
+
+        function loadImageFromFileOrBlob(blob) {
+            return new Promise((resolve, reject) => {
+                if (!blob.type.startsWith('image/')) {
+                    reject(new Error('File is not an image'));
+                    return;
+                }
+
+                const url = URL.createObjectURL(blob);
+                const img = new Image();
+
+                img.onload = () => resolve(img);
+                img.onerror = () => {
+                    URL.revokeObjectURL(url);
+                    reject(new Error('Failed to load image'));
+                };
+
+                img.src = url;
+            });
+        }
+
+        function analyzePuzzleImage(image) {
+            return new Promise((resolve) => {
+                // Stub: return mock data for testing pipeline
+                setTimeout(() => {
+                    resolve({
+                        gridRows: 5,
+                        gridCols: 5,
+                        requirements: {
+                            rows: Array(5).fill(null).map(() => ({ green: 0, blue: 0 })),
+                            cols: Array(5).fill(null).map(() => ({ green: 0, blue: 0 }))
+                        },
+                        gridState: Array(5).fill(null).map(() => Array(5).fill('empty')),
+                        shapeCounts: {}
+                    });
+                }, 100); // Simulate processing delay
+            });
+        }
+
+        async function processImageAndApply(blob) {
+            try {
+                updateStatus('Loading image...');
+
+                const image = await loadImageFromFileOrBlob(blob);
+
+                updateStatus('Analyzing puzzle...');
+                const result = await analyzePuzzleImage(image);
+
+                updateStatus('Applying to grid...');
+                generateGrid(result);
+
+                // Clean up old preview URL if exists
+                if (currentPreviewURL) {
+                    URL.revokeObjectURL(currentPreviewURL);
+                }
+                currentPreviewURL = URL.createObjectURL(blob);
+
+                // Show success toast with preview image
+                showToast('Puzzle loaded — click Solve', 'success', 4000, currentPreviewURL);
+                updateStatus('Ready');
+
+            } catch (error) {
+                console.error('Failed to process image:', error);
+                showToast('Could not analyze image: ' + error.message, 'error');
+                updateStatus('Ready');
+            }
         }
 
         function updateStatus(message, type = '') {
@@ -7145,6 +7296,60 @@
             if (samplesInput) {
                 samplesInput.addEventListener('input', updateBenchmarkModeInfo);
             }
+
+            // Image upload event handlers
+            const fileInput = document.getElementById('imageFileInput');
+            const dropzone = document.getElementById('uploadDropzone');
+
+            // File input handler
+            fileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    processImageAndApply(file);
+                }
+                // Clear input so same file can be selected again
+                e.target.value = '';
+            });
+
+            // Drag and drop handlers
+            dropzone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropzone.classList.add('drag-over');
+            });
+
+            dropzone.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                dropzone.classList.remove('drag-over');
+            });
+
+            dropzone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropzone.classList.remove('drag-over');
+
+                const file = e.dataTransfer.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    processImageAndApply(file);
+                } else {
+                    showToast('Please drop an image file', 'error');
+                }
+            });
+
+            // Global paste handler
+            document.addEventListener('paste', (e) => {
+                const items = e.clipboardData?.items;
+                if (!items) return;
+
+                for (const item of items) {
+                    if (item.type.startsWith('image/')) {
+                        e.preventDefault();
+                        const blob = item.getAsFile();
+                        if (blob) {
+                            processImageAndApply(blob);
+                        }
+                        break;
+                    }
+                }
+            });
         };
     </script>
 </body>
