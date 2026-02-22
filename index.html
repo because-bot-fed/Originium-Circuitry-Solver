@@ -277,6 +277,74 @@
             }
         }
 
+        /* Debug Visualization Area */
+        .debug-area {
+            max-width: 1400px;
+            margin: 40px auto 20px;
+            padding: 20px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+        }
+
+        .debug-area h3 {
+            margin: 0 0 15px 0;
+            color: #39ff14;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .debug-container {
+            position: relative;
+            display: inline-block;
+            background: #0a0a0a;
+            border: 1px solid #444;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        #debugCanvas {
+            display: block;
+            max-width: 100%;
+            height: auto;
+        }
+
+        .debug-info {
+            margin-top: 15px;
+            padding: 15px;
+            background: #0f0f0f;
+            border: 1px solid #333;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #ccc;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .debug-info .debug-section {
+            margin-bottom: 15px;
+        }
+
+        .debug-info .debug-section-title {
+            color: #00bfff;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .debug-info .debug-value {
+            color: #39ff14;
+        }
+
+        .debug-info .debug-warning {
+            color: #ffa500;
+        }
+
+        .debug-info .debug-error {
+            color: #ff3939;
+        }
+
         .btn-solve {
             background: #1a3a1a;
             color: #39ff14;
@@ -3023,6 +3091,15 @@
 
         </div><!-- End Solver UI -->
 
+        <!-- Debug Visualization Area -->
+        <div id="debugArea" class="debug-area" style="display: none;">
+            <h3>Debug Visualization</h3>
+            <div class="debug-container">
+                <canvas id="debugCanvas"></canvas>
+            </div>
+            <div class="debug-info" id="debugInfo"></div>
+        </div>
+
         <!-- Puzzle Mode UI -->
         <div id="puzzleUI" style="display: none;">
             <div class="puzzle-config-panel">
@@ -4016,7 +4093,17 @@
                             cols: Array(5).fill(null).map(() => ({ green: 0, blue: 0 }))
                         },
                         gridState: Array(5).fill(null).map(() => Array(5).fill('empty')),
-                        shapeCounts: {}
+                        shapeCounts: {},
+                        blockedRows: [],
+                        blockedCols: [],
+                        _debug: {
+                            gridBounds: {
+                                left: 976,
+                                top: 416,
+                                right: 1582,
+                                bottom: 1023
+                            }
+                        }
                     });
                 }, 100); // Simulate processing delay
             });
@@ -4032,7 +4119,17 @@
                 const result = await analyzePuzzleImage(image);
 
                 updateStatus('Applying to grid...');
+
+                // Extract debug data before passing to generateGrid
+                const debugData = result._debug || {};
+                delete result._debug; // Remove debug data before passing to generateGrid
+
                 generateGrid(result);
+
+                // Draw debug visualization
+                if (typeof drawDebugVisualization === 'function') {
+                    drawDebugVisualization(image, result, debugData);
+                }
 
                 // Clean up old preview URL if exists
                 if (currentPreviewURL) {
@@ -7352,6 +7449,8 @@
             });
         };
     </script>
+    <!-- Image Analyzer -->
+    <script src="image-analyzer.js"></script>
 </body>
 
 </html>
