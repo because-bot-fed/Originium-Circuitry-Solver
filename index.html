@@ -3223,6 +3223,9 @@
 
     </div>
 
+    <img src="corner_top_left.png" id="corner_top_left" style="display: none;">
+    <img src="corner_bottom_right.png" id="corner_bottom_right" style="display: none;">
+
     <script src="shapes.js"></script>
     <script src="solver.js"></script>
     <script src="puzzle-generator.js"></script>
@@ -4078,34 +4081,6 @@
                 };
 
                 img.src = url;
-            });
-        }
-
-        function analyzePuzzleImage(image) {
-            return new Promise((resolve) => {
-                // Stub: return mock data for testing pipeline
-                setTimeout(() => {
-                    resolve({
-                        gridRows: 5,
-                        gridCols: 5,
-                        requirements: {
-                            rows: Array(5).fill(null).map(() => ({ green: 0, blue: 0 })),
-                            cols: Array(5).fill(null).map(() => ({ green: 0, blue: 0 }))
-                        },
-                        gridState: Array(5).fill(null).map(() => Array(5).fill('empty')),
-                        shapeCounts: {},
-                        blockedRows: [],
-                        blockedCols: [],
-                        _debug: {
-                            gridBounds: {
-                                left: 976,
-                                top: 416,
-                                right: 1582,
-                                bottom: 1023
-                            }
-                        }
-                    });
-                }, 100); // Simulate processing delay
             });
         }
 
@@ -7449,6 +7424,8 @@
             });
         };
     </script>
+    <script async src="https://docs.opencv.org/master/opencv.js"
+        onerror="console.error('Failed to load OpenCV.js'); alert('Could not load computer vision library.');"></script>
     <!-- Image Analyzer -->
     <script src="image-analyzer.js"></script>
 </body>

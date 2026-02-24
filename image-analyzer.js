@@ -8,6 +8,231 @@
  * - Blocked rows/columns
  */
 
+/**
+ * Main entry point for analyzing a puzzle screenshot.
+ * @param {ImageBitmap|HTMLImageElement|HTMLCanvasElement} image - The source image
+ * @returns {Promise<Object>} Analysis results matching the generateGrid(overrides) contract
+ */
+async function analyzePuzzleImage(image) {
+    const canvas = document.createElement('canvas');
+    canvas.width = image.width;
+    canvas.height = image.height;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(image, 0, 0);
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+    // 1. Detect Grid Bounds
+    const gridBounds = detectGridBounds(canvas);
+    if (!gridBounds) throw new Error('Grid not detected (could not find corner brackets)');
+
+    // 2. Detect Grid Dimensions (Rows/Cols)
+    const { gridRows, gridCols } = detectGridDimensions(imageData, gridBounds);
+
+    // 3. Classify Cell States
+    const gridState = classifyCells(imageData, gridBounds, gridRows, gridCols);
+
+    // 4. Extract Row/Column Requirements
+    const requirements = extractRequirements(imageData, gridBounds, gridRows, gridCols);
+
+    // 5. Detect Blocked Rows/Columns (⊘)
+    const { blockedRows, blockedCols } = detectBlockedRowsCols(imageData, gridBounds, gridRows, gridCols);
+
+    // 6. Detect Inventory (Shapes)
+    const shapeCounts = detectInventory(imageData, gridBounds, image.width, image.height);
+
+    return {
+        gridRows,
+        gridCols,
+        gridState,
+        requirements,
+        shapeCounts,
+        blockedRows,
+        blockedCols,
+        _debug: {
+            gridBounds,
+            imageWidth: image.width,
+            imageHeight: image.height
+        }
+    };
+}
+
+/**
+ * Find the grid boundaries by searching for the corner brackets.
+ * Uses a hardcoded search area (580, 145) to (1980, 1300) scaled from 2560x1440.
+ */
+function detectGridBounds(srcImage) {
+    // 1. Read the main image and the template images
+    let src = cv.imread(srcImage);
+    let topLeftCornerTempl = cv.imread('corner_top_left');
+    let bottomRightCornerTempl = cv.imread('corner_bottom_right');
+    let dst = new cv.Mat();
+    let result = new cv.Mat();
+
+    // Convert both to grayscale to ignore minor color shifts
+    let srcGray = new cv.Mat();
+    let topLeftCornerTemplGray = new cv.Mat();
+    let bottomRightCornerTemplGray = new cv.Mat();
+    cv.cvtColor(src, srcGray, cv.COLOR_RGBA2GRAY, 0);
+    cv.cvtColor(topLeftCornerTempl, topLeftCornerTemplGray, cv.COLOR_RGBA2GRAY, 0);
+    cv.cvtColor(bottomRightCornerTempl, bottomRightCornerTemplGray, cv.COLOR_RGBA2GRAY, 0);
+
+    // 2. Perform Template Matching for top-left corner
+    cv.matchTemplate(srcGray, topLeftCornerTemplGray, result, cv.TM_CCOEFF_NORMED);
+
+    // 3. Find the best match location for top-left corner
+    let minMax = cv.minMaxLoc(result);
+    let maxPoint = minMax.maxLoc;
+    let confidence = minMax.maxVal;
+    let topLeftCorner = { x: maxPoint.x + topLeftCornerTempl.cols, y: maxPoint.y + topLeftCornerTempl.rows };
+
+    // 4. Verify the match for top-left corner
+    if (confidence > 0.85) {
+        console.log(`Top-left corner found at X: ${maxPoint.x}, Y: ${maxPoint.y} with ${(confidence * 100).toFixed(2)}% confidence.`);
+    } else {
+        throw new Error("Corner bracket not found. Highest confidence was only: " + confidence);
+    }
+
+    // 5. Perform Template Matching for bottom-right corner
+    cv.matchTemplate(srcGray, bottomRightCornerTemplGray, result, cv.TM_CCOEFF_NORMED);
+
+    // 6. Find the best match location for bottom-right corner
+    minMax = cv.minMaxLoc(result);
+    maxPoint = minMax.maxLoc;
+    confidence = minMax.maxVal;
+    let bottomRightCorner = { x: maxPoint.x, y: maxPoint.y };
+
+    // 7. Verify the match for bottom-right corner
+    if (confidence > 0.85) {
+        console.log(`Bottom-right corner found at X: ${maxPoint.x}, Y: ${maxPoint.y} with ${(confidence * 100).toFixed(2)}% confidence.`);
+    } else {
+        throw new Error("Corner bracket not found. Highest confidence was only: " + confidence);
+    }
+
+    // 8. Clean up memory
+    src.delete(); topLeftCornerTempl.delete(); dst.delete(); result.delete();
+    srcGray.delete(); topLeftCornerTemplGray.delete(); bottomRightCornerTemplGray.delete();
+
+    return {
+        left: topLeftCorner.x,
+        top: topLeftCorner.y,
+        right: bottomRightCorner.x,
+        bottom: bottomRightCorner.y
+    };
+}
+
+/**
+ * Derive grid dimensions from bounds using fixed cell geometry.
+ */
+function detectGridDimensions(imageData, gridBounds) {
+    const imgWidth = imageData.width;
+    const resScale = imgWidth / 2560;
+
+    // Reference: 2560x1440 -> cell 116px, gap 6px, stride 122px
+    let cellSize = 116 * resScale;
+    let gap = 6 * resScale;
+    let stride = cellSize + gap;
+
+    let columns = (gridBounds.right - gridBounds.left) / stride;
+    let rows = (gridBounds.bottom - gridBounds.top) / stride;
+
+    columns = Math.round(columns);
+    rows = Math.round(rows);
+
+    return { gridRows: rows, gridCols: columns };
+}
+
+// TODO: investigate faulty detection of cell states
+function classifyCells(imageData, gridBounds, rows, cols) {
+    const imgWidth = imageData.width;
+    const resScale = imgWidth / 2560;
+
+    // Use the same geometry as detectGridDimensions
+    const cellSize = 116 * resScale;
+    const gap = 6 * resScale;
+    const stride = cellSize + gap;
+
+    // Sample a square region at the center of each cell
+    const sampleSize = Math.max(4, Math.round(cellSize * 0.25));
+
+    const data = imageData.data;
+    const imgW = imageData.width;
+
+    const gridState = [];
+    for (let r = 0; r < rows; r++) {
+        const row = [];
+        for (let c = 0; c < cols; c++) {
+            // Top-left pixel of this cell
+            const cellX = gridBounds.left + c * stride;
+            const cellY = gridBounds.top + r * stride;
+
+            // Center region to sample
+            const sx = Math.round(cellX + (cellSize - sampleSize) / 2);
+            const sy = Math.round(cellY + (cellSize - sampleSize) / 2);
+
+            // Accumulate R, G, B over the sample region
+            let sumR = 0, sumG = 0, sumB = 0, count = 0;
+            for (let dy = 0; dy < sampleSize; dy++) {
+                for (let dx = 0; dx < sampleSize; dx++) {
+                    const px = sx + dx;
+                    const py = sy + dy;
+                    if (px < 0 || py < 0 || px >= imgW || py >= imageData.height) continue;
+                    const idx = (py * imgW + px) * 4;
+                    sumR += data[idx];
+                    sumG += data[idx + 1];
+                    sumB += data[idx + 2];
+                    count++;
+                }
+            }
+
+            let state = 'empty';
+            if (count > 0) {
+                const meanR = sumR / count;
+                const meanG = sumG / count;
+                const meanB = sumB / count;
+                const brightness = (meanR + meanG + meanB) / 3;
+
+                // Compute saturation (max - min) / max, guarded against division by zero
+                const maxC = Math.max(meanR, meanG, meanB);
+                const minC = Math.min(meanR, meanG, meanB);
+                const saturation = maxC > 0 ? (maxC - minC) / maxC : 0;
+
+                if (meanG > 150 && meanG > meanR * 1.4 && meanG > meanB * 1.5) {
+                    // Bright yellow-green (~rgb(180, 220, 10))
+                    state = 'locked-green';
+                } else if (meanB > 150 && meanB > meanR * 1.4 && meanB > meanG * 1.1) {
+                    // Bright cyan-blue (~rgb(80, 180, 220))
+                    state = 'locked-blue';
+                } else if (brightness >= 60 && brightness <= 140 && saturation < 0.2) {
+                    // Medium-grey diagonal hash background
+                    state = 'blocked';
+                } else {
+                    // Dark, low-saturation background
+                    state = 'empty';
+                }
+            }
+
+            row.push(state);
+        }
+        gridState.push(row);
+    }
+
+    return gridState;
+}
+
+function extractRequirements(imageData, gridBounds, rows, cols) {
+    return {
+        rows: new Array(rows).fill(0).map(() => ({ green: 0, blue: 0 })),
+        cols: new Array(cols).fill(0).map(() => ({ green: 0, blue: 0 }))
+    };
+}
+
+function detectBlockedRowsCols(imageData, gridBounds, rows, cols) {
+    return { blockedRows: [], blockedCols: [] };
+}
+
+function detectInventory(imageData, gridBounds, width, height) {
+    return {};
+}
 
 
 // ============================================
@@ -124,7 +349,8 @@ function drawDebugVisualization(image, analysisResults, detectionData) {
         ctx.setLineDash([3, 3]);
 
         // Row requirement regions (left margin)
-        const rowMarginWidth = Math.min(100, gridBounds.left - 20);
+        const rowBarWidth = (detectionData.imageWidth / 2560) * 20;
+        const rowMarginWidth = (gridCols + 1) * rowBarWidth;
         for (let r = 0; r < gridRows; r++) {
             const y = gridBounds.top + (r + 0.5) * cellHeight;
             const regionX = Math.max(0, gridBounds.left - rowMarginWidth);
@@ -147,7 +373,8 @@ function drawDebugVisualization(image, analysisResults, detectionData) {
         }
 
         // Column requirement regions (top margin)
-        const colMarginHeight = Math.min(100, gridBounds.top - 20);
+        const colBarHeight = (detectionData.imageHeight / 1440) * 20;
+        const colMarginHeight = (gridRows + 1) * colBarHeight;
         for (let c = 0; c < gridCols; c++) {
             const x = gridBounds.left + (c + 0.5) * cellWidth;
             const regionX = x - cellWidth * 0.3;
