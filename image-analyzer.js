@@ -141,7 +141,6 @@ function detectGridDimensions(imageData, gridBounds) {
     return { gridRows: rows, gridCols: columns };
 }
 
-// TODO: investigate faulty detection of cell states
 function classifyCells(imageData, gridBounds, rows, cols) {
     const imgWidth = imageData.width;
     const resScale = imgWidth / 2560;
@@ -196,10 +195,10 @@ function classifyCells(imageData, gridBounds, rows, cols) {
                 const minC = Math.min(meanR, meanG, meanB);
                 const saturation = maxC > 0 ? (maxC - minC) / maxC : 0;
 
-                if (meanG > 150 && meanG > meanR * 1.4 && meanG > meanB * 1.5) {
+                if (meanG > 150 && meanG > meanR && meanG > meanB) {
                     // Bright yellow-green (~rgb(180, 220, 10))
                     state = 'locked-green';
-                } else if (meanB > 150 && meanB > meanR * 1.4 && meanB > meanG * 1.1) {
+                } else if (meanB > 150 && meanB > meanR && meanB > meanG) {
                     // Bright cyan-blue (~rgb(80, 180, 220))
                     state = 'locked-blue';
                 } else if (brightness >= 60 && brightness <= 140 && saturation < 0.2) {
