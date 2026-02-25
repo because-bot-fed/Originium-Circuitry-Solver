@@ -218,15 +218,240 @@ function classifyCells(imageData, gridBounds, rows, cols) {
     return gridState;
 }
 
-function extractRequirements(imageData, gridBounds, rows, cols) {
+/**
+ * Helper function to count consecutive runs of qualifying strips
+ * @param {boolean[]} boolArray - Array of boolean values indicating qualifying strips
+ * @param {number} minRun - Minimum consecutive qualifying strips to count as a run
+ * @returns {number} Number of runs found
+ */
+function countRuns(boolArray, minRun) {
+    let runs = 0, inRun = false, runLen = 0;
+    for (const v of boolArray) {
+        if (v) {
+            inRun = true;
+            runLen++;
+        }
+        else {
+            if (inRun && runLen >= minRun) runs++;
+            inRun = false;
+            runLen = 0;
+        }
+    }
+    if (inRun && runLen >= minRun) runs++;
+    return runs;
+}
+
+/**
+ * Count color runs by scanning column-by-column within a region
+ * Used for row requirements (horizontal bars arranged side by side)
+ * @param {ImageData} imageData - The image data to analyze
+ * @param {number} rx - Region x coordinate
+ * @param {number} ry - Region y coordinate  
+ * @param {number} rw - Region width
+ * @param {number} rh - Region height
+ * @returns {Object} { green: number, blue: number }
+ */
+function countColorRuns(imageData, rx, ry, rw, rh) {
+    const data = imageData.data;
+    const imgW = imageData.width;
+    const imgH = imageData.height;
+    const MIN_RUN = 3;           // minimum consecutive qualifying columns to form a run
+    const PIXEL_THRESHOLD = 1;   // minimum green/blue pixels in a column to count it
+
+    const greenStrips = [];  // bool per column: is this column-strip green?
+    const blueStrips = [];   // bool per column: is this column-strip blue?
+
+    for (let dx = 0; dx < rw; dx++) {
+        const px = Math.round(rx + dx);
+        if (px < 0 || px >= imgW) {
+            greenStrips.push(false);
+            blueStrips.push(false);
+            continue;
+        }
+        let gCount = 0, bCount = 0;
+        for (let dy = 0; dy < rh; dy++) {
+            const py = Math.round(ry + dy);
+            if (py < 0 || py >= imgH) continue;
+            const i = (py * imgW + px) * 4;
+            const R = data[i], G = data[i + 1], B = data[i + 2];
+            if (G > 180 && G > R * 1.3 && G > B * 1.5) gCount++;
+            else if (B > 160 && B > R * 1.4 && B > G * 1.1) bCount++;
+        }
+        greenStrips.push(gCount >= PIXEL_THRESHOLD);
+        blueStrips.push(bCount >= PIXEL_THRESHOLD);
+    }
+
     return {
-        rows: new Array(rows).fill(0).map(() => ({ green: 0, blue: 0 })),
-        cols: new Array(cols).fill(0).map(() => ({ green: 0, blue: 0 }))
+        green: countRuns(greenStrips, MIN_RUN),
+        blue: countRuns(blueStrips, MIN_RUN),
     };
 }
 
+/**
+ * Count color runs by scanning row-by-row within a region
+ * Used for column requirements (vertical bars stacked above columns)
+ * @param {ImageData} imageData - The image data to analyze
+ * @param {number} rx - Region x coordinate
+ * @param {number} ry - Region y coordinate  
+ * @param {number} rw - Region width
+ * @param {number} rh - Region height
+ * @returns {Object} { green: number, blue: number }
+ */
+function countColorRunsVertical(imageData, rx, ry, rw, rh) {
+    const data = imageData.data;
+    const imgW = imageData.width;
+    const imgH = imageData.height;
+    const MIN_RUN = 3;           // minimum consecutive qualifying rows to form a run
+    const PIXEL_THRESHOLD = 1;   // minimum green/blue pixels in a row to count it
+
+    const greenStrips = [];  // bool per row: is this row-strip green?
+    const blueStrips = [];   // bool per row: is this row-strip blue?
+
+    for (let dy = 0; dy < rh; dy++) {
+        const py = Math.round(ry + dy);
+        if (py < 0 || py >= imgH) {
+            greenStrips.push(false);
+            blueStrips.push(false);
+            continue;
+        }
+        let gCount = 0, bCount = 0;
+        for (let dx = 0; dx < rw; dx++) {
+            const px = Math.round(rx + dx);
+            if (px < 0 || px >= imgW) continue;
+            const i = (py * imgW + px) * 4;
+            const R = data[i], G = data[i + 1], B = data[i + 2];
+            if (G > 180 && G > R * 1.3 && G > B * 1.5) gCount++;
+            else if (B > 160 && B > R * 1.4 && B > G * 1.1) bCount++;
+        }
+        greenStrips.push(gCount >= PIXEL_THRESHOLD);
+        blueStrips.push(bCount >= PIXEL_THRESHOLD);
+    }
+
+    return {
+        green: countRuns(greenStrips, MIN_RUN),
+        blue: countRuns(blueStrips, MIN_RUN),
+    };
+}
+
+/**
+ * Check if a region contains a blocked symbol (⊘) instead of colored bars
+ * @param {ImageData} imageData - The image data to analyze
+ * @param {number} rx - Region x coordinate
+ * @param {number} ry - Region y coordinate  
+ * @param {number} rw - Region width
+ * @param {number} rh - Region height
+ * @returns {boolean} True if region appears to contain a blocked symbol
+ */
+function isRegionBlockedSymbol(imageData, rx, ry, rw, rh) {
+    const data = imageData.data;
+    const imgW = imageData.width;
+    let sumR = 0, sumG = 0, sumB = 0, count = 0;
+
+    for (let dy = 0; dy < rh; dy++) {
+        for (let dx = 0; dx < rw; dx++) {
+            const px = Math.round(rx + dx), py = Math.round(ry + dy);
+            if (px < 0 || py < 0 || px >= imgW || py >= imageData.height) continue;
+            const i = (py * imgW + px) * 4;
+            sumR += data[i]; sumG += data[i + 1]; sumB += data[i + 2];
+            count++;
+        }
+    }
+
+    if (count === 0) return false;
+
+    const meanR = sumR / count, meanG = sumG / count, meanB = sumB / count;
+    const brightness = (meanR + meanG + meanB) / 3;
+    const maxC = Math.max(meanR, meanG, meanB);
+    const minC = Math.min(meanR, meanG, meanB);
+    const saturation = maxC > 0 ? (maxC - minC) / maxC : 0;
+
+    // Grey + no saturated color = ⊘ row/column
+    return brightness >= 80 && brightness <= 180 && saturation < 0.15;
+}
+
+/**
+ * Extract row and column requirements from the image
+ * Row requirements: colored bar segments to the left of each row
+ * Column requirements: colored bar segments above each column
+ */
+function extractRequirements(imageData, gridBounds, rows, cols) {
+    const imgW = imageData.width, imgH = imageData.height;
+    const resScale = imgW / 2560;
+    const cellSize = 116 * resScale, gap = 6 * resScale, stride = cellSize + gap;
+
+    // Row requirements (left margin) — scan column-by-column
+    const rowBarWidth = resScale * 20;
+    const rowMarginWidth = (cols + 1) * rowBarWidth;
+    const rowReqs = [];
+
+    for (let r = 0; r < rows; r++) {
+        const centerY = gridBounds.top + (r + 0.5) * stride;
+        const rx = Math.max(0, gridBounds.left - rowMarginWidth);
+        const ry = centerY - cellSize * 0.3;
+        const rw = rowMarginWidth;
+        const rh = cellSize * 0.6;
+        rowReqs.push(countColorRuns(imageData, rx, ry, rw, rh));
+    }
+
+    // Column requirements (top margin) — scan row-by-row
+    const colBarHeight = (imgH / 1440) * 20;
+    const colMarginHeight = (rows + 1) * colBarHeight;
+    const colReqs = [];
+
+    for (let c = 0; c < cols; c++) {
+        const centerX = gridBounds.left + (c + 0.5) * stride;
+        const rx = centerX - cellSize * 0.3;
+        const ry = Math.max(0, gridBounds.top - colMarginHeight);
+        const rw = cellSize * 0.6;
+        const rh = colMarginHeight;
+        colReqs.push(countColorRunsVertical(imageData, rx, ry, rw, rh));
+    }
+
+    return { rows: rowReqs, cols: colReqs };
+}
+
+/**
+ * Detect blocked rows and columns marked with ⊘ symbol
+ */
 function detectBlockedRowsCols(imageData, gridBounds, rows, cols) {
-    return { blockedRows: [], blockedCols: [] };
+    const blockedRows = [], blockedCols = [];
+    const imgW = imageData.width, imgH = imageData.height;
+    const resScale = imgW / 2560;
+    const cellSize = 116 * resScale, gap = 6 * resScale, stride = cellSize + gap;
+
+    // Row blocked detection
+    const rowBarWidth = resScale * 20;
+    const rowMarginWidth = (cols + 1) * rowBarWidth;
+
+    for (let r = 0; r < rows; r++) {
+        const centerY = gridBounds.top + (r + 0.5) * stride;
+        const rx = Math.max(0, gridBounds.left - rowMarginWidth);
+        const ry = centerY - cellSize * 0.3;
+        const rw = rowMarginWidth;
+        const rh = cellSize * 0.6;
+
+        if (isRegionBlockedSymbol(imageData, rx, ry, rw, rh)) {
+            blockedRows.push(r);
+        }
+    }
+
+    // Column blocked detection (⊘ above a column — rare, future use)
+    const colBarHeight = (imgH / 1440) * 20;
+    const colMarginHeight = (rows + 1) * colBarHeight;
+
+    for (let c = 0; c < cols; c++) {
+        const centerX = gridBounds.left + (c + 0.5) * stride;
+        const rx = centerX - cellSize * 0.3;
+        const ry = Math.max(0, gridBounds.top - colMarginHeight);
+        const rw = cellSize * 0.6;
+        const rh = colMarginHeight;
+
+        if (isRegionBlockedSymbol(imageData, rx, ry, rw, rh)) {
+            blockedCols.push(c);
+        }
+    }
+
+    return { blockedRows, blockedCols };
 }
 
 function detectInventory(imageData, gridBounds, width, height) {
