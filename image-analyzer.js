@@ -40,6 +40,16 @@ async function analyzePuzzleImage(image, ENABLE_DEBUG_VISUALIZATION) {
     // 6. Detect Inventory (Shapes)
     const { shapeCounts, detectedTiles } = detectInventory(imageData, image.width, image.height, ENABLE_DEBUG_VISUALIZATION);
 
+    // 7. Compute Confidence Level
+    let confidence = 'full';
+    const hasShapes = Object.keys(shapeCounts).length > 0;
+    const hasZeros = requirements.rows.some(r => r.green === 0 && r.blue === 0) ||
+        requirements.cols.some(c => c.green === 0 && c.blue === 0);
+
+    if (!hasShapes || hasZeros) {
+        confidence = 'partial';
+    }
+
     return {
         gridRows,
         gridCols,
@@ -48,6 +58,7 @@ async function analyzePuzzleImage(image, ENABLE_DEBUG_VISUALIZATION) {
         shapeCounts,
         blockedRows,
         blockedCols,
+        confidence,
         _debug: {
             gridBounds,
             imageWidth: image.width,

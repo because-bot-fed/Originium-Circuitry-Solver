@@ -4116,8 +4116,14 @@
                 }
                 currentPreviewURL = URL.createObjectURL(blob);
 
-                // Show success toast with preview image
-                showToast('Puzzle loaded — click Solve', 'success', 4000, currentPreviewURL);
+                // Show toast based on confidence
+                if (result.confidence === 'full') {
+                    showToast('Puzzle loaded — click Solve', 'success', 4000, currentPreviewURL);
+                } else if (result.confidence === 'partial') {
+                    showToast('Puzzle loaded but some things may be wrong, check shapes and requirements', 'info', 6000, currentPreviewURL);
+                } else {
+                    showToast('Could not analyze image', 'error');
+                }
                 updateStatus('Ready');
 
             } catch (error) {
