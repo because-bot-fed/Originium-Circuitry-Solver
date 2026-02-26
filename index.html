@@ -406,7 +406,9 @@
 
         .shape-selector-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(var(--grid-size, 1), 1fr);
+            grid-auto-flow: column;
+            grid-auto-columns: 1fr;
             gap: 6px;
         }
 
@@ -4144,6 +4146,9 @@
         function renderShapeSelector() {
             const grid = document.getElementById('shapeGrid');
             grid.innerHTML = '';
+
+            const gridSize = Math.ceil(Math.sqrt(Object.keys(SHAPE_LIBRARY).length));
+            grid.style.setProperty('--grid-size', gridSize);
 
             for (const [id, shape] of Object.entries(SHAPE_LIBRARY)) {
                 const item = document.createElement('div');
