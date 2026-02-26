@@ -114,9 +114,9 @@ function detectGridBounds(srcImage, ENABLE_DEBUG_VISUALIZATION) {
         cv.resize(bottomRightCornerTemplGray, bottomRightCornerTemplGray, new cv.Size(brWidth, brHeight), 0, 0, interpolation);
     }
 
-    cv.threshold(srcRoi, srcRoi, 0, 255, cv.THRESH_BINARY | cv.THRESH_OTSU);
-    cv.threshold(topLeftCornerTemplGray, topLeftCornerTemplGray, 0, 255, cv.THRESH_BINARY | cv.THRESH_OTSU);
-    cv.threshold(bottomRightCornerTemplGray, bottomRightCornerTemplGray, 0, 255, cv.THRESH_BINARY | cv.THRESH_OTSU);
+    cv.threshold(srcRoi, srcRoi, 140, 255, cv.THRESH_BINARY);
+    cv.threshold(topLeftCornerTemplGray, topLeftCornerTemplGray, 140, 255, cv.THRESH_BINARY);
+    cv.threshold(bottomRightCornerTemplGray, bottomRightCornerTemplGray, 140, 255, cv.THRESH_BINARY);
 
     // 7. Perform Template Matching for top-left corner
     cv.matchTemplate(srcRoi, topLeftCornerTemplGray, result, cv.TM_CCOEFF_NORMED);
