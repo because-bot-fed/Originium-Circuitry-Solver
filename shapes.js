@@ -153,7 +153,54 @@ const SHAPE_DEFINITIONS = {
     "Z-4-mirror": {
         name: "4-Block Z (Mirror)",
         cells: [[0, 1], [0, 2], [1, 0], [1, 1]]
+    },
+
+    // 6-block hexomino
+    // X
+    // X X
+    // X
+    // X X
+    "comb-6": {
+        name: "6-Block Comb",
+        cells: [[0, 0], [1, 0], [1, 1], [2, 0], [3, 0], [3, 1]]
+    },
+
+    // 5-block U shape
+    // X . X
+    // X X X
+    "U-5": {
+        name: "5-Block U",
+        cells: [[0, 0], [0, 2], [1, 0], [1, 1], [1, 2]]
+    },
+
+    // 5-block slanted M shape
+    // . X X
+    // X X .
+    // X . .
+    "M-5": {
+        name: "5-Block Slanted M",
+        cells: [[0, 1], [0, 2], [1, 0], [1, 1], [2, 0]]
+    },
+
+    // 6-block hatchet
+    // X X
+    // X X X
+    // . . X
+    "hatchet-6": {
+        name: "6-Block Hatchet",
+        cells: [[0, 0], [0, 1], [1, 0], [1, 1], [1, 2], [2, 2]]
+    },
+
+    // 5-block lower case t
+    // X
+    // X X
+    // X
+    // X
+    "t-5": {
+        name: "5-Block Lower Case T",
+        cells: [[0, 0], [1, 0], [1, 1], [2, 0], [3, 0]]
     }
+
 };
 
 /**
