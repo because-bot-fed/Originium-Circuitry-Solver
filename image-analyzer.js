@@ -80,7 +80,7 @@ function detectGridBounds(srcImage, ENABLE_DEBUG_VISUALIZATION) {
     let dst = new cv.Mat();
     let result = new cv.Mat();
 
-    // Convert both to grayscale to ignore minor color shifts
+    // 2. Convert both to grayscale to ignore minor color shifts
     let srcGray = new cv.Mat();
     let topLeftCornerTemplGray = new cv.Mat();
     let bottomRightCornerTemplGray = new cv.Mat();
@@ -88,16 +88,47 @@ function detectGridBounds(srcImage, ENABLE_DEBUG_VISUALIZATION) {
     cv.cvtColor(topLeftCornerTempl, topLeftCornerTemplGray, cv.COLOR_RGBA2GRAY, 0);
     cv.cvtColor(bottomRightCornerTempl, bottomRightCornerTemplGray, cv.COLOR_RGBA2GRAY, 0);
 
-    // 2. Perform Template Matching for top-left corner
-    cv.matchTemplate(srcGray, topLeftCornerTemplGray, result, cv.TM_CCOEFF_NORMED);
+    // 3. Calculate the exact UI scale factor
+    // Target Height / Reference Height (1440)
+    const scaleFactor = src.rows / 1440;
+    console.log(`Scale factor: ${scaleFactor}`);
 
-    // 3. Find the best match location for top-left corner
+    // 4. Calculate the new dimensions for the templates
+    let tlWidth = Math.round(topLeftCornerTempl.cols * scaleFactor);
+    let tlHeight = Math.round(topLeftCornerTempl.rows * scaleFactor);
+    let brWidth = Math.round(bottomRightCornerTempl.cols * scaleFactor);
+    let brHeight = Math.round(bottomRightCornerTempl.rows * scaleFactor);
+
+    // 5. Define the Region of Interest (ROI) for the grid
+    let roiX = Math.round(580 * scaleFactor);
+    let roiY = Math.round(130 * scaleFactor);
+    let roiWidth = Math.round(1400 * scaleFactor);  // 1980 - 580
+    let roiHeight = Math.round(1180 * scaleFactor); // 1310 - 130
+
+    let roi = new cv.Rect(roiX, roiY, roiWidth, roiHeight);
+    let srcRoi = srcGray.roi(roi);
+
+    // 6. Resize the templates
+    if (scaleFactor !== 1) {
+        let interpolation = scaleFactor < 1 ? cv.INTER_AREA : cv.INTER_LINEAR;
+        cv.resize(topLeftCornerTemplGray, topLeftCornerTemplGray, new cv.Size(tlWidth, tlHeight), 0, 0, interpolation);
+        cv.resize(bottomRightCornerTemplGray, bottomRightCornerTemplGray, new cv.Size(brWidth, brHeight), 0, 0, interpolation);
+    }
+
+    cv.threshold(srcRoi, srcRoi, 0, 255, cv.THRESH_BINARY | cv.THRESH_OTSU);
+    cv.threshold(topLeftCornerTemplGray, topLeftCornerTemplGray, 0, 255, cv.THRESH_BINARY | cv.THRESH_OTSU);
+    cv.threshold(bottomRightCornerTemplGray, bottomRightCornerTemplGray, 0, 255, cv.THRESH_BINARY | cv.THRESH_OTSU);
+
+    // 7. Perform Template Matching for top-left corner
+    cv.matchTemplate(srcRoi, topLeftCornerTemplGray, result, cv.TM_CCOEFF_NORMED);
+
+    // 8. Find the best match location for top-left corner
     let minMax = cv.minMaxLoc(result);
     let maxPoint = minMax.maxLoc;
     let confidence = minMax.maxVal;
-    let topLeftCorner = { x: maxPoint.x + topLeftCornerTempl.cols, y: maxPoint.y + topLeftCornerTempl.rows };
+    let topLeftCorner = { x: maxPoint.x, y: maxPoint.y };
 
-    // 4. Verify the match for top-left corner
+    // 9. Verify the match for top-left corner
     if (confidence > 0.75) {
         if (ENABLE_DEBUG_VISUALIZATION) {
             console.log(`Top-left corner found at X: ${maxPoint.x}, Y: ${maxPoint.y} with ${(confidence * 100).toFixed(2)}% confidence.`);
@@ -106,16 +137,16 @@ function detectGridBounds(srcImage, ENABLE_DEBUG_VISUALIZATION) {
         throw new Error("Corner bracket not found. Highest confidence was only: " + confidence);
     }
 
-    // 5. Perform Template Matching for bottom-right corner
-    cv.matchTemplate(srcGray, bottomRightCornerTemplGray, result, cv.TM_CCOEFF_NORMED);
+    // 10. Perform Template Matching for bottom-right corner
+    cv.matchTemplate(srcRoi, bottomRightCornerTemplGray, result, cv.TM_CCOEFF_NORMED);
 
-    // 6. Find the best match location for bottom-right corner
+    // 11. Find the best match location for bottom-right corner
     minMax = cv.minMaxLoc(result);
     maxPoint = minMax.maxLoc;
     confidence = minMax.maxVal;
     let bottomRightCorner = { x: maxPoint.x, y: maxPoint.y };
 
-    // 7. Verify the match for bottom-right corner
+    // 12. Verify the match for bottom-right corner
     if (confidence > 0.75) {
         if (ENABLE_DEBUG_VISUALIZATION) {
             console.log(`Bottom-right corner found at X: ${maxPoint.x}, Y: ${maxPoint.y} with ${(confidence * 100).toFixed(2)}% confidence.`);
@@ -124,15 +155,15 @@ function detectGridBounds(srcImage, ENABLE_DEBUG_VISUALIZATION) {
         throw new Error("Corner bracket not found. Highest confidence was only: " + confidence);
     }
 
-    // 8. Clean up memory
+    // 13. Clean up memory
     src.delete(); topLeftCornerTempl.delete(); dst.delete(); result.delete();
-    srcGray.delete(); topLeftCornerTemplGray.delete(); bottomRightCornerTemplGray.delete();
+    srcGray.delete(); topLeftCornerTemplGray.delete(); bottomRightCornerTemplGray.delete(); srcRoi.delete();
 
     return {
-        left: topLeftCorner.x,
-        top: topLeftCorner.y,
-        right: bottomRightCorner.x,
-        bottom: bottomRightCorner.y
+        left: topLeftCorner.x + roiX + tlWidth,
+        top: topLeftCorner.y + roiY + tlHeight,
+        right: bottomRightCorner.x + roiX,
+        bottom: bottomRightCorner.y + roiY
     };
 }
 
