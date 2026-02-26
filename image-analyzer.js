@@ -91,7 +91,6 @@ function detectGridBounds(srcImage, ENABLE_DEBUG_VISUALIZATION) {
     // 3. Calculate the exact UI scale factor
     // Target Height / Reference Height (1440)
     const scaleFactor = src.rows / 1440;
-    console.log(`Scale factor: ${scaleFactor}`);
 
     // 4. Calculate the new dimensions for the templates
     let tlWidth = Math.round(topLeftCornerTempl.cols * scaleFactor);
