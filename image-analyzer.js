@@ -13,7 +13,7 @@
  * @param {ImageBitmap|HTMLImageElement|HTMLCanvasElement} image - The source image
  * @returns {Promise<Object>} Analysis results matching the generateGrid(overrides) contract
  */
-async function analyzePuzzleImage(image) {
+async function analyzePuzzleImage(image, ENABLE_DEBUG_VISUALIZATION) {
     const canvas = document.createElement('canvas');
     canvas.width = image.width;
     canvas.height = image.height;
@@ -22,7 +22,7 @@ async function analyzePuzzleImage(image) {
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
     // 1. Detect Grid Bounds
-    const gridBounds = detectGridBounds(canvas);
+    const gridBounds = detectGridBounds(canvas, ENABLE_DEBUG_VISUALIZATION);
     if (!gridBounds) throw new Error('Grid not detected (could not find corner brackets)');
 
     // 2. Detect Grid Dimensions (Rows/Cols)
@@ -38,7 +38,7 @@ async function analyzePuzzleImage(image) {
     const { blockedRows, blockedCols } = detectBlockedRowsCols(imageData, gridBounds, gridRows, gridCols);
 
     // 6. Detect Inventory (Shapes)
-    const shapeCounts = detectInventory(imageData, gridBounds, image.width, image.height);
+    const { shapeCounts, detectedTiles } = detectInventory(imageData, image.width, image.height, ENABLE_DEBUG_VISUALIZATION);
 
     return {
         gridRows,
@@ -51,7 +51,8 @@ async function analyzePuzzleImage(image) {
         _debug: {
             gridBounds,
             imageWidth: image.width,
-            imageHeight: image.height
+            imageHeight: image.height,
+            detectedTiles
         }
     };
 }
@@ -60,7 +61,7 @@ async function analyzePuzzleImage(image) {
  * Find the grid boundaries by searching for the corner brackets.
  * Uses a hardcoded search area (580, 145) to (1980, 1300) scaled from 2560x1440.
  */
-function detectGridBounds(srcImage) {
+function detectGridBounds(srcImage, ENABLE_DEBUG_VISUALIZATION) {
     // 1. Read the main image and the template images
     let src = cv.imread(srcImage);
     let topLeftCornerTempl = cv.imread('corner_top_left');
@@ -86,8 +87,10 @@ function detectGridBounds(srcImage) {
     let topLeftCorner = { x: maxPoint.x + topLeftCornerTempl.cols, y: maxPoint.y + topLeftCornerTempl.rows };
 
     // 4. Verify the match for top-left corner
-    if (confidence > 0.85) {
-        console.log(`Top-left corner found at X: ${maxPoint.x}, Y: ${maxPoint.y} with ${(confidence * 100).toFixed(2)}% confidence.`);
+    if (confidence > 0.75) {
+        if (ENABLE_DEBUG_VISUALIZATION) {
+            console.log(`Top-left corner found at X: ${maxPoint.x}, Y: ${maxPoint.y} with ${(confidence * 100).toFixed(2)}% confidence.`);
+        }
     } else {
         throw new Error("Corner bracket not found. Highest confidence was only: " + confidence);
     }
@@ -102,8 +105,10 @@ function detectGridBounds(srcImage) {
     let bottomRightCorner = { x: maxPoint.x, y: maxPoint.y };
 
     // 7. Verify the match for bottom-right corner
-    if (confidence > 0.85) {
-        console.log(`Bottom-right corner found at X: ${maxPoint.x}, Y: ${maxPoint.y} with ${(confidence * 100).toFixed(2)}% confidence.`);
+    if (confidence > 0.75) {
+        if (ENABLE_DEBUG_VISUALIZATION) {
+            console.log(`Bottom-right corner found at X: ${maxPoint.x}, Y: ${maxPoint.y} with ${(confidence * 100).toFixed(2)}% confidence.`);
+        }
     } else {
         throw new Error("Corner bracket not found. Highest confidence was only: " + confidence);
     }
@@ -454,8 +459,251 @@ function detectBlockedRowsCols(imageData, gridBounds, rows, cols) {
     return { blockedRows, blockedCols };
 }
 
-function detectInventory(imageData, gridBounds, width, height) {
-    return {};
+/**
+ * Check if a tile region contains colored pixels (occupied)
+ */
+function tileIsOccupied(imageData, tx, ty, tw, th) {
+    const data = imageData.data;
+    const imgW = imageData.width;
+    let colored = 0;
+    for (let dy = 0; dy < th; dy++) {
+        for (let dx = 0; dx < tw; dx++) {
+            const px = tx + dx, py = ty + dy;
+            if (px < 0 || py < 0 || px >= imgW || py >= imageData.height) continue;
+            const i = (py * imgW + px) * 4;
+            const R = data[i], G = data[i + 1], B = data[i + 2];
+            if ((G > 150 && G > R * 1.2 && G > B * 1.3) ||
+                (B > 140 && B > R * 1.3 && B > G * 1.05)) {
+                colored++;
+            }
+        }
+    }
+    return colored / (tw * th) >= 0.02;
+}
+
+/**
+ * Binarize a tile region into a 2D boolean array
+ */
+function binarizeTile(imageData, tx, ty, tw, th) {
+    const filled = [];
+    const data = imageData.data;
+    const imgW = imageData.width;
+    for (let dy = 0; dy < th; dy++) {
+        const row = [];
+        for (let dx = 0; dx < tw; dx++) {
+            const px = tx + dx, py = ty + dy;
+            if (px < 0 || py < 0 || px >= imgW || py >= imageData.height) {
+                row.push(false);
+                continue;
+            }
+            const i = (py * imgW + px) * 4;
+            const R = data[i], G = data[i + 1], B = data[i + 2];
+            const isGreen = G > 150 && G > R && G > B;
+            const isBlue = B > 140 && B > R && B > G;
+            row.push(isGreen || isBlue);
+        }
+        filled.push(row);
+    }
+    return filled;
+}
+
+/**
+ * Find bounding box of filled pixels in a binary grid
+ */
+function binaryBBox(filled) {
+    let minR = Infinity, maxR = -Infinity, minC = Infinity, maxC = -Infinity;
+    for (let r = 0; r < filled.length; r++) {
+        for (let c = 0; c < filled[r].length; c++) {
+            if (filled[r][c]) {
+                if (r < minR) minR = r;
+                if (r > maxR) maxR = r;
+                if (c < minC) minC = c;
+                if (c > maxC) maxC = c;
+            }
+        }
+    }
+    if (minR === Infinity) return null;
+    return {
+        minR, maxR, minC, maxC,
+        h: maxR - minR + 1,
+        w: maxC - minC + 1
+    };
+}
+
+/**
+ * Rasterize content from bbox top-left into an N×N grid with fixed cell size.
+ * Origin is placed at bbox.minR / bbox.minC so each cell aligns directly with content.
+ * @param {boolean[][]} filled - binarized tile
+ * @param {Object} bbox - bounding box from binaryBBox
+ * @param {number} N - grid dimension
+ * @param {number} cellSize - fixed pixel size for each grid cell
+ */
+function rasterizeToGrid(filled, bbox, N, cellSize) {
+    const grid = [];
+
+    for (let gr = 0; gr < N; gr++) {
+        const rowArr = [];
+        for (let gc = 0; gc < N; gc++) {
+            const rStart = Math.round(bbox.minR + gr * cellSize);
+            const rEnd = Math.round(bbox.minR + (gr + 1) * cellSize);
+            const cStart = Math.round(bbox.minC + gc * cellSize);
+            const cEnd = Math.round(bbox.minC + (gc + 1) * cellSize);
+
+            let filledCount = 0, total = 0;
+            for (let r = rStart; r < rEnd; r++) {
+                for (let c = cStart; c < cEnd; c++) {
+                    if (r >= 0 && r < filled.length && c >= 0 && c < filled[r].length) {
+                        if (filled[r][c]) filledCount++;
+                        total++;
+                    }
+                }
+            }
+            rowArr.push(total > 0 && filledCount / total > 0.30);
+        }
+        grid.push(rowArr);
+    }
+    return grid;
+}
+
+/**
+ * Convert grid to normalized cell array
+ */
+function gridToCells(grid) {
+    const cells = [];
+    for (let r = 0; r < grid.length; r++) {
+        for (let c = 0; c < grid[r].length; c++) {
+            if (grid[r][c]) cells.push([r, c]);
+        }
+    }
+    if (cells.length === 0) return [];
+    const minR = Math.min(...cells.map(([r]) => r));
+    const minC = Math.min(...cells.map(([, c]) => c));
+    return cells.map(([r, c]) => [r - minR, c - minC]);
+}
+
+/**
+ * Match extracted cells against SHAPE_LIBRARY
+ */
+function matchShape(extractedCells, ENABLE_DEBUG_VISUALIZATION) {
+    let current = extractedCells;
+    for (let rot = 0; rot < 4; rot++) {
+        if (ENABLE_DEBUG_VISUALIZATION) {
+            console.log('current shape', current);
+        }
+        for (const [shapeId, shape] of Object.entries(SHAPE_LIBRARY)) {
+            for (const rotation of shape.rotations) {
+                if (shapesEqual(current, rotation)) {
+                    return shapeId;
+                }
+            }
+        }
+        current = rotateShape90(current);
+    }
+    return null;
+}
+
+// Fixed cell pixel sizes for each grid resolution
+const GRID_CELL_SIZES = { 2: 42, 3: 28, 4: 21 };
+
+/**
+ * Extract shape from a single tile
+ */
+function extractShapeFromTile(imageData, tx, ty, tw, th, resScale, ENABLE_DEBUG_VISUALIZATION) {
+    if (!tileIsOccupied(imageData, tx, ty, tw, th)) return null;
+    const filled = binarizeTile(imageData, tx, ty, tw, th);
+    const bbox = binaryBBox(filled);
+    if (!bbox) return { shapeId: null, bbox: null };
+
+    let fallbackGrid = null;
+    let fallbackN = null;
+    let fallbackCellSize = null;
+
+    for (const N of [4, 3, 2]) {
+        const cellSize = GRID_CELL_SIZES[N] * resScale;
+        const grid = rasterizeToGrid(filled, bbox, N, cellSize);
+        const cells = gridToCells(grid);
+        if (typeof ENABLE_DEBUG_VISUALIZATION !== 'undefined' && ENABLE_DEBUG_VISUALIZATION) {
+            console.log(`N=${N} cellSize=${cellSize} bbox=${bbox.h}x${bbox.w} cells=`, JSON.stringify(cells));
+        }
+        if (N === 3) {
+            fallbackGrid = grid;
+            fallbackN = N;
+            fallbackCellSize = cellSize;
+        }
+        if (cells.length === 0) continue;
+        const match = matchShape(cells, ENABLE_DEBUG_VISUALIZATION);
+        if (typeof ENABLE_DEBUG_VISUALIZATION !== 'undefined' && ENABLE_DEBUG_VISUALIZATION) {
+            console.log(`  -> matchShape: ${match}`);
+        }
+        if (match !== null) {
+            // Sanity-check: the binary bbox should be roughly the size the matched shape
+            // occupies at this grid resolution.
+            const matchedBounds = getShapeBounds(cells);
+            const expectedH = matchedBounds.height * cellSize;
+            const expectedW = matchedBounds.width * cellSize;
+            const ratioH = bbox.h / expectedH;
+            const ratioW = bbox.w / expectedW;
+            const TOLERANCE_LO = 0.55, TOLERANCE_HI = 1.25;
+            if (ratioH >= TOLERANCE_LO && ratioH <= TOLERANCE_HI &&
+                ratioW >= TOLERANCE_LO && ratioW <= TOLERANCE_HI) {
+                return { shapeId: match, bbox, grid, N, cellSize };
+            }
+            if (typeof ENABLE_DEBUG_VISUALIZATION !== 'undefined' && ENABLE_DEBUG_VISUALIZATION) {
+                console.log(`detectInventory: rejected ${match} at N=${N} (ratioH=${ratioH.toFixed(2)}, ratioW=${ratioW.toFixed(2)})`);
+            }
+        }
+    }
+
+    console.warn('detectInventory: no shape match for tile at', tx, ty);
+    return { shapeId: null, bbox, grid: fallbackGrid, N: fallbackN, cellSize: fallbackCellSize };
+}
+
+/**
+ * Detect inventory shapes from the right-panel inventory
+ */
+function detectInventory(imageData, width, height, ENABLE_DEBUG_VISUALIZATION) {
+    const resScale = width / 2560;
+
+    // Panel bounds
+    const invLeft = Math.round(width * (2045 / 2560));
+    const invTop = Math.round(height * (193 / 1440));
+    const invRight = Math.round(width * (2485 / 2560));
+    const invBottom = Math.round(height * (1290 / 1440));
+
+    // Tile geometry (scaled from 2560×1440 reference)
+    const tileW = Math.round(188 * resScale);
+    const tileH = Math.round(188 * resScale);
+    const colGapLeft = Math.round(23 * resScale);
+    const colGapRight = Math.round(15 * resScale);
+    const rowGapTop = Math.round(45 * resScale);
+    const rowGap = Math.round(20 * resScale);
+    const cols = [invLeft + colGapLeft, invRight - colGapRight - tileW];
+    const rowStride = tileH + rowGap;
+    const maxRows = Math.max(1, Math.floor((invBottom - invTop - rowGapTop + rowGap) / rowStride));
+
+    const shapeCounts = {};
+    const detectedTiles = [];
+
+    for (let row = 0; row < maxRows; row++) {
+        for (let col = 0; col < 2; col++) {
+            const tx = cols[col];
+            const ty = invTop + rowGapTop + row * rowStride;
+            if (ty + tileH > invBottom) continue;
+
+            const extractResult = extractShapeFromTile(imageData, tx, ty, tileW, tileH, resScale, ENABLE_DEBUG_VISUALIZATION);
+            if (extractResult !== null) {
+                if (extractResult.shapeId !== null) {
+                    shapeCounts[extractResult.shapeId] = (shapeCounts[extractResult.shapeId] || 0) + 1;
+                }
+                detectedTiles.push({
+                    x: tx, y: ty, w: tileW, h: tileH,
+                    ...extractResult
+                });
+            }
+        }
+    }
+
+    return { shapeCounts, detectedTiles };
 }
 
 
@@ -638,6 +886,99 @@ function drawDebugVisualization(image, analysisResults, detectionData) {
                 ctx.fillRect(x, gridBounds.top, cellWidth, gridHeight);
             });
         }
+
+        // 6. Draw inventory tile regions
+        {
+            const resScale = detectionData.imageWidth / 2560;
+            const invLeft = Math.round(detectionData.imageWidth * (2045 / 2560));
+            const invTop = Math.round(detectionData.imageHeight * (193 / 1440));
+            const invRight = Math.round(detectionData.imageWidth * (2485 / 2560));
+            const invBottom = Math.round(detectionData.imageHeight * (1290 / 1440));
+
+            // Draw panel outline
+            ctx.strokeStyle = '#ff8800';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([4, 4]);
+            ctx.strokeRect(invLeft, invTop, invRight - invLeft, invBottom - invTop);
+            ctx.setLineDash([]);
+            ctx.fillStyle = '#ff8800';
+            ctx.font = 'bold 14px Arial';
+            ctx.fillText('Inventory', invLeft + 4, invTop - 6);
+
+            const tileW = Math.round(188 * resScale);
+            const tileH = Math.round(188 * resScale);
+            const colGapLeft = Math.round(23 * resScale);
+            const colGapRight = Math.round(15 * resScale);
+            const rowGapTop = Math.round(45 * resScale);
+            const rowGap = Math.round(20 * resScale);
+            const cols = [invLeft + colGapLeft, invRight - colGapRight - tileW];
+            const rowStride = tileH + rowGap;
+            const maxRows = Math.max(1, Math.floor((invBottom - invTop - rowGapTop + rowGap) / rowStride));
+
+            const detectedTiles = detectionData.detectedTiles || [];
+
+            for (let row = 0; row < maxRows; row++) {
+                for (let col = 0; col < cols.length; col++) {
+                    const tx = cols[col];
+                    const ty = invTop + rowGapTop + row * rowStride;
+                    if (ty + tileH > invBottom) continue;
+
+                    // Draw tile outline
+                    ctx.strokeStyle = '#ff8800';
+                    ctx.lineWidth = 1;
+                    ctx.strokeRect(tx, ty, tileW, tileH);
+                }
+            }
+
+            // Draw shape detections
+            for (const tile of detectedTiles) {
+                if (!tile.bbox || !tile.grid) {
+                    if (tile.shapeId) {
+                        ctx.fillStyle = '#ff8800';
+                        ctx.font = '11px Arial';
+                        ctx.fillText(tile.shapeId, tile.x + 3, tile.y + 14);
+                    }
+                    continue;
+                }
+
+                // Draw bounding box
+                const bx = tile.x + tile.bbox.minC;
+                const by = tile.y + tile.bbox.minR;
+                ctx.strokeStyle = '#00ffff';
+                ctx.lineWidth = 1;
+                ctx.setLineDash([2, 2]);
+                ctx.strokeRect(bx, by, tile.bbox.w, tile.bbox.h);
+                ctx.setLineDash([]);
+
+                // Draw rasterized NxN grid (fixed cell sizes: 2→42px, 3→28px, 4→21px)
+                // Grid origin is at bbox top-left, matching how rasterizeToGrid samples.
+                const n = tile.N;
+                const cs = tile.cellSize;
+
+                for (let r = 0; r < n; r++) {
+                    for (let c = 0; c < n; c++) {
+                        const cx = bx + c * cs;
+                        const cy = by + r * cs;
+
+                        // Draw grid cell outline
+                        ctx.strokeStyle = 'rgba(0, 255, 255, 0.3)';
+                        ctx.lineWidth = 0.5;
+                        ctx.strokeRect(cx, cy, cs, cs);
+
+                        // Fill if detected
+                        if (tile.grid[r][c]) {
+                            ctx.fillStyle = tile.shapeId ? 'rgba(57, 255, 20, 0.5)' : 'rgba(255, 0, 0, 0.5)';
+                            ctx.fillRect(cx, cy, cs, cs);
+                        }
+                    }
+                }
+
+                // Label
+                ctx.fillStyle = tile.shapeId ? '#39ff14' : '#ff3939';
+                ctx.font = 'bold 12px Arial';
+                ctx.fillText(tile.shapeId || 'Unknown', tile.x + 3, tile.y + 14);
+            }
+        }
     }
 
     // Update debug info text
@@ -671,6 +1012,16 @@ function drawDebugVisualization(image, analysisResults, detectionData) {
             <div class="debug-section-title">Blocked Rows/Columns</div>
             <div>Blocked Rows: <span class="debug-value">${blockedRows.length > 0 ? `[${blockedRows.join(', ')}]` : 'None'}</span></div>
             <div>Blocked Cols: <span class="debug-value">${blockedCols.length > 0 ? `[${blockedCols.join(', ')}]` : 'None'}</span></div>
+        </div>
+        
+        <div class="debug-section">
+            <div class="debug-section-title">Shape Inventory</div>
+            ${Object.keys(analysisResults.shapeCounts || {}).length === 0
+            ? '<div class="debug-warning">No shapes detected</div>'
+            : Object.entries(analysisResults.shapeCounts || {})
+                .map(([id, count]) => `<div>${id}: <span class="debug-value">${count}</span></div>`)
+                .join('')
+        }
         </div>
         
         <div class="debug-section">

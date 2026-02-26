@@ -4084,6 +4084,8 @@
             });
         }
 
+        const ENABLE_DEBUG_VISUALIZATION = false;
+
         async function processImageAndApply(blob) {
             try {
                 updateStatus('Loading image...');
@@ -4091,7 +4093,7 @@
                 const image = await loadImageFromFileOrBlob(blob);
 
                 updateStatus('Analyzing puzzle...');
-                const result = await analyzePuzzleImage(image);
+                const result = await analyzePuzzleImage(image, ENABLE_DEBUG_VISUALIZATION);
 
                 updateStatus('Applying to grid...');
 
@@ -4101,9 +4103,11 @@
 
                 generateGrid(result);
 
-                // Draw debug visualization
-                if (typeof drawDebugVisualization === 'function') {
+                // Draw debug visualization if enabled
+                if (ENABLE_DEBUG_VISUALIZATION && typeof drawDebugVisualization === 'function') {
                     drawDebugVisualization(image, result, debugData);
+                } else {
+                    document.getElementById('debugArea').style.display = 'none';
                 }
 
                 // Clean up old preview URL if exists
