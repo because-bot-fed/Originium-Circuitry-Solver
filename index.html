@@ -7439,8 +7439,22 @@
             });
         };
     </script>
-    <script async src="https://docs.opencv.org/master/opencv.js"
-        onerror="console.error('Failed to load OpenCV.js'); alert('Could not load computer vision library.');"></script>
+    <!-- Load OpenCV asynchronously after the page loads to prevent blocking UI elements -->
+    <script>
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const script = document.createElement('script');
+                script.src = 'https://docs.opencv.org/master/opencv.js';
+                script.async = true;
+                script.onload = () => console.log('OpenCV.js loaded successfully');
+                script.onerror = () => {
+                    console.error('Failed to load OpenCV.js');
+                    alert('Could not load computer vision library.');
+                };
+                document.body.appendChild(script);
+            }, 100);
+        });
+    </script>
     <!-- Image Analyzer -->
     <script src="image-analyzer.js"></script>
 </body>
