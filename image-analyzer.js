@@ -77,49 +77,55 @@ function detectGridBounds(srcImage, ENABLE_DEBUG_VISUALIZATION) {
     let src = cv.imread(srcImage);
     let topLeftCornerTempl = cv.imread('corner_top_left');
     let bottomRightCornerTempl = cv.imread('corner_bottom_right');
-    let dst = new cv.Mat();
     let result = new cv.Mat();
 
-    // 2. Convert both to grayscale to ignore minor color shifts
-    let srcGray = new cv.Mat();
-    let topLeftCornerTemplGray = new cv.Mat();
-    let bottomRightCornerTemplGray = new cv.Mat();
-    cv.cvtColor(src, srcGray, cv.COLOR_RGBA2GRAY, 0);
-    cv.cvtColor(topLeftCornerTempl, topLeftCornerTemplGray, cv.COLOR_RGBA2GRAY, 0);
-    cv.cvtColor(bottomRightCornerTempl, bottomRightCornerTemplGray, cv.COLOR_RGBA2GRAY, 0);
-
-    // 3. Calculate the exact UI scale factor
+    // 2. Calculate the exact UI scale factor
     // Target Height / Reference Height (1440)
     const scaleFactor = src.rows / 1440;
 
-    // 4. Calculate the new dimensions for the templates
+    // 3. Calculate the new dimensions for the templates
     let tlWidth = Math.round(topLeftCornerTempl.cols * scaleFactor);
     let tlHeight = Math.round(topLeftCornerTempl.rows * scaleFactor);
     let brWidth = Math.round(bottomRightCornerTempl.cols * scaleFactor);
     let brHeight = Math.round(bottomRightCornerTempl.rows * scaleFactor);
 
-    // 5. Define the Region of Interest (ROI) for the grid
+    // 4. Define the Region of Interest (ROI) for the grid
     let roiX = Math.round(580 * scaleFactor);
     let roiY = Math.round(130 * scaleFactor);
     let roiWidth = Math.round(1400 * scaleFactor);  // 1980 - 580
     let roiHeight = Math.round(1180 * scaleFactor); // 1310 - 130
 
     let roi = new cv.Rect(roiX, roiY, roiWidth, roiHeight);
-    let srcRoi = srcGray.roi(roi);
+    let srcRoi = src.roi(roi);
 
-    // 6. Resize the templates
+    // 5. Resize the templates using NEAREST-NEIGHBOR to prevent edge blurring
     if (scaleFactor !== 1) {
-        let interpolation = scaleFactor < 1 ? cv.INTER_AREA : cv.INTER_LINEAR;
-        cv.resize(topLeftCornerTemplGray, topLeftCornerTemplGray, new cv.Size(tlWidth, tlHeight), 0, 0, interpolation);
-        cv.resize(bottomRightCornerTemplGray, bottomRightCornerTemplGray, new cv.Size(brWidth, brHeight), 0, 0, interpolation);
+        cv.resize(topLeftCornerTempl, topLeftCornerTempl, new cv.Size(tlWidth, tlHeight), 0, 0, cv.INTER_NEAREST);
+        cv.resize(bottomRightCornerTempl, bottomRightCornerTempl, new cv.Size(brWidth, brHeight), 0, 0, cv.INTER_NEAREST);
     }
 
-    cv.threshold(srcRoi, srcRoi, 140, 255, cv.THRESH_BINARY);
-    cv.threshold(topLeftCornerTemplGray, topLeftCornerTemplGray, 140, 255, cv.THRESH_BINARY);
-    cv.threshold(bottomRightCornerTemplGray, bottomRightCornerTemplGray, 140, 255, cv.THRESH_BINARY);
+    // 6. Color Masking
+    let srcMask = new cv.Mat();
+    let tlMask = new cv.Mat();
+    let brMask = new cv.Mat();
+
+    // Define color bounds for our target grey [143, 143, 143] +/- 10 tolerance
+    let lowColorRoi = new cv.Mat(srcRoi.rows, srcRoi.cols, srcRoi.type(), [133, 133, 133, 0]);
+    let highColorRoi = new cv.Mat(srcRoi.rows, srcRoi.cols, srcRoi.type(), [153, 153, 153, 255]);
+
+    let lowColorTl = new cv.Mat(topLeftCornerTempl.rows, topLeftCornerTempl.cols, topLeftCornerTempl.type(), [133, 133, 133, 0]);
+    let highColorTl = new cv.Mat(topLeftCornerTempl.rows, topLeftCornerTempl.cols, topLeftCornerTempl.type(), [153, 153, 153, 255]);
+
+    let lowColorBr = new cv.Mat(bottomRightCornerTempl.rows, bottomRightCornerTempl.cols, bottomRightCornerTempl.type(), [133, 133, 133, 0]);
+    let highColorBr = new cv.Mat(bottomRightCornerTempl.rows, bottomRightCornerTempl.cols, bottomRightCornerTempl.type(), [153, 153, 153, 255]);
+
+    // Apply the filter: target colors turn white (255), everything else turns black (0)
+    cv.inRange(srcRoi, lowColorRoi, highColorRoi, srcMask);
+    cv.inRange(topLeftCornerTempl, lowColorTl, highColorTl, tlMask);
+    cv.inRange(bottomRightCornerTempl, lowColorBr, highColorBr, brMask);
 
     // 7. Perform Template Matching for top-left corner
-    cv.matchTemplate(srcRoi, topLeftCornerTemplGray, result, cv.TM_CCOEFF_NORMED);
+    cv.matchTemplate(srcMask, tlMask, result, cv.TM_CCOEFF_NORMED);
 
     // 8. Find the best match location for top-left corner
     let minMax = cv.minMaxLoc(result);
@@ -128,16 +134,16 @@ function detectGridBounds(srcImage, ENABLE_DEBUG_VISUALIZATION) {
     let topLeftCorner = { x: maxPoint.x, y: maxPoint.y };
 
     // 9. Verify the match for top-left corner
-    if (confidence > 0.75) {
+    if (confidence > 0.60) {
         if (ENABLE_DEBUG_VISUALIZATION) {
             console.log(`Top-left corner found at X: ${maxPoint.x}, Y: ${maxPoint.y} with ${(confidence * 100).toFixed(2)}% confidence.`);
         }
     } else {
-        throw new Error("Corner bracket not found. Highest confidence was only: " + confidence);
+        throw new Error("Top-left corner bracket not found. Highest confidence was only: " + confidence);
     }
 
     // 10. Perform Template Matching for bottom-right corner
-    cv.matchTemplate(srcRoi, bottomRightCornerTemplGray, result, cv.TM_CCOEFF_NORMED);
+    cv.matchTemplate(srcMask, brMask, result, cv.TM_CCOEFF_NORMED);
 
     // 11. Find the best match location for bottom-right corner
     minMax = cv.minMaxLoc(result);
@@ -146,17 +152,21 @@ function detectGridBounds(srcImage, ENABLE_DEBUG_VISUALIZATION) {
     let bottomRightCorner = { x: maxPoint.x, y: maxPoint.y };
 
     // 12. Verify the match for bottom-right corner
-    if (confidence > 0.75) {
+    if (confidence > 0.60) {
         if (ENABLE_DEBUG_VISUALIZATION) {
             console.log(`Bottom-right corner found at X: ${maxPoint.x}, Y: ${maxPoint.y} with ${(confidence * 100).toFixed(2)}% confidence.`);
         }
     } else {
-        throw new Error("Corner bracket not found. Highest confidence was only: " + confidence);
+        throw new Error("Bottom-right corner bracket not found. Highest confidence was only: " + confidence);
     }
 
     // 13. Clean up memory
-    src.delete(); topLeftCornerTempl.delete(); dst.delete(); result.delete();
-    srcGray.delete(); topLeftCornerTemplGray.delete(); bottomRightCornerTemplGray.delete(); srcRoi.delete();
+    src.delete(); topLeftCornerTempl.delete(); bottomRightCornerTempl.delete();
+    result.delete(); srcRoi.delete();
+    srcMask.delete(); tlMask.delete(); brMask.delete();
+    lowColorRoi.delete(); highColorRoi.delete();
+    lowColorTl.delete(); highColorTl.delete();
+    lowColorBr.delete(); highColorBr.delete();
 
     return {
         left: topLeftCorner.x + roiX + tlWidth,
