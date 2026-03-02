@@ -305,7 +305,6 @@
 
         #debugCanvas {
             display: block;
-            max-width: 100%;
             height: auto;
         }
 
@@ -785,6 +784,7 @@
             --blue-accent: #00bfff;
             --red-accent: #ff3939;
             --purple-accent: #bf39ff;
+            --cyan-accent: #00fdcf;
         }
 
         .prescriptive-segment {
@@ -1126,6 +1126,18 @@
             background: #bf39ff;
         }
 
+        .bar-input.cyan .bar-segment {
+            border: 2px solid #00fdcf;
+        }
+
+        .bar-input.cyan .bar-segment:hover {
+            background: rgba(0, 253, 207, 0.2);
+        }
+
+        .bar-input.cyan .bar-segment.filled {
+            background: #00fdcf;
+        }
+
         /* Bar error state */
         .bar-input.error {
             background: linear-gradient(to top, rgba(255, 0, 0, 0.3), transparent);
@@ -1278,6 +1290,14 @@
             color: #bf39ff;
         }
 
+        .stepper.cyan .stepper-btn svg {
+            fill: #00fdcf;
+        }
+
+        .stepper.cyan .stepper-value {
+            color: #00fdcf;
+        }
+
         /* Column stepper - vertical orientation */
         .col-req .stepper {
             width: 100%;
@@ -1403,6 +1423,7 @@
         .cell.green::before,
         .cell.blue::before,
         .cell.red::before,
+        .cell.cyan::before,
         .cell.purple::before {
             content: '';
             position: absolute;
@@ -1429,6 +1450,7 @@
         .cell.green::after,
         .cell.blue::after,
         .cell.red::after,
+        .cell.cyan::after,
         .cell.purple::after {
             display: none;
         }
@@ -1438,6 +1460,7 @@
         .cell.locked-blue::after,
         .cell.locked-red::after,
         .cell.locked-purple::after,
+        .cell.locked-cyan::after,
         .cell.blocked::after {
             display: block !important;
             z-index: 10;
@@ -1571,6 +1594,15 @@
             z-index: 5;
         }
 
+        .cell.cyan {
+            --bg-color: #09886E;
+            --bg-alt: #004d3f;
+            --border-color: #00fdcf;
+            --grid-line: 0 0 0 0 transparent;
+            border-color: transparent;
+            z-index: 5;
+        }
+
         /* Apply alternate shade if present */
         .cell.shade-alt {
             background: var(--bg-alt, var(--bg-color));
@@ -1582,6 +1614,7 @@
         .cell.green::before,
         .cell.blue::before,
         .cell.red::before,
+        .cell.cyan::before,
         .cell.purple::before {
             display: none;
         }
@@ -1602,6 +1635,7 @@
         .cell.locked-green::before,
         .cell.locked-blue::before,
         .cell.locked-red::before,
+        .cell.locked-cyan::before,
         .cell.locked-purple::before {
             display: none;
         }
@@ -1609,6 +1643,7 @@
         .cell.locked-green::after,
         .cell.locked-blue::after,
         .cell.locked-red::after,
+        .cell.locked-cyan::after,
         .cell.locked-purple::after {
             width: 16px;
             height: 16px;
@@ -1628,6 +1663,12 @@
             background: #5c1a8b;
             border: 2px dashed #bf39ff;
             box-shadow: inset 0 0 15px rgba(191, 57, 255, 0.2);
+        }
+
+        .cell.locked-cyan {
+            background: #09886F;
+            border: 2px dashed #00fdcf;
+            box-shadow: inset 0 0 15px rgba(0, 253, 207, 0.2);
         }
 
         /* Action Buttons */
@@ -1733,6 +1774,10 @@
 
         .solution-mini-cell.purple {
             background: #bf39ff;
+        }
+
+        .solution-mini-cell.cyan {
+            background: #00fdcf;
         }
 
         .solution-mini-cell.blocked {
@@ -2994,6 +3039,8 @@
                     <button class="cell-mode-btn" data-mode="blocked" onclick="setCellMode('blocked')">Block</button>
                     <button class="cell-mode-btn green" data-mode="locked-green"
                         onclick="setCellMode('locked-green')">Green</button>
+                    <button class="cell-mode-btn cyan" data-mode="locked-cyan"
+                        onclick="setCellMode('locked-cyan')">Cyan</button>
                     <button class="cell-mode-btn blue" data-mode="locked-blue"
                         onclick="setCellMode('locked-blue')">Blue</button>
                 </div>
@@ -3269,8 +3316,8 @@
         let shapeCounts = new Map(); // Track shape ID -> count for solving
         let fitAllPiecesMode = false; // When true, ignore requirements, just fit all pieces
         let hideBlue = false; // When true, hide blue inputs and center green
-        let enabledColors = ['green', 'blue']; // Colors enabled for current puzzle
-        const ALL_COLORS = ['green', 'blue', 'red', 'purple'];
+        let enabledColors = ['green', 'blue', 'cyan']; // Colors enabled for current puzzle
+        const ALL_COLORS = ['green', 'blue', 'cyan', 'red', 'purple'];
 
         // ============================================
         // MOBILE SUPPORT - Device Detection
@@ -3445,42 +3492,32 @@
         }
 
         function regenerateInputs() {
-            // Regenerate column requirements (green left, blue right)
+            // Regenerate column requirements
             const colReqs = document.getElementById('colRequirements');
             colReqs.innerHTML = '';
             for (let c = 0; c < cols; c++) {
                 const colReq = document.createElement('div');
                 colReq.className = 'col-req';
-                if (barInputMode) {
-                    colReq.appendChild(createBarInput('green', 'col', c, rows));
-                    if (!hideBlue) {
-                        colReq.appendChild(createBarInput('blue', 'col', c, rows));
-                    }
-                } else {
-                    colReq.appendChild(createStepper('green', 'col', c, rows));
-                    if (!hideBlue) {
-                        colReq.appendChild(createStepper('blue', 'col', c, rows));
-                    }
+                for (const color of enabledColors) {
+                    if (hideBlue && color === 'blue') continue;
+                    colReq.appendChild(barInputMode ? createBarInput(color, 'col', c, rows) : createStepper(color, 'col', c, rows));
                 }
                 colReqs.appendChild(colReq);
             }
 
-            // Regenerate row requirements (blue on top, green on bottom)
+            // Regenerate row requirements
             const rowReqs = document.getElementById('rowRequirements');
             rowReqs.innerHTML = '';
             for (let r = 0; r < rows; r++) {
                 const rowReq = document.createElement('div');
                 rowReq.className = 'row-req';
-                if (barInputMode) {
-                    if (!hideBlue) {
-                        rowReq.appendChild(createBarInput('blue', 'row', r, cols));
-                    }
-                    rowReq.appendChild(createBarInput('green', 'row', r, cols));
-                } else {
-                    if (!hideBlue) {
-                        rowReq.appendChild(createStepper('blue', 'row', r, cols));
-                    }
-                    rowReq.appendChild(createStepper('green', 'row', r, cols));
+                // Find all colors in enabledColors, potentially reversed for layout
+                const displayColors = [...enabledColors];
+                if (barInputMode) displayColors.reverse(); // Match original layout (blue top, green bottom)
+
+                for (const color of displayColors) {
+                    if (hideBlue && color === 'blue') continue;
+                    rowReq.appendChild(barInputMode ? createBarInput(color, 'row', r, cols) : createStepper(color, 'row', r, cols));
                 }
                 rowReqs.appendChild(rowReq);
             }
@@ -3628,8 +3665,16 @@
                 // Use overrides for state
                 gridState = overrides.gridState || Array(rows).fill(null).map(() => Array(cols).fill('empty'));
                 requirements = overrides.requirements || {
-                    rows: Array(rows).fill(null).map(() => ({ green: 0, blue: 0 })),
-                    cols: Array(cols).fill(null).map(() => ({ green: 0, blue: 0 }))
+                    rows: Array(rows).fill(null).map(() => {
+                        const req = {};
+                        ALL_COLORS.forEach(c => req[c] = 0);
+                        return req;
+                    }),
+                    cols: Array(cols).fill(null).map(() => {
+                        const req = {};
+                        ALL_COLORS.forEach(c => req[c] = 0);
+                        return req;
+                    })
                 };
 
                 // Update input fields to reflect override values
@@ -3644,8 +3689,16 @@
 
                 gridState = Array(rows).fill(null).map(() => Array(cols).fill('empty'));
                 requirements = {
-                    rows: Array(rows).fill(null).map(() => ({ green: 0, blue: 0 })),
-                    cols: Array(cols).fill(null).map(() => ({ green: 0, blue: 0 }))
+                    rows: Array(rows).fill(null).map(() => {
+                        const req = {};
+                        ALL_COLORS.forEach(c => req[c] = 0);
+                        return req;
+                    }),
+                    cols: Array(cols).fill(null).map(() => {
+                        const req = {};
+                        ALL_COLORS.forEach(c => req[c] = 0);
+                        return req;
+                    })
                 };
             }
 
@@ -3674,22 +3727,15 @@
                 }
             }
 
-            // Column requirements (green left, blue right)
+            // Column requirements
             const colReqs = document.getElementById('colRequirements');
             colReqs.innerHTML = '';
             for (let c = 0; c < cols; c++) {
                 const colReq = document.createElement('div');
                 colReq.className = 'col-req';
-                if (barInputMode) {
-                    colReq.appendChild(createBarInput('green', 'col', c, rows));
-                    if (!hideBlue) {
-                        colReq.appendChild(createBarInput('blue', 'col', c, rows));
-                    }
-                } else {
-                    colReq.appendChild(createStepper('green', 'col', c, rows));
-                    if (!hideBlue) {
-                        colReq.appendChild(createStepper('blue', 'col', c, rows));
-                    }
+                for (const color of enabledColors) {
+                    if (hideBlue && color === 'blue') continue;
+                    colReq.appendChild(barInputMode ? createBarInput(color, 'col', c, rows) : createStepper(color, 'col', c, rows));
                 }
                 colReqs.appendChild(colReq);
             }
@@ -3697,22 +3743,18 @@
             const spacer = document.getElementById('colReqSpacer');
             spacer.style.width = '60px';
 
-            // Row requirements (blue on top, green on bottom)
+            // Row requirements
             const rowReqs = document.getElementById('rowRequirements');
             rowReqs.innerHTML = '';
             for (let r = 0; r < rows; r++) {
                 const rowReq = document.createElement('div');
                 rowReq.className = 'row-req';
-                if (barInputMode) {
-                    if (!hideBlue) {
-                        rowReq.appendChild(createBarInput('blue', 'row', r, cols));
-                    }
-                    rowReq.appendChild(createBarInput('green', 'row', r, cols));
-                } else {
-                    if (!hideBlue) {
-                        rowReq.appendChild(createStepper('blue', 'row', r, cols));
-                    }
-                    rowReq.appendChild(createStepper('green', 'row', r, cols));
+                const displayColors = [...enabledColors];
+                if (barInputMode) displayColors.reverse();
+
+                for (const color of displayColors) {
+                    if (hideBlue && color === 'blue') continue;
+                    rowReq.appendChild(barInputMode ? createBarInput(color, 'row', r, cols) : createStepper(color, 'row', r, cols));
                 }
                 rowReqs.appendChild(rowReq);
             }
@@ -3722,6 +3764,10 @@
 
             // Apply shape counts if provided
             if (overrides && overrides.shapeCounts) {
+                shapeCounts.clear();
+                for (const [id, count] of Object.entries(overrides.shapeCounts)) {
+                    shapeCounts.set(id, count);
+                }
                 updateShapeSelector(overrides.shapeCounts);
             }
 
@@ -3759,8 +3805,16 @@
 
             // Reset requirements
             requirements = {
-                rows: Array(rows).fill(null).map(() => ({ green: 0, blue: 0 })),
-                cols: Array(cols).fill(null).map(() => ({ green: 0, blue: 0 }))
+                rows: Array(rows).fill(null).map(() => {
+                    const req = {};
+                    ALL_COLORS.forEach(c => req[c] = 0);
+                    return req;
+                }),
+                cols: Array(cols).fill(null).map(() => {
+                    const req = {};
+                    ALL_COLORS.forEach(c => req[c] = 0);
+                    return req;
+                })
             };
 
             // Clear shape selections
@@ -3804,11 +3858,12 @@
 
             updateStatus('Solving...', 'solving');
 
-            // Get blocked cells
+            // Get blocked cells (include all locked cell types as blocked for placement purposes)
             const blockedCells = [];
             for (let r = 0; r < rows; r++) {
                 for (let c = 0; c < cols; c++) {
-                    if (gridState[r][c] === 'blocked' || gridState[r][c] === 'locked-green' || gridState[r][c] === 'locked-blue') {
+                    const state = gridState[r][c];
+                    if (state === 'blocked' || state.startsWith('locked-')) {
                         blockedCells.push([r, c]);
                     }
                 }
@@ -3826,65 +3881,70 @@
                         // Just fit all pieces, ignore row/column requirements
                         result = runFitAllPiecesSolver(rows, cols, blockedCells, shapeCountsObj);
                     } else {
-                        // Calculate locked cell contributions and adjusted requirements
-                        const lockedGreenCounts = { rows: Array(rows).fill(0), cols: Array(cols).fill(0) };
-                        const lockedBlueCounts = { rows: Array(rows).fill(0), cols: Array(cols).fill(0) };
+                        // Calculate locked cell contributions for all potential colors
+                        const lockedCountsByColor = {};
+                        ALL_COLORS.forEach(color => {
+                            lockedCountsByColor[color] = { rows: Array(rows).fill(0), cols: Array(cols).fill(0) };
+                        });
 
                         for (let r = 0; r < rows; r++) {
                             for (let c = 0; c < cols; c++) {
-                                if (gridState[r][c] === 'locked-green') {
-                                    lockedGreenCounts.rows[r]++;
-                                    lockedGreenCounts.cols[c]++;
-                                } else if (gridState[r][c] === 'locked-blue') {
-                                    lockedBlueCounts.rows[r]++;
-                                    lockedBlueCounts.cols[c]++;
+                                const state = gridState[r][c];
+                                if (state.startsWith('locked-')) {
+                                    const color = state.replace('locked-', '');
+                                    if (lockedCountsByColor[color]) {
+                                        lockedCountsByColor[color].rows[r]++;
+                                        lockedCountsByColor[color].cols[c]++;
+                                    }
                                 }
                             }
                         }
 
-                        // Create adjusted requirements (subtract locked cell contributions)
-                        const adjustedRowReqs = requirements.rows.map((req, r) => ({
-                            green: Math.max(0, req.green - lockedGreenCounts.rows[r]),
-                            blue: Math.max(0, req.blue - lockedBlueCounts.rows[r])
-                        }));
-                        const adjustedColReqs = requirements.cols.map((req, c) => ({
-                            green: Math.max(0, req.green - lockedGreenCounts.cols[c]),
-                            blue: Math.max(0, req.blue - lockedBlueCounts.cols[c])
-                        }));
+                        // Create adjusted requirements (subtract locked cell contributions) for all colors
+                        const adjustedRowReqs = requirements.rows.map((req, r) => {
+                            const adj = {};
+                            ALL_COLORS.forEach(color => {
+                                adj[color] = Math.max(0, req[color] - lockedCountsByColor[color].rows[r]);
+                            });
+                            return adj;
+                        });
+                        const adjustedColReqs = requirements.cols.map((req, c) => {
+                            const adj = {};
+                            ALL_COLORS.forEach(color => {
+                                adj[color] = Math.max(0, req[color] - lockedCountsByColor[color].cols[c]);
+                            });
+                            return adj;
+                        });
 
                         // Check for over-constrained (locked cells exceed requirements)
                         let overConstrained = false;
                         for (let r = 0; r < rows; r++) {
-                            if (lockedGreenCounts.rows[r] > requirements.rows[r].green) {
-                                updateStatus(`Row ${r + 1}: locked green cells exceed requirement`, 'error');
-                                overConstrained = true;
-                                break;
+                            for (const color of ALL_COLORS) {
+                                if (lockedCountsByColor[color].rows[r] > requirements.rows[r][color]) {
+                                    updateStatus(`Row ${r + 1}: locked ${color} cells exceed requirement`, 'error');
+                                    overConstrained = true;
+                                    break;
+                                }
                             }
-                            if (lockedBlueCounts.rows[r] > requirements.rows[r].blue) {
-                                updateStatus(`Row ${r + 1}: locked blue cells exceed requirement`, 'error');
-                                overConstrained = true;
-                                break;
-                            }
+                            if (overConstrained) break;
                         }
                         if (!overConstrained) {
                             for (let c = 0; c < cols; c++) {
-                                if (lockedGreenCounts.cols[c] > requirements.cols[c].green) {
-                                    updateStatus(`Column ${c + 1}: locked green cells exceed requirement`, 'error');
-                                    overConstrained = true;
-                                    break;
+                                for (const color of ALL_COLORS) {
+                                    if (lockedCountsByColor[color].cols[c] > requirements.cols[c][color]) {
+                                        updateStatus(`Column ${c + 1}: locked ${color} cells exceed requirement`, 'error');
+                                        overConstrained = true;
+                                        break;
+                                    }
                                 }
-                                if (lockedBlueCounts.cols[c] > requirements.cols[c].blue) {
-                                    updateStatus(`Column ${c + 1}: locked blue cells exceed requirement`, 'error');
-                                    overConstrained = true;
-                                    break;
-                                }
+                                if (overConstrained) break;
                             }
                         }
                         if (overConstrained) return;
 
                         // Create modified grid state where locked cells are treated as blocked
                         const modifiedGridState = gridState.map(row => row.map(cell => {
-                            if (cell === 'locked-green' || cell === 'locked-blue') {
+                            if (cell.startsWith('locked-')) {
                                 return 'blocked';
                             }
                             return cell;
@@ -3896,12 +3956,12 @@
 
                         // Check if adjusted requirements are all zero (solved by locked cells alone)
                         if (!result.success) {
-                            const allZero = adjustedRowReqs.every(r => r.green === 0 && r.blue === 0) &&
-                                adjustedColReqs.every(c => c.green === 0 && c.blue === 0);
+                            const allZero = adjustedRowReqs.every(req => ALL_COLORS.every(color => req[color] === 0)) &&
+                                adjustedColReqs.every(req => ALL_COLORS.every(color => req[color] === 0));
                             if (allZero) {
                                 result = {
                                     success: true,
-                                    solutions: [{ green: [], blue: [], greenPlacements: [], bluePlacements: [] }]
+                                    solutions: [{ green: [], blue: [], cyan: [], red: [], purple: [], greenPlacements: [], bluePlacements: [] }]
                                 };
                                 updateStatus('Solved by locked cells alone', 'success');
                             }
@@ -3944,9 +4004,13 @@
                 miniGrid.className = 'solution-mini-grid';
                 miniGrid.style.gridTemplateColumns = `repeat(${cols}, 8px)`;
 
-                // Create cell lookup sets
-                const greenSet = new Set(solution.green.map(([r, c]) => `${r},${c}`));
-                const blueSet = new Set(solution.blue.map(([r, c]) => `${r},${c}`));
+                // Create cell lookup sets for all colors in the solution
+                const colorSets = {};
+                for (const color of ALL_COLORS) {
+                    if (solution[color]) {
+                        colorSets[color] = new Set(solution[color].map(([r, c]) => `${r},${c}`));
+                    }
+                }
 
                 for (let r = 0; r < rows; r++) {
                     for (let c = 0; c < cols; c++) {
@@ -3958,10 +4022,14 @@
 
                         if (cellState === 'blocked') {
                             cell.classList.add('blocked');
-                        } else if (cellState === 'locked-green' || greenSet.has(key)) {
-                            cell.classList.add('green');
-                        } else if (cellState === 'locked-blue' || blueSet.has(key)) {
-                            cell.classList.add('blue');
+                        } else {
+                            // Check for both locked cells and placed pieces of any color
+                            for (const color of ALL_COLORS) {
+                                if (cellState === `locked-${color}` || (colorSets[color] && colorSets[color].has(key))) {
+                                    cell.classList.add(color);
+                                    break;
+                                }
+                            }
                         }
 
                         miniGrid.appendChild(cell);
@@ -3987,35 +4055,23 @@
             // Build maps for cell -> shape membership and neighbors
             const cellShapeMap = new Map(); // key -> { color, shapeIndex, cells }
 
-            // Process green placements
-            if (solution.greenPlacements) {
-                solution.greenPlacements.forEach((placement, shapeIdx) => {
-                    const cellSet = new Set(placement.cells.map(([r, c]) => `${r},${c}`));
-                    placement.cells.forEach(([r, c], cellIdx) => {
-                        cellShapeMap.set(`${r},${c}`, {
-                            color: 'green',
-                            shapeIndex: shapeIdx,
-                            cellIndex: cellIdx,
-                            cellSet: cellSet
+            // Process placements for all colors
+            ALL_COLORS.forEach(color => {
+                const placements = solution[color + 'Placements'];
+                if (placements) {
+                    placements.forEach((placement, shapeIdx) => {
+                        const cellSet = new Set(placement.cells.map(([r, c]) => `${r},${c}`));
+                        placement.cells.forEach(([r, c], cellIdx) => {
+                            cellShapeMap.set(`${r},${c}`, {
+                                color: color,
+                                shapeIndex: shapeIdx,
+                                cellIndex: cellIdx,
+                                cellSet: cellSet
+                            });
                         });
                     });
-                });
-            }
-
-            // Process blue placements
-            if (solution.bluePlacements) {
-                solution.bluePlacements.forEach((placement, shapeIdx) => {
-                    const cellSet = new Set(placement.cells.map(([r, c]) => `${r},${c}`));
-                    placement.cells.forEach(([r, c], cellIdx) => {
-                        cellShapeMap.set(`${r},${c}`, {
-                            color: 'blue',
-                            shapeIndex: shapeIdx,
-                            cellIndex: cellIdx,
-                            cellSet: cellSet
-                        });
-                    });
-                });
-            }
+                }
+            });
 
             // Update main grid
             document.querySelectorAll('#grid .cell').forEach(cell => {
@@ -4030,10 +4086,8 @@
 
                 if (cellState === 'blocked') {
                     cell.classList.add('blocked');
-                } else if (cellState === 'locked-green') {
-                    cell.classList.add('locked-green');
-                } else if (cellState === 'locked-blue') {
-                    cell.classList.add('locked-blue');
+                } else if (cellState.startsWith('locked-')) {
+                    cell.classList.add(cellState);
                 } else if (cellShapeMap.has(key)) {
                     const info = cellShapeMap.get(key);
                     cell.classList.add(info.color);
@@ -4086,7 +4140,7 @@
             });
         }
 
-        const ENABLE_DEBUG_VISUALIZATION = false;
+        const ENABLE_DEBUG_VISUALIZATION = true;
 
         async function processImageAndApply(blob) {
             try {

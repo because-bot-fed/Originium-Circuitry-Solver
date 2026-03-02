@@ -8,6 +8,45 @@
  * - Blocked rows/columns
  */
 
+const COLOR_PROFILES = {
+    GREEN: {
+        id: 'locked-green',
+        key: 'green',
+        min: [100, 140, 0],
+        max: [190, 255, 15]
+    },
+    BLUE: {
+        id: 'locked-blue',
+        key: 'blue',
+        min: [35, 90, 130],
+        max: [60, 175, 255]
+    },
+    CYAN: {
+        id: 'locked-cyan',
+        key: 'cyan',
+        min: [0, 150, 160],
+        max: [50, 255, 255]
+    }
+};
+
+/**
+ * Generic helper to check if an RGB color falls within a profile's range
+ */
+const isColorMatch = (r, g, b, profile) => {
+    return r >= profile.min[0] && r <= profile.max[0] &&
+        g >= profile.min[1] && g <= profile.max[1] &&
+        b >= profile.min[2] && b <= profile.max[2];
+};
+
+const UI_BLOCK_PROFILE = {
+    cell: {
+        isMatch: (r, g, b, brightness, saturation) => brightness >= 60 && brightness <= 140 && saturation < 0.2
+    },
+    symbol: {
+        isMatch: (r, g, b, brightness, saturation) => brightness >= 80 && brightness <= 180 && saturation < 0.15
+    }
+};
+
 /**
  * Main entry point for analyzing a puzzle screenshot.
  * @param {ImageBitmap|HTMLImageElement|HTMLCanvasElement} image - The source image
@@ -206,9 +245,6 @@ function classifyCells(imageData, gridBounds, rows, cols) {
     const gap = 6 * resScale;
     const stride = cellSize + gap;
 
-    // Sample a square region at the center of each cell
-    const sampleSize = Math.max(4, Math.round(cellSize * 0.25));
-
     const data = imageData.data;
     const imgW = imageData.width;
 
@@ -220,48 +256,35 @@ function classifyCells(imageData, gridBounds, rows, cols) {
             const cellX = gridBounds.left + c * stride;
             const cellY = gridBounds.top + r * stride;
 
-            // Center region to sample
-            const sx = Math.round(cellX + (cellSize - sampleSize) / 2);
-            const sy = Math.round(cellY + (cellSize - sampleSize) / 2);
+            // Center pixel to sample
+            const sx = Math.round(cellX + (cellSize - 1) / 2);
+            const sy = Math.round(cellY + (cellSize - 1) / 2);
 
-            // Accumulate R, G, B over the sample region
-            let sumR = 0, sumG = 0, sumB = 0, count = 0;
-            for (let dy = 0; dy < sampleSize; dy++) {
-                for (let dx = 0; dx < sampleSize; dx++) {
-                    const px = sx + dx;
-                    const py = sy + dy;
-                    if (px < 0 || py < 0 || px >= imgW || py >= imageData.height) continue;
-                    const idx = (py * imgW + px) * 4;
-                    sumR += data[idx];
-                    sumG += data[idx + 1];
-                    sumB += data[idx + 2];
-                    count++;
+            let red = data[(sy * imgW + sx) * 4];
+            let green = data[(sy * imgW + sx) * 4 + 1];
+            let blue = data[(sy * imgW + sx) * 4 + 2];
+            const brightness = (red + green + blue) / 3;
+
+            let state = 'empty';
+
+            // Compute saturation (max - min) / max, guarded against division by zero
+            const maxC = Math.max(red, green, blue);
+            const minC = Math.min(red, green, blue);
+            const saturation = maxC > 0 ? (maxC - minC) / maxC : 0;
+
+            let matched = false;
+            for (const profile of Object.values(COLOR_PROFILES)) {
+                if (isColorMatch(red, green, blue, profile)) {
+                    state = profile.id;
+                    matched = true;
+                    break;
                 }
             }
 
-            let state = 'empty';
-            if (count > 0) {
-                const meanR = sumR / count;
-                const meanG = sumG / count;
-                const meanB = sumB / count;
-                const brightness = (meanR + meanG + meanB) / 3;
-
-                // Compute saturation (max - min) / max, guarded against division by zero
-                const maxC = Math.max(meanR, meanG, meanB);
-                const minC = Math.min(meanR, meanG, meanB);
-                const saturation = maxC > 0 ? (maxC - minC) / maxC : 0;
-
-                if (meanG > 150 && meanG > meanR && meanG > meanB) {
-                    // Bright yellow-green (~rgb(180, 220, 10))
-                    state = 'locked-green';
-                } else if (meanB > 150 && meanB > meanR && meanB > meanG) {
-                    // Bright cyan-blue (~rgb(80, 180, 220))
-                    state = 'locked-blue';
-                } else if (brightness >= 60 && brightness <= 140 && saturation < 0.2) {
-                    // Medium-grey diagonal hash background
+            if (!matched) {
+                if (UI_BLOCK_PROFILE.cell.isMatch(red, green, blue, brightness, saturation)) {
                     state = 'blocked';
                 } else {
-                    // Dark, low-saturation background
                     state = 'empty';
                 }
             }
@@ -314,33 +337,44 @@ function countColorRuns(imageData, rx, ry, rw, rh) {
     const MIN_RUN = 3;           // minimum consecutive qualifying columns to form a run
     const PIXEL_THRESHOLD = 1;   // minimum green/blue pixels in a column to count it
 
-    const greenStrips = [];  // bool per column: is this column-strip green?
-    const blueStrips = [];   // bool per column: is this column-strip blue?
+    const strips = {};
+    for (const profile of Object.values(COLOR_PROFILES)) {
+        strips[profile.key] = [];
+    }
 
     for (let dx = 0; dx < rw; dx++) {
         const px = Math.round(rx + dx);
         if (px < 0 || px >= imgW) {
-            greenStrips.push(false);
-            blueStrips.push(false);
+            for (const key in strips) strips[key].push(false);
             continue;
         }
-        let gCount = 0, bCount = 0;
+
+        const counts = {};
+        for (const profile of Object.values(COLOR_PROFILES)) counts[profile.key] = 0;
+
         for (let dy = 0; dy < rh; dy++) {
             const py = Math.round(ry + dy);
             if (py < 0 || py >= imgH) continue;
             const i = (py * imgW + px) * 4;
             const R = data[i], G = data[i + 1], B = data[i + 2];
-            if (G > 180 && G > R * 1.3 && G > B * 1.5) gCount++;
-            else if (B > 160 && B > R * 1.4 && B > G * 1.1) bCount++;
+
+            for (const profile of Object.values(COLOR_PROFILES)) {
+                if (isColorMatch(R, G, B, profile)) {
+                    counts[profile.key]++;
+                    break;
+                }
+            }
         }
-        greenStrips.push(gCount >= PIXEL_THRESHOLD);
-        blueStrips.push(bCount >= PIXEL_THRESHOLD);
+        for (const profile of Object.values(COLOR_PROFILES)) {
+            strips[profile.key].push(counts[profile.key] >= PIXEL_THRESHOLD);
+        }
     }
 
-    return {
-        green: countRuns(greenStrips, MIN_RUN),
-        blue: countRuns(blueStrips, MIN_RUN),
-    };
+    const result = {};
+    for (const profile of Object.values(COLOR_PROFILES)) {
+        result[profile.key] = countRuns(strips[profile.key], MIN_RUN);
+    }
+    return result;
 }
 
 /**
@@ -351,7 +385,7 @@ function countColorRuns(imageData, rx, ry, rw, rh) {
  * @param {number} ry - Region y coordinate  
  * @param {number} rw - Region width
  * @param {number} rh - Region height
- * @returns {Object} { green: number, blue: number }
+ * @returns {Object} { green: number, blue: number, cyan: number }
  */
 function countColorRunsVertical(imageData, rx, ry, rw, rh) {
     const data = imageData.data;
@@ -360,33 +394,44 @@ function countColorRunsVertical(imageData, rx, ry, rw, rh) {
     const MIN_RUN = 3;           // minimum consecutive qualifying rows to form a run
     const PIXEL_THRESHOLD = 1;   // minimum green/blue pixels in a row to count it
 
-    const greenStrips = [];  // bool per row: is this row-strip green?
-    const blueStrips = [];   // bool per row: is this row-strip blue?
+    const strips = {};
+    for (const profile of Object.values(COLOR_PROFILES)) {
+        strips[profile.key] = [];
+    }
 
     for (let dy = 0; dy < rh; dy++) {
         const py = Math.round(ry + dy);
         if (py < 0 || py >= imgH) {
-            greenStrips.push(false);
-            blueStrips.push(false);
+            for (const key in strips) strips[key].push(false);
             continue;
         }
-        let gCount = 0, bCount = 0;
+
+        const counts = {};
+        for (const profile of Object.values(COLOR_PROFILES)) counts[profile.key] = 0;
+
         for (let dx = 0; dx < rw; dx++) {
             const px = Math.round(rx + dx);
             if (px < 0 || px >= imgW) continue;
             const i = (py * imgW + px) * 4;
             const R = data[i], G = data[i + 1], B = data[i + 2];
-            if (G > 180 && G > R * 1.3 && G > B * 1.5) gCount++;
-            else if (B > 160 && B > R * 1.4 && B > G * 1.1) bCount++;
+
+            for (const profile of Object.values(COLOR_PROFILES)) {
+                if (isColorMatch(R, G, B, profile)) {
+                    counts[profile.key]++;
+                    break;
+                }
+            }
         }
-        greenStrips.push(gCount >= PIXEL_THRESHOLD);
-        blueStrips.push(bCount >= PIXEL_THRESHOLD);
+        for (const profile of Object.values(COLOR_PROFILES)) {
+            strips[profile.key].push(counts[profile.key] >= PIXEL_THRESHOLD);
+        }
     }
 
-    return {
-        green: countRuns(greenStrips, MIN_RUN),
-        blue: countRuns(blueStrips, MIN_RUN),
-    };
+    const result = {};
+    for (const profile of Object.values(COLOR_PROFILES)) {
+        result[profile.key] = countRuns(strips[profile.key], MIN_RUN);
+    }
+    return result;
 }
 
 /**
@@ -421,8 +466,7 @@ function isRegionBlockedSymbol(imageData, rx, ry, rw, rh) {
     const minC = Math.min(meanR, meanG, meanB);
     const saturation = maxC > 0 ? (maxC - minC) / maxC : 0;
 
-    // Grey + no saturated color = ⊘ row/column
-    return brightness >= 80 && brightness <= 180 && saturation < 0.15;
+    return UI_BLOCK_PROFILE.symbol.isMatch(meanR, meanG, meanB, brightness, saturation);
 }
 
 /**
@@ -431,7 +475,7 @@ function isRegionBlockedSymbol(imageData, rx, ry, rw, rh) {
  * Column requirements: colored bar segments above each column
  */
 function extractRequirements(imageData, gridBounds, rows, cols) {
-    const imgW = imageData.width, imgH = imageData.height;
+    const imgW = imageData.width;
     const resScale = imgW / 2560;
     const cellSize = 116 * resScale, gap = 6 * resScale, stride = cellSize + gap;
 
@@ -450,7 +494,7 @@ function extractRequirements(imageData, gridBounds, rows, cols) {
     }
 
     // Column requirements (top margin) — scan row-by-row
-    const colBarHeight = (imgH / 1440) * 20;
+    const colBarHeight = resScale * 20;
     const colMarginHeight = (rows + 1) * colBarHeight;
     const colReqs = [];
 
@@ -523,9 +567,12 @@ function tileIsOccupied(imageData, tx, ty, tw, th) {
             if (px < 0 || py < 0 || px >= imgW || py >= imageData.height) continue;
             const i = (py * imgW + px) * 4;
             const R = data[i], G = data[i + 1], B = data[i + 2];
-            if ((G > 150 && G > R * 1.2 && G > B * 1.3) ||
-                (B > 140 && B > R * 1.3 && B > G * 1.05)) {
-                colored++;
+
+            for (const profile of Object.values(COLOR_PROFILES)) {
+                if (isColorMatch(R, G, B, profile)) {
+                    colored++;
+                    break;
+                }
             }
         }
     }
@@ -549,13 +596,51 @@ function binarizeTile(imageData, tx, ty, tw, th) {
             }
             const i = (py * imgW + px) * 4;
             const R = data[i], G = data[i + 1], B = data[i + 2];
-            const isGreen = G > 150 && G > R && G > B;
-            const isBlue = B > 140 && B > R && B > G;
-            row.push(isGreen || isBlue);
+
+            let matched = false;
+            for (const profile of Object.values(COLOR_PROFILES)) {
+                if (isColorMatch(R, G, B, profile)) {
+                    matched = true;
+                    break;
+                }
+            }
+            row.push(matched);
         }
         filled.push(row);
     }
     return filled;
+}
+
+/**
+ * Morphologically dilate a binary grid by expanding true pixels to orthogonal neighbors.
+ * Fills in hollow centers and gaps caused by anti-aliasing or glowing art styles.
+ * @param {boolean[][]} grid - Input binary grid
+ * @param {number} iterations - Number of dilation passes (default 3)
+ * @returns {boolean[][]} Dilated binary grid
+ */
+function dilateBinaryGrid(grid, iterations = 3) {
+    const height = grid.length;
+    if (height === 0) return grid;
+    const width = grid[0].length;
+    let current = grid;
+
+    for (let i = 0; i < iterations; i++) {
+        const next = current.map(row => [...row]);
+        for (let r = 0; r < height; r++) {
+            for (let c = 0; c < width; c++) {
+                if (!current[r][c]) {
+                    if ((r > 0 && current[r - 1][c]) ||
+                        (r < height - 1 && current[r + 1][c]) ||
+                        (c > 0 && current[r][c - 1]) ||
+                        (c < width - 1 && current[r][c + 1])) {
+                        next[r][c] = true;
+                    }
+                }
+            }
+        }
+        current = next;
+    }
+    return current;
 }
 
 /**
@@ -661,7 +746,7 @@ const GRID_CELL_SIZES = { 2: 42, 3: 28, 4: 21 };
  */
 function extractShapeFromTile(imageData, tx, ty, tw, th, resScale, ENABLE_DEBUG_VISUALIZATION) {
     if (!tileIsOccupied(imageData, tx, ty, tw, th)) return null;
-    const filled = binarizeTile(imageData, tx, ty, tw, th);
+    const filled = dilateBinaryGrid(binarizeTile(imageData, tx, ty, tw, th));
     const bbox = binaryBBox(filled);
     if (!bbox) return { shapeId: null, bbox: null };
 
@@ -670,37 +755,48 @@ function extractShapeFromTile(imageData, tx, ty, tw, th, resScale, ENABLE_DEBUG_
     let fallbackCellSize = null;
 
     for (const N of [4, 3, 2]) {
-        const cellSize = GRID_CELL_SIZES[N] * resScale;
-        const grid = rasterizeToGrid(filled, bbox, N, cellSize);
-        const cells = gridToCells(grid);
-        if (typeof ENABLE_DEBUG_VISUALIZATION !== 'undefined' && ENABLE_DEBUG_VISUALIZATION) {
-            console.log(`N=${N} cellSize=${cellSize} bbox=${bbox.h}x${bbox.w} cells=`, JSON.stringify(cells));
+        const fixedCellSize = GRID_CELL_SIZES[N] * resScale;
+        // Also try a cell size derived from the bbox so that shapes whose bbox grew
+        // due to dilation are still rasterized correctly (e.g. L-4 with a bbox wider
+        // than N * fixedCellSize would lose its last column otherwise).
+        const bboxDerivedCellSize = Math.max(bbox.h, bbox.w) / N;
+        const cellSizesToTry = [fixedCellSize];
+        if (Math.abs(bboxDerivedCellSize - fixedCellSize) > 1) {
+            cellSizesToTry.push(bboxDerivedCellSize);
         }
-        if (N === 3) {
-            fallbackGrid = grid;
-            fallbackN = N;
-            fallbackCellSize = cellSize;
-        }
-        if (cells.length === 0) continue;
-        const match = matchShape(cells, ENABLE_DEBUG_VISUALIZATION);
-        if (typeof ENABLE_DEBUG_VISUALIZATION !== 'undefined' && ENABLE_DEBUG_VISUALIZATION) {
-            console.log(`  -> matchShape: ${match}`);
-        }
-        if (match !== null) {
-            // Sanity-check: the binary bbox should be roughly the size the matched shape
-            // occupies at this grid resolution.
-            const matchedBounds = getShapeBounds(cells);
-            const expectedH = matchedBounds.height * cellSize;
-            const expectedW = matchedBounds.width * cellSize;
-            const ratioH = bbox.h / expectedH;
-            const ratioW = bbox.w / expectedW;
-            const TOLERANCE_LO = 0.55, TOLERANCE_HI = 1.25;
-            if (ratioH >= TOLERANCE_LO && ratioH <= TOLERANCE_HI &&
-                ratioW >= TOLERANCE_LO && ratioW <= TOLERANCE_HI) {
-                return { shapeId: match, bbox, grid, N, cellSize };
-            }
+
+        for (const cellSize of cellSizesToTry) {
+            const grid = rasterizeToGrid(filled, bbox, N, cellSize);
+            const cells = gridToCells(grid);
             if (typeof ENABLE_DEBUG_VISUALIZATION !== 'undefined' && ENABLE_DEBUG_VISUALIZATION) {
-                console.log(`detectInventory: rejected ${match} at N=${N} (ratioH=${ratioH.toFixed(2)}, ratioW=${ratioW.toFixed(2)})`);
+                console.log(`N=${N} cellSize=${cellSize.toFixed(1)} bbox=${bbox.h}x${bbox.w} cells=`, JSON.stringify(cells));
+            }
+            if (N === 3 && cellSize === fixedCellSize) {
+                fallbackGrid = grid;
+                fallbackN = N;
+                fallbackCellSize = cellSize;
+            }
+            if (cells.length === 0) continue;
+            const match = matchShape(cells, ENABLE_DEBUG_VISUALIZATION);
+            if (typeof ENABLE_DEBUG_VISUALIZATION !== 'undefined' && ENABLE_DEBUG_VISUALIZATION) {
+                console.log(`  -> matchShape: ${match}`);
+            }
+            if (match !== null) {
+                // Sanity-check: the binary bbox should be roughly the size the matched shape
+                // occupies at this grid resolution.
+                const matchedBounds = getShapeBounds(cells);
+                const expectedH = matchedBounds.height * cellSize;
+                const expectedW = matchedBounds.width * cellSize;
+                const ratioH = bbox.h / expectedH;
+                const ratioW = bbox.w / expectedW;
+                const TOLERANCE_LO = 0.55, TOLERANCE_HI = 1.25;
+                if (ratioH >= TOLERANCE_LO && ratioH <= TOLERANCE_HI &&
+                    ratioW >= TOLERANCE_LO && ratioW <= TOLERANCE_HI) {
+                    return { shapeId: match, bbox, grid, N, cellSize };
+                }
+                if (typeof ENABLE_DEBUG_VISUALIZATION !== 'undefined' && ENABLE_DEBUG_VISUALIZATION) {
+                    console.log(`detectInventory: rejected ${match} at N=${N} cellSize=${cellSize.toFixed(1)} (ratioH=${ratioH.toFixed(2)}, ratioW=${ratioW.toFixed(2)})`);
+                }
             }
         }
     }
@@ -722,12 +818,12 @@ function detectInventory(imageData, width, height, ENABLE_DEBUG_VISUALIZATION) {
     const invBottom = Math.round(height * (1290 / 1440));
 
     // Tile geometry (scaled from 2560×1440 reference)
-    const tileW = Math.round(188 * resScale);
-    const tileH = Math.round(188 * resScale);
+    const tileW = Math.round(189 * resScale);
+    const tileH = Math.round(189 * resScale);
     const colGapLeft = Math.round(23 * resScale);
     const colGapRight = Math.round(15 * resScale);
-    const rowGapTop = Math.round(45 * resScale);
-    const rowGap = Math.round(20 * resScale);
+    const rowGapTop = Math.round(46 * resScale);
+    const rowGap = Math.round(23 * resScale);
     const cols = [invLeft + colGapLeft, invRight - colGapRight - tileW];
     const rowStride = tileH + rowGap;
     const maxRows = Math.max(1, Math.floor((invBottom - invTop - rowGapTop + rowGap) / rowStride));
@@ -777,10 +873,16 @@ function drawDebugVisualization(image, analysisResults, detectionData) {
 
     // Show the debug area
     debugArea.style.display = 'block';
+    debugArea.style.overflow = 'auto';
 
     // Set canvas size to match image
     debugCanvas.width = image.width;
     debugCanvas.height = image.height;
+
+    const availableWidth = debugArea.clientWidth || window.innerWidth;
+    const scale = Math.min(1, availableWidth / image.width);
+    debugCanvas.style.width = `${image.width * scale}px`;
+    debugCanvas.style.height = `${image.height * scale}px`;
 
     const ctx = debugCanvas.getContext('2d');
 
@@ -888,7 +990,7 @@ function drawDebugVisualization(image, analysisResults, detectionData) {
                 ctx.fillStyle = '#ffff00';
                 ctx.font = 'bold 12px Arial';
                 ctx.fillText(
-                    `R${r}: G${req.green} B${req.blue}`,
+                    `Row ${r}: G${req.green} B${req.blue} C${req.cyan}`,
                     regionX + 5,
                     regionY + regionHeight / 2
                 );
@@ -914,7 +1016,7 @@ function drawDebugVisualization(image, analysisResults, detectionData) {
                 ctx.save();
                 ctx.translate(regionX + regionWidth / 2, regionY + 5);
                 ctx.rotate(Math.PI / 2);
-                ctx.fillText(`C${c}: G${req.green} B${req.blue}`, 0, 0);
+                ctx.fillText(`Col ${c}: G${req.green} B${req.blue} C${req.cyan}`, 0, 0);
                 ctx.restore();
             }
         }
@@ -956,12 +1058,12 @@ function drawDebugVisualization(image, analysisResults, detectionData) {
             ctx.font = 'bold 14px Arial';
             ctx.fillText('Inventory', invLeft + 4, invTop - 6);
 
-            const tileW = Math.round(188 * resScale);
-            const tileH = Math.round(188 * resScale);
+            const tileW = Math.round(189 * resScale);
+            const tileH = Math.round(189 * resScale);
             const colGapLeft = Math.round(23 * resScale);
             const colGapRight = Math.round(15 * resScale);
-            const rowGapTop = Math.round(45 * resScale);
-            const rowGap = Math.round(20 * resScale);
+            const rowGapTop = Math.round(46 * resScale);
+            const rowGap = Math.round(23 * resScale);
             const cols = [invLeft + colGapLeft, invRight - colGapRight - tileW];
             const rowStride = tileH + rowGap;
             const maxRows = Math.max(1, Math.floor((invBottom - invTop - rowGapTop + rowGap) / rowStride));
