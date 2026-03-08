@@ -185,11 +185,26 @@ function runSolver(gridRows, gridCols, gridState, rowReqs, colReqs, enabledShape
         }
     }
 
-    // Check if any requirements exist
-    const hasGreenReq = rowReqs.some(r => r.green > 0) || colReqs.some(c => c.green > 0);
-    const hasBlueReq = rowReqs.some(r => r.blue > 0) || colReqs.some(c => c.blue > 0);
+    // Identify all colors that have at least one requirement
+    const colorsWithReqs = [];
+    const checkOrder = ['green', 'blue', 'cyan', 'red', 'purple'];
+    const allKnownColors = new Set();
+    rowReqs.forEach(r => Object.keys(r).forEach(k => allKnownColors.add(k)));
 
-    if (!hasGreenReq && !hasBlueReq) {
+    for (const color of checkOrder) {
+        if (allKnownColors.has(color)) {
+            const hasReq = rowReqs.some(r => (r[color] || 0) > 0) || colReqs.some(c => (c[color] || 0) > 0);
+            if (hasReq) colorsWithReqs.push(color);
+        }
+    }
+    for (const color of allKnownColors) {
+        if (!checkOrder.includes(color)) {
+            const hasReq = rowReqs.some(r => (r[color] || 0) > 0) || colReqs.some(c => (c[color] || 0) > 0);
+            if (hasReq) colorsWithReqs.push(color);
+        }
+    }
+
+    if (colorsWithReqs.length === 0) {
         return { success: false, message: 'No requirements specified' };
     }
 
@@ -200,103 +215,113 @@ function runSolver(gridRows, gridCols, gridState, rowReqs, colReqs, enabledShape
         return { success: false, message: 'No valid shape placements possible' };
     }
 
-    const solutions = [];
-
-    // Solve for green first (or skip if no green requirements)
-    let greenSolutions = [];
-    if (hasGreenReq) {
-        greenSolutions = solveForColor('green', allPlacements, gridRows, gridCols, rowReqs, colReqs, blockedCells);
-        if (greenSolutions.length === 0) {
-            return { success: false, message: 'No valid green configuration found' };
+    // Helper to solve colors one by one
+    function solveNextColor(colorIdx, currentForbidden) {
+        if (colorIdx >= colorsWithReqs.length) {
+            return [{ cellsByColor: {}, placementsByColor: {} }];
         }
-    } else {
-        // No green requirements - one "empty" solution
-        greenSolutions = [{ placements: [], cells: [] }];
-    }
 
-    // For each green solution, solve for blue
-    for (const greenSol of greenSolutions) {
-        const greenCellsSet = new Set(greenSol.cells.map(([r, c]) => `${r},${c}`));
-        const forbiddenForBlue = [...blockedCells, ...greenSol.cells];
+        const color = colorsWithReqs[colorIdx];
+        const colorSolutions = solveForColor(color, allPlacements, gridRows, gridCols, rowReqs, colReqs, currentForbidden);
 
-        if (hasBlueReq) {
-            const blueSolutions = solveForColor('blue', allPlacements, gridRows, gridCols, rowReqs, colReqs, forbiddenForBlue);
+        const solutions = [];
+        for (const subSol of colorSolutions) {
+            const nextForbidden = [...currentForbidden, ...subSol.cells];
+            const remainingColorSolutions = solveNextColor(colorIdx + 1, nextForbidden);
 
-            for (const blueSol of blueSolutions) {
+            for (const restSol of remainingColorSolutions) {
+                const combinedCells = { ...restSol.cellsByColor };
+                combinedCells[color] = subSol.cells;
+
+                const combinedPlacements = { ...restSol.placementsByColor };
+                combinedPlacements[color] = subSol.placements;
+
                 solutions.push({
-                    green: greenSol.cells,
-                    blue: blueSol.cells,
-                    greenPlacements: greenSol.placements,
-                    bluePlacements: blueSol.placements
+                    cellsByColor: combinedCells,
+                    placementsByColor: combinedPlacements
                 });
 
-                // Limit total solutions
                 if (solutions.length >= 50) break;
             }
-        } else {
-            // No blue requirements
-            solutions.push({
-                green: greenSol.cells,
-                blue: [],
-                greenPlacements: greenSol.placements,
-                bluePlacements: []
-            });
+            if (solutions.length >= 50) break;
         }
 
-        if (solutions.length >= 50) break;
+        return solutions;
     }
 
-    if (solutions.length === 0) {
+    const rawSolutions = solveNextColor(0, blockedCells);
+
+    if (rawSolutions.length === 0) {
         return { success: false, message: 'No valid solution found' };
     }
 
-    return { success: true, solutions };
+    // Format solutions for consistent output
+    const formattedSolutions = rawSolutions.map(sol => {
+        const formatted = {
+            green: sol.cellsByColor.green || [],
+            blue: sol.cellsByColor.blue || [],
+            greenPlacements: sol.placementsByColor.green || [],
+            bluePlacements: sol.placementsByColor.blue || []
+        };
+        for (const color in sol.cellsByColor) {
+            if (color !== 'green' && color !== 'blue') {
+                formatted[color] = sol.cellsByColor[color];
+                formatted[color + 'Placements'] = sol.placementsByColor[color];
+            }
+        }
+        return formatted;
+    });
+
+    return { success: true, solutions: formattedSolutions };
 }
 
 /**
  * Validate a solution (for debugging)
  */
 function validateSolution(solution, gridRows, gridCols, rowReqs, colReqs) {
-    const greenCounts = calculateCounts(solution.green, gridRows, gridCols);
-    const blueCounts = calculateCounts(solution.blue, gridRows, gridCols);
-
     const errors = [];
+    const colorSets = {};
 
-    // Check green row requirements
-    for (let r = 0; r < gridRows; r++) {
-        if (greenCounts.rowCounts[r] !== rowReqs[r].green) {
-            errors.push(`Row ${r} green: expected ${rowReqs[r].green}, got ${greenCounts.rowCounts[r]}`);
+    // Get all colors present in requirements or solution
+    const colors = new Set();
+    rowReqs.forEach(r => Object.keys(r).forEach(k => colors.add(k)));
+    Object.keys(solution).forEach(k => {
+        if (!k.endsWith('Placements') && Array.isArray(solution[k])) colors.add(k);
+    });
+
+    for (const color of colors) {
+        const cells = solution[color] || [];
+        const counts = calculateCounts(cells, gridRows, gridCols);
+        colorSets[color] = new Set(cells.map(([r, c]) => `${r},${c}`));
+
+        // Check row requirements
+        for (let r = 0; r < gridRows; r++) {
+            const expected = rowReqs[r][color] || 0;
+            if (counts.rowCounts[r] !== expected) {
+                errors.push(`Row ${r} ${color}: expected ${expected}, got ${counts.rowCounts[r]}`);
+            }
+        }
+
+        // Check col requirements
+        for (let c = 0; c < gridCols; c++) {
+            const expected = colReqs[c][color] || 0;
+            if (counts.colCounts[c] !== expected) {
+                errors.push(`Col ${c} ${color}: expected ${expected}, got ${counts.colCounts[c]}`);
+            }
         }
     }
 
-    // Check green column requirements
-    for (let c = 0; c < gridCols; c++) {
-        if (greenCounts.colCounts[c] !== colReqs[c].green) {
-            errors.push(`Col ${c} green: expected ${colReqs[c].green}, got ${greenCounts.colCounts[c]}`);
-        }
-    }
-
-    // Check blue row requirements
-    for (let r = 0; r < gridRows; r++) {
-        if (blueCounts.rowCounts[r] !== rowReqs[r].blue) {
-            errors.push(`Row ${r} blue: expected ${rowReqs[r].blue}, got ${blueCounts.rowCounts[r]}`);
-        }
-    }
-
-    // Check blue column requirements
-    for (let c = 0; c < gridCols; c++) {
-        if (blueCounts.colCounts[c] !== colReqs[c].blue) {
-            errors.push(`Col ${c} blue: expected ${colReqs[c].blue}, got ${blueCounts.colCounts[c]}`);
-        }
-    }
-
-    // Check for overlaps
-    const greenSet = new Set(solution.green.map(([r, c]) => `${r},${c}`));
-    const blueSet = new Set(solution.blue.map(([r, c]) => `${r},${c}`));
-
-    for (const cell of greenSet) {
-        if (blueSet.has(cell)) {
-            errors.push(`Overlap at ${cell}`);
+    // Check for overlaps between any two colors
+    const colorList = Array.from(colorSets.keys());
+    for (let i = 0; i < colorList.length; i++) {
+        for (let j = i + 1; j < colorList.length; j++) {
+            const colorA = colorList[i];
+            const colorB = colorList[j];
+            for (const cell of colorSets[colorA]) {
+                if (colorSets[colorB].has(cell)) {
+                    errors.push(`Overlap at ${cell} between ${colorA} and ${colorB}`);
+                }
+            }
         }
     }
 
@@ -395,9 +420,7 @@ function runFitAllPiecesSolver(gridRows, gridCols, blockedCells, shapeCounts) {
     return { success: true, solutions };
 }
 
-/**
- * Solver with exact shape counts and row/column requirements
- */
+// Solver with exact shape counts and row/column requirements
 function runSolverWithShapeCounts(gridRows, gridCols, gridState, rowReqs, colReqs, shapeCounts) {
     // Get blocked cells
     const blockedCells = [];
@@ -409,11 +432,29 @@ function runSolverWithShapeCounts(gridRows, gridCols, gridState, rowReqs, colReq
         }
     }
 
-    // Check if any requirements exist
-    const hasGreenReq = rowReqs.some(r => r.green > 0) || colReqs.some(c => c.green > 0);
-    const hasBlueReq = rowReqs.some(r => r.blue > 0) || colReqs.some(c => c.blue > 0);
+    // Identify all colors that have at least one requirement
+    // Usually green, blue, but now could include cyan, etc.
+    const colorsWithReqs = [];
+    // We check green and blue first to maintain traditional priority if possible
+    const checkOrder = ['green', 'blue', 'cyan', 'red', 'purple'];
+    const allKnownColors = new Set();
+    rowReqs.forEach(r => Object.keys(r).forEach(k => allKnownColors.add(k)));
 
-    if (!hasGreenReq && !hasBlueReq) {
+    for (const color of checkOrder) {
+        if (allKnownColors.has(color)) {
+            const hasReq = rowReqs.some(r => r[color] > 0) || colReqs.some(c => c[color] > 0);
+            if (hasReq) colorsWithReqs.push(color);
+        }
+    }
+    // Add any unknown colors found in rowReqs
+    for (const color of allKnownColors) {
+        if (!checkOrder.includes(color)) {
+            const hasReq = rowReqs.some(r => r[color] > 0) || colReqs.some(c => c[color] > 0);
+            if (hasReq) colorsWithReqs.push(color);
+        }
+    }
+
+    if (colorsWithReqs.length === 0) {
         return { success: false, message: 'No requirements specified' };
     }
 
@@ -433,59 +474,93 @@ function runSolverWithShapeCounts(gridRows, gridCols, gridState, rowReqs, colReq
         placementsByShape[shapeId] = generatePlacementsForShape(shapeId, gridRows, gridCols, blockedSet);
     }
 
-    const solutions = [];
-
-    // Solve for green first
-    let greenSolutions = [];
-    if (hasGreenReq) {
-        greenSolutions = solveForColorWithCounts('green', shapeInstances, placementsByShape, gridRows, gridCols, rowReqs, colReqs, blockedCells);
-        if (greenSolutions.length === 0) {
-            return { success: false, message: 'No valid green configuration found with selected shapes' };
+    // Helper to solve colors one by one
+    function solveNextColor(colorIdx, currentForbidden, currentUsedIndices) {
+        if (colorIdx >= colorsWithReqs.length) {
+            // Base case: all colors satisfied
+            return [{ cellsByColor: {}, placementsByColor: {} }];
         }
-    } else {
-        greenSolutions = [{ placements: [], cells: [], usedShapeIndices: new Set() }];
-    }
 
-    // For each green solution, solve for blue with remaining shapes
-    for (const greenSol of greenSolutions) {
-        const forbiddenForBlue = [...blockedCells, ...greenSol.cells];
-        const remainingShapeInstances = shapeInstances.filter((_, idx) => !greenSol.usedShapeIndices.has(idx));
+        const color = colorsWithReqs[colorIdx];
+        const isLastColor = (colorIdx === colorsWithReqs.length - 1);
 
-        if (hasBlueReq) {
-            if (remainingShapeInstances.length === 0) {
-                // No shapes left for blue but blue requirements exist
-                continue;
+        // Filter shapes available for this color
+        const availableShapeIndices = [];
+        const availableShapes = [];
+        for (let i = 0; i < shapeInstances.length; i++) {
+            if (!currentUsedIndices.has(i)) {
+                availableShapeIndices.push(i);
+                availableShapes.push(shapeInstances[i]);
+            }
+        }
+
+        if (availableShapes.length === 0) return [];
+
+        let subSolutions = [];
+        if (isLastColor) {
+            // Last color doesn't need to track used indices for further steps
+            subSolutions = solveForColorWithCountsSimple(color, availableShapes, placementsByShape, gridRows, gridCols, rowReqs, colReqs, currentForbidden);
+        } else {
+            // Intermediate color needs to track which shapes it uses
+            subSolutions = solveForColorWithCounts(color, availableShapes, placementsByShape, gridRows, gridCols, rowReqs, colReqs, currentForbidden);
+        }
+
+        const solutions = [];
+        for (const subSol of subSolutions) {
+            // Map subSol indices back to original shapeInstances indices
+            const newUsedIndices = new Set(currentUsedIndices);
+            if (subSol.usedShapeIndices) {
+                subSol.usedShapeIndices.forEach(idx => newUsedIndices.add(availableShapeIndices[idx]));
             }
 
-            const blueSolutions = solveForColorWithCountsSimple('blue', remainingShapeInstances, placementsByShape, gridRows, gridCols, rowReqs, colReqs, forbiddenForBlue);
+            const nextForbidden = [...currentForbidden, ...subSol.cells];
+            const remainingColorSolutions = solveNextColor(colorIdx + 1, nextForbidden, newUsedIndices);
 
-            for (const blueSol of blueSolutions) {
+            for (const restSol of remainingColorSolutions) {
+                const combinedCells = { ...restSol.cellsByColor };
+                combinedCells[color] = subSol.cells;
+
+                const combinedPlacements = { ...restSol.placementsByColor };
+                combinedPlacements[color] = subSol.placements;
+
                 solutions.push({
-                    green: greenSol.cells,
-                    blue: blueSol.cells,
-                    greenPlacements: greenSol.placements,
-                    bluePlacements: blueSol.placements
+                    cellsByColor: combinedCells,
+                    placementsByColor: combinedPlacements
                 });
 
                 if (solutions.length >= 50) break;
             }
-        } else {
-            solutions.push({
-                green: greenSol.cells,
-                blue: [],
-                greenPlacements: greenSol.placements,
-                bluePlacements: []
-            });
+            if (solutions.length >= 50) break;
         }
 
-        if (solutions.length >= 50) break;
+        return solutions;
     }
 
-    if (solutions.length === 0) {
-        return { success: false, message: 'No valid solution found with selected shape counts' };
+    const rawSolutions = solveNextColor(0, blockedCells, new Set());
+
+    if (rawSolutions.length === 0) {
+        return { success: false, message: 'No valid solution found with selected shapes and requirements' };
     }
 
-    return { success: true, solutions };
+    // Format solutions for consistent output (UI expects .green, .blue, etc.)
+    const formattedSolutions = rawSolutions.map(sol => {
+        const formatted = {
+            green: sol.cellsByColor.green || [],
+            blue: sol.cellsByColor.blue || [],
+            greenPlacements: sol.placementsByColor.green || [],
+            bluePlacements: sol.placementsByColor.blue || []
+        };
+        // Add any other colors (like cyan)
+        for (const color in sol.cellsByColor) {
+            if (color !== 'green' && color !== 'blue') {
+                formatted[color] = sol.cellsByColor[color];
+                formatted[color + 'Placements'] = sol.placementsByColor[color];
+            }
+        }
+        return formatted;
+    });
+
+    return { success: true, solutions: formattedSolutions };
 }
 
 /**

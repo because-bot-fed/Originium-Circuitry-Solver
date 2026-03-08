@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -90,6 +91,57 @@
             align-items: center;
             margin-bottom: 30px;
             flex-wrap: wrap;
+        }
+
+        /* Upload Area */
+        .upload-area {
+            max-width: 350px;
+            margin: 20px auto;
+        }
+
+        .upload-dropzone {
+            position: relative;
+            border: 1px solid #333;
+            border-radius: 3px;
+            padding: 16px 20px;
+            background: #0f0f0f;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .upload-dropzone:hover {
+            border-color: #444;
+            background: #151515;
+        }
+
+        .upload-dropzone.drag-over {
+            border-color: #39ff14;
+            background: rgba(57, 255, 20, 0.05);
+        }
+
+        .upload-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .upload-icon {
+            font-size: 1.5rem;
+            opacity: 0.7;
+        }
+
+        .upload-text {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #aaa;
+        }
+
+        .upload-subtext {
+            font-size: 0.7rem;
+            color: #666;
         }
 
         .config-group {
@@ -193,14 +245,103 @@
             animation: toastOut 0.3s ease forwards;
         }
 
+        .toast-image {
+            max-width: 250px;
+            max-height: 150px;
+            border-radius: 3px;
+            margin-top: 8px;
+            display: block;
+        }
+
         @keyframes toastIn {
-            from { opacity: 0; transform: translateX(50px); }
-            to { opacity: 1; transform: translateX(0); }
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
         }
 
         @keyframes toastOut {
-            from { opacity: 1; transform: translateX(0); }
-            to { opacity: 0; transform: translateX(50px); }
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
+
+            to {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+        }
+
+        /* Debug Visualization Area */
+        .debug-area {
+            max-width: 1400px;
+            margin: 40px auto 20px;
+            padding: 20px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+        }
+
+        .debug-area h3 {
+            margin: 0 0 15px 0;
+            color: #39ff14;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .debug-container {
+            position: relative;
+            display: inline-block;
+            background: #0a0a0a;
+            border: 1px solid #444;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        #debugCanvas {
+            display: block;
+            height: auto;
+        }
+
+        .debug-info {
+            margin-top: 15px;
+            padding: 15px;
+            background: #0f0f0f;
+            border: 1px solid #333;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #ccc;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .debug-info .debug-section {
+            margin-bottom: 15px;
+        }
+
+        .debug-info .debug-section-title {
+            color: #00bfff;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .debug-info .debug-value {
+            color: #39ff14;
+        }
+
+        .debug-info .debug-warning {
+            color: #ffa500;
+        }
+
+        .debug-info .debug-error {
+            color: #ff3939;
         }
 
         .btn-solve {
@@ -264,7 +405,9 @@
 
         .shape-selector-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(var(--grid-size, 1), 1fr);
+            grid-auto-flow: column;
+            grid-auto-columns: 1fr;
             gap: 6px;
         }
 
@@ -528,10 +671,29 @@
             display: none;
         }
 
-        .color-toggle.green.active { background: #1a3a1a; color: #39ff14; border-color: #2d5a2d; }
-        .color-toggle.blue.active { background: #1a2a4a; color: #00bfff; border-color: #2d4a7a; }
-        .color-toggle.red.active { background: #3a1a1a; color: #ff3939; border-color: #5a2d2d; }
-        .color-toggle.purple.active { background: #2a1a3a; color: #bf39ff; border-color: #4a2d5a; }
+        .color-toggle.green.active {
+            background: #1a3a1a;
+            color: #39ff14;
+            border-color: #2d5a2d;
+        }
+
+        .color-toggle.blue.active {
+            background: #1a2a4a;
+            color: #00bfff;
+            border-color: #2d4a7a;
+        }
+
+        .color-toggle.red.active {
+            background: #3a1a1a;
+            color: #ff3939;
+            border-color: #5a2d2d;
+        }
+
+        .color-toggle.purple.active {
+            background: #2a1a3a;
+            color: #bf39ff;
+            border-color: #4a2d5a;
+        }
 
         .feature-toggles {
             display: flex;
@@ -622,6 +784,7 @@
             --blue-accent: #00bfff;
             --red-accent: #ff3939;
             --purple-accent: #bf39ff;
+            --cyan-accent: #00fdcf;
         }
 
         .prescriptive-segment {
@@ -633,14 +796,37 @@
             background: currentColor;
         }
 
-        .prescriptive-bar.green .prescriptive-segment { border-color: #39ff14; }
-        .prescriptive-bar.green .prescriptive-segment.filled { background: #39ff14; }
-        .prescriptive-bar.blue .prescriptive-segment { border-color: #00bfff; }
-        .prescriptive-bar.blue .prescriptive-segment.filled { background: #00bfff; }
-        .prescriptive-bar.red .prescriptive-segment { border-color: #ff3939; }
-        .prescriptive-bar.red .prescriptive-segment.filled { background: #ff3939; }
-        .prescriptive-bar.purple .prescriptive-segment { border-color: #bf39ff; }
-        .prescriptive-bar.purple .prescriptive-segment.filled { background: #bf39ff; }
+        .prescriptive-bar.green .prescriptive-segment {
+            border-color: #39ff14;
+        }
+
+        .prescriptive-bar.green .prescriptive-segment.filled {
+            background: #39ff14;
+        }
+
+        .prescriptive-bar.blue .prescriptive-segment {
+            border-color: #00bfff;
+        }
+
+        .prescriptive-bar.blue .prescriptive-segment.filled {
+            background: #00bfff;
+        }
+
+        .prescriptive-bar.red .prescriptive-segment {
+            border-color: #ff3939;
+        }
+
+        .prescriptive-bar.red .prescriptive-segment.filled {
+            background: #ff3939;
+        }
+
+        .prescriptive-bar.purple .prescriptive-segment {
+            border-color: #bf39ff;
+        }
+
+        .prescriptive-bar.purple .prescriptive-segment.filled {
+            background: #bf39ff;
+        }
 
         .prescriptive-bar.error {
             background: linear-gradient(to top, rgba(255, 0, 0, 0.3), transparent);
@@ -705,14 +891,37 @@
             border-color: #333;
         }
 
-        .palette-shape.green { border-color: #1a3a1a; }
-        .palette-shape.green:hover { border-color: #39ff14; }
-        .palette-shape.blue { border-color: #1a2a4a; }
-        .palette-shape.blue:hover { border-color: #00bfff; }
-        .palette-shape.red { border-color: #3a1a1a; }
-        .palette-shape.red:hover { border-color: #ff3939; }
-        .palette-shape.purple { border-color: #2a1a3a; }
-        .palette-shape.purple:hover { border-color: #bf39ff; }
+        .palette-shape.green {
+            border-color: #1a3a1a;
+        }
+
+        .palette-shape.green:hover {
+            border-color: #39ff14;
+        }
+
+        .palette-shape.blue {
+            border-color: #1a2a4a;
+        }
+
+        .palette-shape.blue:hover {
+            border-color: #00bfff;
+        }
+
+        .palette-shape.red {
+            border-color: #3a1a1a;
+        }
+
+        .palette-shape.red:hover {
+            border-color: #ff3939;
+        }
+
+        .palette-shape.purple {
+            border-color: #2a1a3a;
+        }
+
+        .palette-shape.purple:hover {
+            border-color: #bf39ff;
+        }
 
         .palette-shape.placed {
             opacity: 0.3;
@@ -723,10 +932,26 @@
             background: #333;
             border: 1px solid #444;
         }
-        .shape-preview-cell.green { background: #1a5c1a; border-color: #39ff14; }
-        .shape-preview-cell.blue { background: #0066a0; border-color: #00bfff; }
-        .shape-preview-cell.red { background: #8b1a1a; border-color: #ff3939; }
-        .shape-preview-cell.purple { background: #5c1a8b; border-color: #bf39ff; }
+
+        .shape-preview-cell.green {
+            background: #1a5c1a;
+            border-color: #39ff14;
+        }
+
+        .shape-preview-cell.blue {
+            background: #0066a0;
+            border-color: #00bfff;
+        }
+
+        .shape-preview-cell.red {
+            background: #8b1a1a;
+            border-color: #ff3939;
+        }
+
+        .shape-preview-cell.purple {
+            background: #5c1a8b;
+            border-color: #bf39ff;
+        }
 
         .puzzle-actions {
             display: flex;
@@ -841,7 +1066,7 @@
             display: flex;
             flex-direction: column-reverse;
             gap: 1px;
-            justify-content: flex-end;
+            justify-content: flex-start;
             background: transparent;
             padding: 0;
         }
@@ -901,6 +1126,30 @@
             background: #bf39ff;
         }
 
+        .bar-input.cyan .bar-segment {
+            border: 2px solid #00fdcf;
+        }
+
+        .bar-input.cyan .bar-segment:hover {
+            background: rgba(0, 253, 207, 0.2);
+        }
+
+        .bar-input.cyan .bar-segment.filled {
+            background: #00fdcf;
+        }
+
+        .bar-input.orange .bar-segment {
+            border: 2px solid #ff8c00;
+        }
+
+        .bar-input.orange .bar-segment:hover {
+            background: rgba(255, 140, 0, 0.2);
+        }
+
+        .bar-input.orange .bar-segment.filled {
+            background: #ff8c00;
+        }
+
         /* Bar error state */
         .bar-input.error {
             background: linear-gradient(to top, rgba(255, 0, 0, 0.3), transparent);
@@ -909,20 +1158,27 @@
         }
 
         @keyframes error-pulse {
-            0%, 100% { box-shadow: 0 0 5px rgba(255, 0, 0, 0.3); }
-            50% { box-shadow: 0 0 15px rgba(255, 0, 0, 0.5); }
+
+            0%,
+            100% {
+                box-shadow: 0 0 5px rgba(255, 0, 0, 0.3);
+            }
+
+            50% {
+                box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
+            }
         }
 
         /* Column bar inputs - vertical bars side by side */
         .col-req .bar-input {
-            width: 33px;
-            height: 60px;
+            width: 22px;
+            height: 80px;
         }
 
         /* Row bar inputs - horizontal bars stacked vertically, fill from right */
         .row-req .bar-input {
-            width: 60px;
-            height: 33px;
+            width: 80px;
+            height: 22px;
             flex-direction: row-reverse;
         }
 
@@ -943,7 +1199,7 @@
             justify-content: center;
             align-items: flex-end;
             gap: 1px;
-            width: 68px;
+            width: 90px;
         }
 
         /* Custom Stepper Control */
@@ -977,6 +1233,22 @@
             border-color: #2a3a5a;
         }
 
+        .stepper.cyan {
+            border-color: #0a2a24;
+        }
+
+        .stepper.cyan:hover {
+            border-color: #1a4a3a;
+        }
+
+        .stepper.orange {
+            border-color: #2a1800;
+        }
+
+        .stepper.orange:hover {
+            border-color: #4a2800;
+        }
+
         .stepper-btn {
             display: flex;
             align-items: center;
@@ -987,11 +1259,11 @@
         }
 
         .stepper-btn:hover {
-            background: rgba(255,255,255,0.05);
+            background: rgba(255, 255, 255, 0.05);
         }
 
         .stepper-btn:active {
-            background: rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.1);
         }
 
         .stepper-btn svg {
@@ -1046,6 +1318,22 @@
             color: #bf39ff;
         }
 
+        .stepper.cyan .stepper-btn svg {
+            fill: #00fdcf;
+        }
+
+        .stepper.cyan .stepper-value {
+            color: #00fdcf;
+        }
+
+        .stepper.orange .stepper-btn svg {
+            fill: #ff8c00;
+        }
+
+        .stepper.orange .stepper-value {
+            color: #ff8c00;
+        }
+
         /* Column stepper - vertical orientation */
         .col-req .stepper {
             width: 100%;
@@ -1061,14 +1349,24 @@
             font-size: 1.1rem;
         }
 
-        /* Row stepper - vertical orientation but wider */
+        /* Row stepper - horizontal: [▲] [number] [▼] */
         .row-req .stepper {
-            width: 51px;
-            height: 100%;
+            width: 100%;
+            flex-direction: row;
+            align-items: center;
+            flex: 1;
         }
 
         .row-req .stepper-btn {
-            height: 19px;
+            display: flex;
+            width: 16px;
+            flex-shrink: 0;
+            height: 100%;
+        }
+
+        .row-req .stepper-btn svg {
+            width: 10px;
+            height: 10px;
         }
 
         .row-req .stepper-value {
@@ -1092,11 +1390,12 @@
 
         .row-req {
             display: flex;
-            flex-direction: column;
+            flex-direction: column-reverse;
             gap: 1px;
-            height: 68px;
+            height: 90px;
+            width: 80px;
             justify-content: center;
-            align-items: center;
+            align-items: stretch;
         }
 
         /* Grid */
@@ -1110,18 +1409,18 @@
         }
 
         .cell {
-            width: 68px;
-            height: 68px;
+            width: 90px;
+            height: 90px;
             /* Variables for theming and borders */
             --bg-color: #111;
             --border-color: #1a1a1a;
-            
+
             /* Border Shadows - Color Layer (3px) */
             --bs-t-c: 0 0 0 0 transparent;
             --bs-r-c: 0 0 0 0 transparent;
             --bs-b-c: 0 0 0 0 transparent;
             --bs-l-c: 0 0 0 0 transparent;
-            
+
             /* Border Shadows - Black Layer (3px + 4px = 7px) */
             --bs-t-b: 0 0 0 0 transparent;
             --bs-r-b: 0 0 0 0 transparent;
@@ -1144,33 +1443,49 @@
             /* Removed CSS border to prevent miter issues */
             position: relative;
             z-index: 1;
-            
+
             /* Only grid line on the cell itself */
-            box-shadow: var(--grid-line); 
+            box-shadow: var(--grid-line);
         }
 
         /* Corner Patch Definitions: Mitered joints for Inner Corners 
            (Reduced size to 2.0px/5.0px to prevent visual bulging) */
-        .cell.corner-tl { --c-tl: linear-gradient(135deg, var(--border-color) 1.55px, #000 1.55px, #000 4px, transparent 4px); }
-        .cell.corner-tr { --c-tr: linear-gradient(225deg, var(--border-color) 1.55px, #000 1.55px, #000 4px, transparent 4px); }
-        .cell.corner-br { --c-br: linear-gradient(315deg, var(--border-color) 1.55px, #000 1.55px, #000 4px, transparent 4px); }
-        .cell.corner-bl { --c-bl: linear-gradient(45deg,  var(--border-color) 1.55px, #000 1.55px, #000 4px, transparent 4px); }
+        .cell.corner-tl {
+            --c-tl: linear-gradient(135deg, var(--border-color) 1.55px, #000 1.55px, #000 4px, transparent 4px);
+        }
+
+        .cell.corner-tr {
+            --c-tr: linear-gradient(225deg, var(--border-color) 1.55px, #000 1.55px, #000 4px, transparent 4px);
+        }
+
+        .cell.corner-br {
+            --c-br: linear-gradient(315deg, var(--border-color) 1.55px, #000 1.55px, #000 4px, transparent 4px);
+        }
+
+        .cell.corner-bl {
+            --c-bl: linear-gradient(45deg, var(--border-color) 1.55px, #000 1.55px, #000 4px, transparent 4px);
+        }
 
         /* Render Borders and Corners on ::before for Colored Cells */
-        .cell.green::before, .cell.blue::before, .cell.red::before, .cell.purple::before {
+        .cell.green::before,
+        .cell.blue::before,
+        .cell.red::before,
+        .cell.cyan::before,
+        .cell.purple::before {
             content: '';
             position: absolute;
             inset: 0;
             background: transparent;
             pointer-events: none;
-            z-index: 2; /* Above background */
+            z-index: 2;
+            /* Above background */
             display: block !important;
-            
+
             /* Borders */
-            box-shadow: 
+            box-shadow:
                 var(--bs-t-c), var(--bs-r-c), var(--bs-b-c), var(--bs-l-c),
                 var(--bs-t-b), var(--bs-r-b), var(--bs-b-b), var(--bs-l-b);
-                
+
             /* Corners */
             background-image: var(--c-tl), var(--c-tr), var(--c-bl), var(--c-br);
             background-position: top left, top right, bottom left, bottom right;
@@ -1179,7 +1494,12 @@
         }
 
         /* HIDE the default Center Dot (::after) on colored cells */
-        .cell.green::after, .cell.blue::after, .cell.red::after, .cell.purple::after {
+        .cell.green::after,
+        .cell.blue::after,
+        .cell.red::after,
+        .cell.cyan::after,
+        .cell.orange::after,
+        .cell.purple::after {
             display: none;
         }
 
@@ -1188,6 +1508,8 @@
         .cell.locked-blue::after,
         .cell.locked-red::after,
         .cell.locked-purple::after,
+        .cell.locked-cyan::after,
+        .cell.locked-orange::after,
         .cell.blocked::after {
             display: block !important;
             z-index: 10;
@@ -1201,16 +1523,19 @@
             --bs-t-c: inset 0 2px 0 0 var(--border-color);
             --bs-t-b: inset 0 5px 0 0 #000000;
         }
+
         .cell.border-right {
             z-index: 10;
             --bs-r-c: inset -2px 0 0 0 var(--border-color);
             --bs-r-b: inset -5px 0 0 0 #000000;
         }
+
         .cell.border-bottom {
             z-index: 10;
             --bs-b-c: inset 0 -2px 0 0 var(--border-color);
             --bs-b-b: inset 0 -5px 0 0 #000000;
         }
+
         .cell.border-left {
             z-index: 10;
             --bs-l-c: inset 2px 0 0 0 var(--border-color);
@@ -1284,10 +1609,13 @@
             --bg-color: #1a5c1a;
             --bg-alt: #0d3d0d;
             --border-color: #39ff14;
-            --grid-line: 0 0 0 0 transparent; /* Hide grid line */
-            border-color: transparent; /* Hide default grid border */
+            --grid-line: 0 0 0 0 transparent;
+            /* Hide grid line */
+            border-color: transparent;
+            /* Hide default grid border */
             z-index: 5;
         }
+
         .cell.blue {
             --bg-color: #0066a0;
             --bg-alt: #003d60;
@@ -1296,6 +1624,7 @@
             border-color: transparent;
             z-index: 5;
         }
+
         .cell.red {
             --bg-color: #8b1a1a;
             --bg-alt: #4d0f0f;
@@ -1304,6 +1633,7 @@
             border-color: transparent;
             z-index: 5;
         }
+
         .cell.purple {
             --bg-color: #5c1a8b;
             --bg-alt: #300d47;
@@ -1312,7 +1642,25 @@
             border-color: transparent;
             z-index: 5;
         }
-        
+
+        .cell.cyan {
+            --bg-color: #09886E;
+            --bg-alt: #004d3f;
+            --border-color: #00fdcf;
+            --grid-line: 0 0 0 0 transparent;
+            border-color: transparent;
+            z-index: 5;
+        }
+
+        .cell.orange {
+            --bg-color: #7a3d00;
+            --bg-alt: #4d2600;
+            --border-color: #ff8c00;
+            --grid-line: 0 0 0 0 transparent;
+            border-color: transparent;
+            z-index: 5;
+        }
+
         /* Apply alternate shade if present */
         .cell.shade-alt {
             background: var(--bg-alt, var(--bg-color));
@@ -1324,6 +1672,8 @@
         .cell.green::before,
         .cell.blue::before,
         .cell.red::before,
+        .cell.cyan::before,
+        .cell.orange::before,
         .cell.purple::before {
             display: none;
         }
@@ -1344,6 +1694,8 @@
         .cell.locked-green::before,
         .cell.locked-blue::before,
         .cell.locked-red::before,
+        .cell.locked-cyan::before,
+        .cell.locked-orange::before,
         .cell.locked-purple::before {
             display: none;
         }
@@ -1351,6 +1703,8 @@
         .cell.locked-green::after,
         .cell.locked-blue::after,
         .cell.locked-red::after,
+        .cell.locked-cyan::after,
+        .cell.locked-orange::after,
         .cell.locked-purple::after {
             width: 16px;
             height: 16px;
@@ -1370,6 +1724,18 @@
             background: #5c1a8b;
             border: 2px dashed #bf39ff;
             box-shadow: inset 0 0 15px rgba(191, 57, 255, 0.2);
+        }
+
+        .cell.locked-cyan {
+            background: #09886F;
+            border: 2px dashed #00fdcf;
+            box-shadow: inset 0 0 15px rgba(0, 253, 207, 0.2);
+        }
+
+        .cell.locked-orange {
+            background: #7a3d00;
+            border: 2px dashed #ff8c00;
+            box-shadow: inset 0 0 15px rgba(255, 140, 0, 0.2);
         }
 
         /* Action Buttons */
@@ -1475,6 +1841,10 @@
 
         .solution-mini-cell.purple {
             background: #bf39ff;
+        }
+
+        .solution-mini-cell.cyan {
+            background: #00fdcf;
         }
 
         .solution-mini-cell.blocked {
@@ -1589,6 +1959,18 @@
             border-color: #4a2d5a;
         }
 
+        .cell-mode-btn.cyan.active {
+            background: #0a2a24;
+            color: #00fdcf;
+            border-color: #1a5a4a;
+        }
+
+        .cell-mode-btn.orange.active {
+            background: #2a1800;
+            color: #ff8c00;
+            border-color: #5a3a00;
+        }
+
         /* Fit All Pieces checkbox */
         .fit-mode-container {
             display: flex;
@@ -1667,7 +2049,7 @@
         /* Fix: Strategic Z-Index Layering */
         /* "Future" borders (Right/Bottom) must be higher than "Past" borders 
            to prevent the next cell in the DOM from covering the previous cell's border. */
-        
+
         /* Tier 1: Top/Left borders (Safe, naturally above previous neighbors) */
         .cell.border-top,
         .cell.border-left {
@@ -1683,7 +2065,7 @@
         .cell.border-right {
             z-index: 70 !important;
         }
-        
+
         /* Tier 4: Corner case - Right + Bottom combined */
         .cell.border-right.border-bottom {
             z-index: 80 !important;
@@ -1776,7 +2158,8 @@
            ============================================ */
 
         .benchmark-toggle {
-            display: none; /* Hidden - development tool only */
+            display: none;
+            /* Hidden - development tool only */
             position: fixed;
             bottom: 10px;
             left: 10px;
@@ -1899,11 +2282,25 @@
             background: #252525;
         }
 
-        .benchmark-results .difficulty-easy { color: #39ff14; }
-        .benchmark-results .difficulty-medium { color: #00bfff; }
-        .benchmark-results .difficulty-hard { color: #ff9f1c; }
-        .benchmark-results .difficulty-expert { color: #ff3939; }
-        .benchmark-results .difficulty-master { color: #bf39ff; }
+        .benchmark-results .difficulty-easy {
+            color: #39ff14;
+        }
+
+        .benchmark-results .difficulty-medium {
+            color: #00bfff;
+        }
+
+        .benchmark-results .difficulty-hard {
+            color: #ff9f1c;
+        }
+
+        .benchmark-results .difficulty-expert {
+            color: #ff3939;
+        }
+
+        .benchmark-results .difficulty-master {
+            color: #bf39ff;
+        }
 
         .benchmark-progress {
             padding: 10px;
@@ -1931,7 +2328,7 @@
 
         :root {
             /* Base values (desktop) */
-            --cell-size-large: 68px;
+            --cell-size-large: 90px;
             --cell-size-medium: 56px;
             --cell-size-small: 48px;
             --cell-size-tiny: 40px;
@@ -1959,6 +2356,7 @@
 
         /* Narrow screens (phones) - layout adjustments */
         @media (max-width: 768px) {
+
             body.mobile-mode .container,
             body.touch-device .container {
                 padding: 10px;
@@ -1986,6 +2384,7 @@
 
         /* Very narrow screens (small phones) */
         @media (max-width: 480px) {
+
             body.mobile-mode .mode-toggle,
             body.touch-device .mode-toggle {
                 width: 100%;
@@ -2000,6 +2399,7 @@
 
         /* Coarse pointer (touch) - interaction adjustments */
         @media (pointer: coarse) {
+
             /* Ensure minimum touch target sizes */
             body.mobile-mode .btn,
             body.mobile-mode button,
@@ -2019,6 +2419,7 @@
 
         /* No hover capability - remove hover-dependent styles */
         @media (hover: none) {
+
             body.mobile-mode .btn:hover,
             body.touch-device .btn:hover {
                 /* Remove hover effects that won't work on touch */
@@ -2032,6 +2433,7 @@
 
         /* Puzzle container on mobile */
         @media (max-width: 768px) {
+
             body.mobile-mode .puzzle-container,
             body.touch-device .puzzle-container {
                 flex-direction: column;
@@ -2091,6 +2493,7 @@
 
         /* Smaller puzzle config panel on mobile */
         @media (max-width: 768px) {
+
             body.mobile-mode #puzzleUI .config-panel,
             body.touch-device #puzzleUI .config-panel {
                 flex-direction: column;
@@ -2116,6 +2519,7 @@
 
         /* Solver mode on mobile */
         @media (max-width: 768px) {
+
             body.mobile-mode #solverUI .puzzle-area,
             body.touch-device #solverUI .puzzle-area {
                 flex-direction: column;
@@ -2137,6 +2541,7 @@
 
         /* Requirements bars on mobile - slightly larger for readability */
         @media (max-width: 480px) {
+
             body.mobile-mode .prescriptive-bar,
             body.touch-device .prescriptive-bar {
                 min-width: 14px;
@@ -2165,6 +2570,7 @@
             .mobile-toggle-label {
                 display: none;
             }
+
             .mobile-toggle {
                 padding: 6px;
             }
@@ -2232,6 +2638,7 @@
                 opacity: 0;
                 transform: translateX(-50%) translateY(20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateX(-50%) translateY(0);
@@ -2293,8 +2700,15 @@
         }
 
         @keyframes longPressGlow {
-            0%, 100% { box-shadow: 0 0 5px rgba(255, 57, 57, 0.5); }
-            50% { box-shadow: 0 0 15px rgba(255, 57, 57, 0.8); }
+
+            0%,
+            100% {
+                box-shadow: 0 0 5px rgba(255, 57, 57, 0.5);
+            }
+
+            50% {
+                box-shadow: 0 0 15px rgba(255, 57, 57, 0.8);
+            }
         }
 
         /* Floating shape during touch drag */
@@ -2581,6 +2995,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="toast-container" id="toastContainer"></div>
 
@@ -2600,7 +3015,7 @@
             </div>
 
             <input type="text" class="shape-name-input" id="customShapeName"
-                   placeholder="Enter shape name (e.g., 'My Custom L')" maxlength="50">
+                placeholder="Enter shape name (e.g., 'My Custom L')" maxlength="50">
 
             <div class="shape-editor-grid" id="shapeEditorGrid">
                 <!-- 8x8 grid cells will be generated by JavaScript -->
@@ -2622,7 +3037,8 @@
 
     <!-- Mobile Mode Toggle (unobtrusive, bottom-right corner) -->
     <label class="mobile-toggle" title="Force mobile mode for testing">
-        <input type="checkbox" class="mobile-toggle-checkbox" id="mobileToggle" onchange="toggleMobileMode(this.checked)">
+        <input type="checkbox" class="mobile-toggle-checkbox" id="mobileToggle"
+            onchange="toggleMobileMode(this.checked)">
         <span class="mobile-toggle-label">Mobile</span>
     </label>
 
@@ -2651,7 +3067,8 @@
                 Samples per config:
                 <input type="number" id="benchmarkSamples" value="10" min="1" max="100">
             </label>
-            <span id="benchmarkModeInfo" style="color: #666; font-size: 10px; margin-left: 5px;">(50 total puzzles)</span>
+            <span id="benchmarkModeInfo" style="color: #666; font-size: 10px; margin-left: 5px;">(50 total
+                puzzles)</span>
             <button class="btn btn-primary" onclick="runBenchmark()">Run Benchmark</button>
             <button class="btn" onclick="clearBenchmarkResults()">Clear Results</button>
         </div>
@@ -2662,8 +3079,10 @@
             </div>
         </div>
         <div class="benchmark-results" id="benchmarkResults">
-            <p style="color: #888;">Click "Run Benchmark" to generate puzzles at each difficulty and measure solver complexity.</p>
-            <p style="color: #888; font-size: 11px;">This will generate puzzles, then solve them while measuring nodes explored and time taken.</p>
+            <p style="color: #888;">Click "Run Benchmark" to generate puzzles at each difficulty and measure solver
+                complexity.</p>
+            <p style="color: #888; font-size: 11px;">This will generate puzzles, then solve them while measuring nodes
+                explored and time taken.</p>
         </div>
     </div>
 
@@ -2681,117 +3100,148 @@
         <!-- Solver Mode UI -->
         <div id="solverUI">
 
-        <!-- Configuration Panel -->
-        <div class="config-panel">
-            <div class="config-group">
-                <label>Rows</label>
-                <input type="number" id="rowCount" min="2" max="10" value="5">
-            </div>
-            <div class="config-group">
-                <label>Cols</label>
-                <input type="number" id="colCount" min="2" max="10" value="5">
-            </div>
-            <button class="btn btn-primary" onclick="generateGrid()">Generate</button>
+            <!-- Configuration Panel -->
+            <div class="config-panel">
+                <div class="config-group">
+                    <label>Rows</label>
+                    <input type="number" id="rowCount" min="2" max="10" value="5">
+                </div>
+                <div class="config-group">
+                    <label>Cols</label>
+                    <input type="number" id="colCount" min="2" max="10" value="5">
+                </div>
+                <button class="btn btn-primary" onclick="generateGrid()">Generate</button>
 
-            <div class="cell-mode-selector">
-                <span class="cell-mode-label">Place:</span>
-                <button class="cell-mode-btn active" data-mode="none" onclick="setCellMode('none')">None</button>
-                <button class="cell-mode-btn" data-mode="blocked" onclick="setCellMode('blocked')">Block</button>
-                <button class="cell-mode-btn green" data-mode="locked-green" onclick="setCellMode('locked-green')">Green</button>
-                <button class="cell-mode-btn blue" data-mode="locked-blue" onclick="setCellMode('locked-blue')">Blue</button>
-            </div>
-
-        </div>
-
-        <!-- Puzzle Area -->
-        <div class="puzzle-area">
-            <!-- Shape Selector -->
-            <div class="shape-selector" id="shapeSelector">
-                <div class="shape-selector-title">Shapes</div>
-                <div class="shape-selector-grid" id="shapeGrid"></div>
-                <button class="hide-blue-btn" id="hideBlueBtn" onclick="toggleHideBlue()">Hide Blue</button>
-                <button class="btn btn-missing-piece" onclick="openMissingPieceEditor()" style="width:100%; margin-top:8px;">Missing Piece?</button>
-            </div>
-
-            <div class="puzzle-wrapper">
-                <!-- Column Requirements - above the grid -->
-                <div class="col-requirements" id="colRequirementsWrapper">
-                    <div class="col-req-spacer" id="colReqSpacer"></div>
-                    <div class="col-requirements-inner" id="colRequirements" style="display:flex; gap:0;"></div>
+                <div class="cell-mode-selector">
+                    <span class="cell-mode-label">Place:</span>
+                    <button class="cell-mode-btn active" data-mode="none" onclick="setCellMode('none')">None</button>
+                    <button class="cell-mode-btn" data-mode="blocked" onclick="setCellMode('blocked')">Block</button>
+                    <button class="cell-mode-btn green" data-mode="locked-green"
+                        onclick="setCellMode('locked-green')">Green</button>
+                    <button class="cell-mode-btn cyan" data-mode="locked-cyan"
+                        onclick="setCellMode('locked-cyan')">Cyan</button>
+                    <button class="cell-mode-btn orange" data-mode="locked-orange"
+                        onclick="setCellMode('locked-orange')">Orange</button>
+                    <button class="cell-mode-btn blue" data-mode="locked-blue"
+                        onclick="setCellMode('locked-blue')">Blue</button>
                 </div>
 
-                <!-- Row with row requirements + grid -->
-                <div class="grid-row">
-                    <!-- Row Requirements - left of the grid -->
-                    <div class="row-requirements" id="rowRequirements"></div>
+            </div>
 
-                    <!-- Main Grid -->
-                    <div class="grid" id="grid"></div>
+            <!-- Puzzle Area -->
+            <div class="puzzle-area">
+                <!-- Shape Selector -->
+                <div class="shape-selector" id="shapeSelector">
+                    <div class="shape-selector-title">Shapes</div>
+                    <div class="shape-selector-grid" id="shapeGrid"></div>
+                    <button class="hide-blue-btn" id="hideBlueBtn" onclick="toggleHideBlue()">Hide Blue</button>
+                    <button class="btn btn-missing-piece" onclick="openMissingPieceEditor()"
+                        style="width:100%; margin-top:8px;">Missing Piece?</button>
                 </div>
 
-                <!-- Action Buttons -->
-                <div class="action-buttons">
-                    <button class="btn btn-solve" onclick="solvePuzzle()">Solve</button>
-                    <button class="btn btn-clear" onclick="clearGrid()">Clear</button>
-                </div>
+                <div class="puzzle-wrapper">
+                    <!-- Column Requirements - above the grid -->
+                    <div class="col-requirements" id="colRequirementsWrapper">
+                        <div class="col-req-spacer" id="colReqSpacer"></div>
+                        <div class="col-requirements-inner" id="colRequirements" style="display:flex; gap:0;"></div>
+                    </div>
 
-                <!-- Fit All Pieces Mode -->
-                <div class="fit-mode-container">
-                    <label class="fit-mode-checkbox" id="fitModeCheckbox" onclick="toggleFitMode()">
-                        <div class="checkbox-box">
-                            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                    <!-- Row with row requirements + grid -->
+                    <div class="grid-row">
+                        <!-- Row Requirements - left of the grid -->
+                        <div class="row-requirements" id="rowRequirements"></div>
+
+                        <!-- Main Grid -->
+                        <div class="grid" id="grid"></div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="action-buttons">
+                        <button class="btn btn-solve" onclick="solvePuzzle()">Solve</button>
+                        <button class="btn btn-clear" onclick="clearGrid()">Clear</button>
+                    </div>
+
+                    <!-- Image Upload Area -->
+                    <div class="upload-area" id="uploadArea">
+                        <div class="upload-dropzone" id="uploadDropzone">
+                            <input type="file" id="imageFileInput" accept="image/*" style="display: none;">
+                            <label for="imageFileInput" class="upload-label">
+                                <span class="upload-icon">📷</span>
+                                <span class="upload-text">Analyze Screenshot</span>
+                                <span class="upload-subtext">Drag, Paste (Ctrl+V), or click</span>
+                            </label>
                         </div>
-                        <span class="checkbox-label">Only Required To Fit All Pieces</span>
-                    </label>
-                </div>
+                    </div>
 
-                <!-- Input Mode Toggle -->
-                <div class="input-mode-slider">
-                    <div class="slider-toggle" onclick="toggleInputMode()">
-                        <div class="slider-bg" id="sliderBg"></div>
-                        <div class="slider-option" id="optionGrid" data-mode="bar">Grid</div>
-                        <div class="slider-option" id="optionNumber" data-mode="stepper">Number</div>
+                    <!-- Fit All Pieces Mode -->
+                    <div class="fit-mode-container">
+                        <label class="fit-mode-checkbox" id="fitModeCheckbox" onclick="toggleFitMode()">
+                            <div class="checkbox-box">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                                </svg>
+                            </div>
+                            <span class="checkbox-label">Only Required To Fit All Pieces</span>
+                        </label>
+                    </div>
+
+                    <!-- Input Mode Toggle -->
+                    <div class="input-mode-slider">
+                        <div class="slider-toggle" onclick="toggleInputMode()">
+                            <div class="slider-bg" id="sliderBg"></div>
+                            <div class="slider-option" id="optionGrid" data-mode="bar">Grid</div>
+                            <div class="slider-option" id="optionNumber" data-mode="stepper">Number</div>
+                        </div>
+                    </div>
+
+                    <!-- Status Panel -->
+                    <div class="status-panel" id="statusPanel">
+                        Set requirements for each row and column, then solve
                     </div>
                 </div>
-
-                <!-- Status Panel -->
-                <div class="status-panel" id="statusPanel">
-                    Set requirements for each row and column, then solve
-                </div>
             </div>
-        </div>
 
-        <!-- Solutions Gallery -->
-        <div class="solutions-section" id="solutionsSection">
-            <h2>Solutions Found</h2>
-            <div class="solutions-gallery" id="solutionsGallery"></div>
-        </div>
+            <!-- Solutions Gallery -->
+            <div class="solutions-section" id="solutionsSection">
+                <h2>Solutions Found</h2>
+                <div class="solutions-gallery" id="solutionsGallery"></div>
+            </div>
 
 
-        <!-- Instructions -->
-        <div class="instructions">
-            <h3>Instructions</h3>
-            <ul>
-                <li>Set grid dimensions and click Generate</li>
-                <li>Use the arrows to set required green/blue cell counts per row/column</li>
-                <li>Toggle "Block cells" mode and click cells to mark them as blocked</li>
-                <li>Click Solve to find valid configurations using the defined shapes</li>
-            </ul>
-        </div>
+            <!-- Instructions -->
+            <div class="instructions">
+                <h3>Instructions</h3>
+                <ul>
+                    <li>Set grid dimensions and click Generate</li>
+                    <li>Use the arrows to set required green/blue cell counts per row/column</li>
+                    <li>Toggle "Block cells" mode and click cells to mark them as blocked</li>
+                    <li>Click Solve to find valid configurations using the defined shapes</li>
+                </ul>
+            </div>
 
         </div><!-- End Solver UI -->
+
+        <!-- Debug Visualization Area -->
+        <div id="debugArea" class="debug-area" style="display: none;">
+            <h3>Debug Visualization</h3>
+            <div class="debug-container">
+                <canvas id="debugCanvas"></canvas>
+            </div>
+            <div class="debug-info" id="debugInfo"></div>
+        </div>
 
         <!-- Puzzle Mode UI -->
         <div id="puzzleUI" style="display: none;">
             <div class="puzzle-config-panel">
                 <h2>Puzzle Configuration</h2>
-                
+
                 <div style="position: relative; text-align: center; margin-bottom: 20px;">
                     <div class="difficulty-help" style="justify-content: center;">
                         <span>INSTRUCTIONS</span>
                         <span class="help-btn" onclick="toggleInstructionsHelp(event)">?</span>
                     </div>
-                    <div class="help-tooltip" id="instructionsHelpTooltip" style="text-align: left; width: 320px; max-width: 90vw; left: 50%; transform: translateX(-50%); z-index: 200;">
+                    <div class="help-tooltip" id="instructionsHelpTooltip"
+                        style="text-align: left; width: 320px; max-width: 90vw; left: 50%; transform: translateX(-50%); z-index: 200;">
                         <strong style="color: #39ff14;">OBJECTIVE</strong>
                         <ul style="margin: 8px 0 15px 15px; list-style: disc; color: #ccc;">
                             <li>Place <strong>all</strong> shapes from the palette.</li>
@@ -2805,7 +3255,9 @@
                             <li><strong>Rotate (Desktop):</strong> Press <strong>'R'</strong> while dragging.</li>
                             <li><strong>Rotate (Mobile):</strong> Tap the <strong>Rotate</strong> button.</li>
                             <li><strong>Remove (Desktop):</strong> <strong>Right-click</strong> a placed shape.</li>
-                            <li><strong>Remove (Mobile):</strong> <strong>Double-tap</strong> or <strong>Long-press</strong> to remove.</li>
+                            <li><strong>Remove (Mobile):</strong> <strong>Double-tap</strong> or
+                                <strong>Long-press</strong> to remove.
+                            </li>
                         </ul>
 
                         <strong style="color: #ff3939;">RULES</strong>
@@ -2813,7 +3265,7 @@
                             <li><strong>Locks:</strong> Fixed cells (cannot move).</li>
                             <li><strong>Blockers:</strong> Obstacles (cannot place on top).</li>
                         </ul>
-                        
+
                         <strong style="color: #bf39ff;">TOOLS</strong>
                         <ul style="margin: 8px 0 0 15px; list-style: disc; color: #ccc;">
                             <li><strong>Hint:</strong> Places one correct shape.</li>
@@ -2823,18 +3275,27 @@
                 </div>
 
                 <div class="puzzle-difficulty-selector">
-                    <h3 class="difficulty-help">Difficulty <span class="help-btn" onclick="toggleDifficultyHelp(event)">?</span></h3>
+                    <h3 class="difficulty-help">Difficulty <span class="help-btn"
+                            onclick="toggleDifficultyHelp(event)">?</span></h3>
                     <div class="help-tooltip" id="difficultyHelpTooltip">
                         <span class="help-q">Q: How is the difficulty calculated?</span><br><br>
-                        A: The solver was run against every combination of grid size, number of colors, and blocker/lock configuration. Difficulty is a reflection of how much TIME it took the solver script to solve each puzzle type.<br><br>
-                        If the preset difficulties do not align with your expectations or preferences, try the <strong>Custom Settings</strong> option below.
+                        A: The solver was run against every combination of grid size, number of colors, and blocker/lock
+                        configuration. Difficulty is a reflection of how much TIME it took the solver script to solve
+                        each puzzle type.<br><br>
+                        If the preset difficulties do not align with your expectations or preferences, try the
+                        <strong>Custom Settings</strong> option below.
                     </div>
                     <div class="difficulty-buttons">
-                        <button class="difficulty-btn" data-difficulty="easy" onclick="setDifficulty('easy')">Easy</button>
-                        <button class="difficulty-btn active" data-difficulty="medium" onclick="setDifficulty('medium')">Medium</button>
-                        <button class="difficulty-btn" data-difficulty="hard" onclick="setDifficulty('hard')">Hard</button>
-                        <button class="difficulty-btn" data-difficulty="expert" onclick="setDifficulty('expert')">Expert</button>
-                        <button class="difficulty-btn" data-difficulty="master" onclick="setDifficulty('master')">Master</button>
+                        <button class="difficulty-btn" data-difficulty="easy"
+                            onclick="setDifficulty('easy')">Easy</button>
+                        <button class="difficulty-btn active" data-difficulty="medium"
+                            onclick="setDifficulty('medium')">Medium</button>
+                        <button class="difficulty-btn" data-difficulty="hard"
+                            onclick="setDifficulty('hard')">Hard</button>
+                        <button class="difficulty-btn" data-difficulty="expert"
+                            onclick="setDifficulty('expert')">Expert</button>
+                        <button class="difficulty-btn" data-difficulty="master"
+                            onclick="setDifficulty('master')">Master</button>
                     </div>
                     <div class="custom-mode-toggle">
                         <label>
@@ -2858,23 +3319,30 @@
                         <div class="config-item">
                             <label>Colors</label>
                             <div class="color-toggles">
-                                <label class="color-toggle green active"><input type="checkbox" checked onchange="togglePuzzleColor('green')"> Green</label>
-                                <label class="color-toggle blue active"><input type="checkbox" checked onchange="togglePuzzleColor('blue')"> Blue</label>
-                                <label class="color-toggle red"><input type="checkbox" onchange="togglePuzzleColor('red')"> Red</label>
-                                <label class="color-toggle purple"><input type="checkbox" onchange="togglePuzzleColor('purple')"> Purple</label>
+                                <label class="color-toggle green active"><input type="checkbox" checked
+                                        onchange="togglePuzzleColor('green')"> Green</label>
+                                <label class="color-toggle blue active"><input type="checkbox" checked
+                                        onchange="togglePuzzleColor('blue')"> Blue</label>
+                                <label class="color-toggle red"><input type="checkbox"
+                                        onchange="togglePuzzleColor('red')"> Red</label>
+                                <label class="color-toggle purple"><input type="checkbox"
+                                        onchange="togglePuzzleColor('purple')"> Purple</label>
                             </div>
                         </div>
                         <div class="config-item">
                             <label>Features</label>
                             <div class="feature-toggles">
-                                <label class="feature-toggle"><input type="checkbox" id="enableBlockers" checked> Blockers</label>
-                                <label class="feature-toggle"><input type="checkbox" id="enableLocks"> Locked Cells</label>
+                                <label class="feature-toggle"><input type="checkbox" id="enableBlockers" checked>
+                                    Blockers</label>
+                                <label class="feature-toggle"><input type="checkbox" id="enableLocks"> Locked
+                                    Cells</label>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <button class="btn btn-generate-puzzle" id="generatePuzzleBtn" onclick="generatePuzzle()">Generate Puzzle</button>
+                <button class="btn btn-generate-puzzle" id="generatePuzzleBtn" onclick="generatePuzzle()">Generate
+                    Puzzle</button>
                 <button class="btn btn-missing-piece" onclick="openMissingPieceEditor()">Missing Piece?</button>
             </div>
 
@@ -2884,6 +3352,9 @@
         </div><!-- End Puzzle UI -->
 
     </div>
+
+    <img src="corner_top_left.png" id="corner_top_left" style="display: none;">
+    <img src="corner_bottom_right.png" id="corner_bottom_right" style="display: none;">
 
     <script src="shapes.js"></script>
     <script src="solver.js"></script>
@@ -2897,11 +3368,20 @@
         let cellMode = 'none'; // 'none', 'blocked', 'locked-green', 'locked-blue', 'locked-red', 'locked-purple'
 
         // Toast notification system
-        function showToast(message, type = 'info', duration = 3000) {
+        function showToast(message, type = 'info', duration = 3000, imageUrl = null) {
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
             toast.textContent = message;
+
+            // Add image if provided
+            if (imageUrl) {
+                const img = document.createElement('img');
+                img.className = 'toast-image';
+                img.src = imageUrl;
+                toast.appendChild(img);
+            }
+
             container.appendChild(toast);
 
             setTimeout(() => {
@@ -2917,8 +3397,8 @@
         let shapeCounts = new Map(); // Track shape ID -> count for solving
         let fitAllPiecesMode = false; // When true, ignore requirements, just fit all pieces
         let hideBlue = false; // When true, hide blue inputs and center green
-        let enabledColors = ['green', 'blue']; // Colors enabled for current puzzle
-        const ALL_COLORS = ['green', 'blue', 'red', 'purple'];
+        let enabledColors = ['green', 'blue', 'cyan', 'orange']; // Colors enabled for current puzzle
+        const ALL_COLORS = ['green', 'blue', 'cyan', 'orange', 'red', 'purple'];
 
         // ============================================
         // MOBILE SUPPORT - Device Detection
@@ -3093,49 +3573,39 @@
         }
 
         function regenerateInputs() {
-            // Regenerate column requirements (green left, blue right)
+            // Regenerate column requirements
             const colReqs = document.getElementById('colRequirements');
             colReqs.innerHTML = '';
             for (let c = 0; c < cols; c++) {
                 const colReq = document.createElement('div');
                 colReq.className = 'col-req';
-                if (barInputMode) {
-                    colReq.appendChild(createBarInput('green', 'col', c, rows));
-                    if (!hideBlue) {
-                        colReq.appendChild(createBarInput('blue', 'col', c, rows));
-                    }
-                } else {
-                    colReq.appendChild(createStepper('green', 'col', c, rows));
-                    if (!hideBlue) {
-                        colReq.appendChild(createStepper('blue', 'col', c, rows));
-                    }
+                for (const color of enabledColors) {
+                    if (hideBlue && color === 'blue') continue;
+                    colReq.appendChild(barInputMode ? createBarInput(color, 'col', c, rows) : createStepper(color, 'col', c, rows));
                 }
                 colReqs.appendChild(colReq);
             }
 
-            // Regenerate row requirements (blue on top, green on bottom)
+            // Regenerate row requirements
             const rowReqs = document.getElementById('rowRequirements');
             rowReqs.innerHTML = '';
             for (let r = 0; r < rows; r++) {
                 const rowReq = document.createElement('div');
                 rowReq.className = 'row-req';
-                if (barInputMode) {
-                    if (!hideBlue) {
-                        rowReq.appendChild(createBarInput('blue', 'row', r, cols));
-                    }
-                    rowReq.appendChild(createBarInput('green', 'row', r, cols));
-                } else {
-                    if (!hideBlue) {
-                        rowReq.appendChild(createStepper('blue', 'row', r, cols));
-                    }
-                    rowReq.appendChild(createStepper('green', 'row', r, cols));
+                // Find all colors in enabledColors, potentially reversed for layout
+                const displayColors = [...enabledColors];
+                if (barInputMode) displayColors.reverse(); // Match original layout (blue top, green bottom)
+
+                for (const color of displayColors) {
+                    if (hideBlue && color === 'blue') continue;
+                    rowReq.appendChild(barInputMode ? createBarInput(color, 'row', r, cols) : createStepper(color, 'row', r, cols));
                 }
                 rowReqs.appendChild(rowReq);
             }
 
             // Update spacer to match row requirements width
             const spacer = document.getElementById('colReqSpacer');
-            spacer.style.width = '60px';
+            spacer.style.width = '80px';
         }
 
         function createBarInput(color, type, index, max) {
@@ -3229,7 +3699,9 @@
 
             const valueDisplay = document.createElement('div');
             valueDisplay.className = 'stepper-value';
-            valueDisplay.textContent = '0';
+            // Read initial value from requirements object
+            const initialValue = requirements[type === 'col' ? 'cols' : 'rows'][index]?.[color] || 0;
+            valueDisplay.textContent = initialValue.toString();
 
             const downBtn = document.createElement('div');
             downBtn.className = 'stepper-btn down';
@@ -3263,20 +3735,56 @@
             }
         }
 
-        function generateGrid() {
-            rows = parseInt(document.getElementById('rowCount').value) || 5;
-            cols = parseInt(document.getElementById('colCount').value) || 5;
-            rows = Math.max(2, Math.min(10, rows));
-            cols = Math.max(2, Math.min(10, cols));
+        function generateGrid(overrides) {
+            if (overrides) {
+                // When overrides provided, use them instead of DOM inputs
+                rows = overrides.gridRows || 5;
+                cols = overrides.gridCols || 5;
+                rows = Math.max(2, Math.min(10, rows));
+                cols = Math.max(2, Math.min(10, cols));
 
-            gridState = Array(rows).fill(null).map(() => Array(cols).fill('empty'));
-            requirements = {
-                rows: Array(rows).fill(null).map(() => ({ green: 0, blue: 0 })),
-                cols: Array(cols).fill(null).map(() => ({ green: 0, blue: 0 }))
-            };
+                // Use overrides for state
+                gridState = overrides.gridState || Array(rows).fill(null).map(() => Array(cols).fill('empty'));
+                requirements = overrides.requirements || {
+                    rows: Array(rows).fill(null).map(() => {
+                        const req = {};
+                        ALL_COLORS.forEach(c => req[c] = 0);
+                        return req;
+                    }),
+                    cols: Array(cols).fill(null).map(() => {
+                        const req = {};
+                        ALL_COLORS.forEach(c => req[c] = 0);
+                        return req;
+                    })
+                };
+
+                // Update input fields to reflect override values
+                document.getElementById('rowCount').value = rows;
+                document.getElementById('colCount').value = cols;
+            } else {
+                // Normal path: read from DOM inputs
+                rows = parseInt(document.getElementById('rowCount').value) || 5;
+                cols = parseInt(document.getElementById('colCount').value) || 5;
+                rows = Math.max(2, Math.min(10, rows));
+                cols = Math.max(2, Math.min(10, cols));
+
+                gridState = Array(rows).fill(null).map(() => Array(cols).fill('empty'));
+                requirements = {
+                    rows: Array(rows).fill(null).map(() => {
+                        const req = {};
+                        ALL_COLORS.forEach(c => req[c] = 0);
+                        return req;
+                    }),
+                    cols: Array(cols).fill(null).map(() => {
+                        const req = {};
+                        ALL_COLORS.forEach(c => req[c] = 0);
+                        return req;
+                    })
+                };
+            }
 
             const grid = document.getElementById('grid');
-            grid.style.gridTemplateColumns = `repeat(${cols}, 68px)`;
+            grid.style.gridTemplateColumns = `repeat(${cols}, 90px)`;
             grid.innerHTML = '';
 
             for (let r = 0; r < rows; r++) {
@@ -3290,51 +3798,59 @@
                 }
             }
 
-            // Column requirements (green left, blue right)
+            // Apply gridState to cells if provided
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    const cellElement = grid.querySelector(`[data-row="${r}"][data-col="${c}"]`);
+                    if (cellElement && gridState[r] && gridState[r][c]) {
+                        updateCellDisplay(cellElement, gridState[r][c]);
+                    }
+                }
+            }
+
+            // Column requirements
             const colReqs = document.getElementById('colRequirements');
             colReqs.innerHTML = '';
             for (let c = 0; c < cols; c++) {
                 const colReq = document.createElement('div');
                 colReq.className = 'col-req';
-                if (barInputMode) {
-                    colReq.appendChild(createBarInput('green', 'col', c, rows));
-                    if (!hideBlue) {
-                        colReq.appendChild(createBarInput('blue', 'col', c, rows));
-                    }
-                } else {
-                    colReq.appendChild(createStepper('green', 'col', c, rows));
-                    if (!hideBlue) {
-                        colReq.appendChild(createStepper('blue', 'col', c, rows));
-                    }
+                for (const color of enabledColors) {
+                    if (hideBlue && color === 'blue') continue;
+                    colReq.appendChild(barInputMode ? createBarInput(color, 'col', c, rows) : createStepper(color, 'col', c, rows));
                 }
                 colReqs.appendChild(colReq);
             }
 
             const spacer = document.getElementById('colReqSpacer');
-            spacer.style.width = '60px';
+            spacer.style.width = '80px';
 
-            // Row requirements (blue on top, green on bottom)
+            // Row requirements
             const rowReqs = document.getElementById('rowRequirements');
             rowReqs.innerHTML = '';
             for (let r = 0; r < rows; r++) {
                 const rowReq = document.createElement('div');
                 rowReq.className = 'row-req';
-                if (barInputMode) {
-                    if (!hideBlue) {
-                        rowReq.appendChild(createBarInput('blue', 'row', r, cols));
-                    }
-                    rowReq.appendChild(createBarInput('green', 'row', r, cols));
-                } else {
-                    if (!hideBlue) {
-                        rowReq.appendChild(createStepper('blue', 'row', r, cols));
-                    }
-                    rowReq.appendChild(createStepper('green', 'row', r, cols));
+                const displayColors = [...enabledColors];
+                if (barInputMode) displayColors.reverse();
+
+                for (const color of displayColors) {
+                    if (hideBlue && color === 'blue') continue;
+                    rowReq.appendChild(barInputMode ? createBarInput(color, 'row', r, cols) : createStepper(color, 'row', r, cols));
                 }
                 rowReqs.appendChild(rowReq);
             }
 
             // Hide solutions
             document.getElementById('solutionsSection').classList.remove('visible');
+
+            // Apply shape counts if provided
+            if (overrides && overrides.shapeCounts) {
+                shapeCounts.clear();
+                for (const [id, count] of Object.entries(overrides.shapeCounts)) {
+                    shapeCounts.set(id, count);
+                }
+                updateShapeSelector(overrides.shapeCounts);
+            }
 
             updateStatus('Ready');
         }
@@ -3370,8 +3886,16 @@
 
             // Reset requirements
             requirements = {
-                rows: Array(rows).fill(null).map(() => ({ green: 0, blue: 0 })),
-                cols: Array(cols).fill(null).map(() => ({ green: 0, blue: 0 }))
+                rows: Array(rows).fill(null).map(() => {
+                    const req = {};
+                    ALL_COLORS.forEach(c => req[c] = 0);
+                    return req;
+                }),
+                cols: Array(cols).fill(null).map(() => {
+                    const req = {};
+                    ALL_COLORS.forEach(c => req[c] = 0);
+                    return req;
+                })
             };
 
             // Clear shape selections
@@ -3415,11 +3939,12 @@
 
             updateStatus('Solving...', 'solving');
 
-            // Get blocked cells
+            // Get blocked cells (include all locked cell types as blocked for placement purposes)
             const blockedCells = [];
             for (let r = 0; r < rows; r++) {
                 for (let c = 0; c < cols; c++) {
-                    if (gridState[r][c] === 'blocked' || gridState[r][c] === 'locked-green' || gridState[r][c] === 'locked-blue') {
+                    const state = gridState[r][c];
+                    if (state === 'blocked' || state.startsWith('locked-')) {
                         blockedCells.push([r, c]);
                     }
                 }
@@ -3437,65 +3962,70 @@
                         // Just fit all pieces, ignore row/column requirements
                         result = runFitAllPiecesSolver(rows, cols, blockedCells, shapeCountsObj);
                     } else {
-                        // Calculate locked cell contributions and adjusted requirements
-                        const lockedGreenCounts = { rows: Array(rows).fill(0), cols: Array(cols).fill(0) };
-                        const lockedBlueCounts = { rows: Array(rows).fill(0), cols: Array(cols).fill(0) };
+                        // Calculate locked cell contributions for all potential colors
+                        const lockedCountsByColor = {};
+                        ALL_COLORS.forEach(color => {
+                            lockedCountsByColor[color] = { rows: Array(rows).fill(0), cols: Array(cols).fill(0) };
+                        });
 
                         for (let r = 0; r < rows; r++) {
                             for (let c = 0; c < cols; c++) {
-                                if (gridState[r][c] === 'locked-green') {
-                                    lockedGreenCounts.rows[r]++;
-                                    lockedGreenCounts.cols[c]++;
-                                } else if (gridState[r][c] === 'locked-blue') {
-                                    lockedBlueCounts.rows[r]++;
-                                    lockedBlueCounts.cols[c]++;
+                                const state = gridState[r][c];
+                                if (state.startsWith('locked-')) {
+                                    const color = state.replace('locked-', '');
+                                    if (lockedCountsByColor[color]) {
+                                        lockedCountsByColor[color].rows[r]++;
+                                        lockedCountsByColor[color].cols[c]++;
+                                    }
                                 }
                             }
                         }
 
-                        // Create adjusted requirements (subtract locked cell contributions)
-                        const adjustedRowReqs = requirements.rows.map((req, r) => ({
-                            green: Math.max(0, req.green - lockedGreenCounts.rows[r]),
-                            blue: Math.max(0, req.blue - lockedBlueCounts.rows[r])
-                        }));
-                        const adjustedColReqs = requirements.cols.map((req, c) => ({
-                            green: Math.max(0, req.green - lockedGreenCounts.cols[c]),
-                            blue: Math.max(0, req.blue - lockedBlueCounts.cols[c])
-                        }));
+                        // Create adjusted requirements (subtract locked cell contributions) for all colors
+                        const adjustedRowReqs = requirements.rows.map((req, r) => {
+                            const adj = {};
+                            ALL_COLORS.forEach(color => {
+                                adj[color] = Math.max(0, req[color] - lockedCountsByColor[color].rows[r]);
+                            });
+                            return adj;
+                        });
+                        const adjustedColReqs = requirements.cols.map((req, c) => {
+                            const adj = {};
+                            ALL_COLORS.forEach(color => {
+                                adj[color] = Math.max(0, req[color] - lockedCountsByColor[color].cols[c]);
+                            });
+                            return adj;
+                        });
 
                         // Check for over-constrained (locked cells exceed requirements)
                         let overConstrained = false;
                         for (let r = 0; r < rows; r++) {
-                            if (lockedGreenCounts.rows[r] > requirements.rows[r].green) {
-                                updateStatus(`Row ${r + 1}: locked green cells exceed requirement`, 'error');
-                                overConstrained = true;
-                                break;
+                            for (const color of ALL_COLORS) {
+                                if (lockedCountsByColor[color].rows[r] > requirements.rows[r][color]) {
+                                    updateStatus(`Row ${r + 1}: locked ${color} cells exceed requirement`, 'error');
+                                    overConstrained = true;
+                                    break;
+                                }
                             }
-                            if (lockedBlueCounts.rows[r] > requirements.rows[r].blue) {
-                                updateStatus(`Row ${r + 1}: locked blue cells exceed requirement`, 'error');
-                                overConstrained = true;
-                                break;
-                            }
+                            if (overConstrained) break;
                         }
                         if (!overConstrained) {
                             for (let c = 0; c < cols; c++) {
-                                if (lockedGreenCounts.cols[c] > requirements.cols[c].green) {
-                                    updateStatus(`Column ${c + 1}: locked green cells exceed requirement`, 'error');
-                                    overConstrained = true;
-                                    break;
+                                for (const color of ALL_COLORS) {
+                                    if (lockedCountsByColor[color].cols[c] > requirements.cols[c][color]) {
+                                        updateStatus(`Column ${c + 1}: locked ${color} cells exceed requirement`, 'error');
+                                        overConstrained = true;
+                                        break;
+                                    }
                                 }
-                                if (lockedBlueCounts.cols[c] > requirements.cols[c].blue) {
-                                    updateStatus(`Column ${c + 1}: locked blue cells exceed requirement`, 'error');
-                                    overConstrained = true;
-                                    break;
-                                }
+                                if (overConstrained) break;
                             }
                         }
                         if (overConstrained) return;
 
                         // Create modified grid state where locked cells are treated as blocked
                         const modifiedGridState = gridState.map(row => row.map(cell => {
-                            if (cell === 'locked-green' || cell === 'locked-blue') {
+                            if (cell.startsWith('locked-')) {
                                 return 'blocked';
                             }
                             return cell;
@@ -3507,12 +4037,12 @@
 
                         // Check if adjusted requirements are all zero (solved by locked cells alone)
                         if (!result.success) {
-                            const allZero = adjustedRowReqs.every(r => r.green === 0 && r.blue === 0) &&
-                                           adjustedColReqs.every(c => c.green === 0 && c.blue === 0);
+                            const allZero = adjustedRowReqs.every(req => ALL_COLORS.every(color => req[color] === 0)) &&
+                                adjustedColReqs.every(req => ALL_COLORS.every(color => req[color] === 0));
                             if (allZero) {
                                 result = {
                                     success: true,
-                                    solutions: [{ green: [], blue: [], greenPlacements: [], bluePlacements: [] }]
+                                    solutions: [{ green: [], blue: [], cyan: [], red: [], purple: [], greenPlacements: [], bluePlacements: [] }]
                                 };
                                 updateStatus('Solved by locked cells alone', 'success');
                             }
@@ -3555,9 +4085,13 @@
                 miniGrid.className = 'solution-mini-grid';
                 miniGrid.style.gridTemplateColumns = `repeat(${cols}, 8px)`;
 
-                // Create cell lookup sets
-                const greenSet = new Set(solution.green.map(([r, c]) => `${r},${c}`));
-                const blueSet = new Set(solution.blue.map(([r, c]) => `${r},${c}`));
+                // Create cell lookup sets for all colors in the solution
+                const colorSets = {};
+                for (const color of ALL_COLORS) {
+                    if (solution[color]) {
+                        colorSets[color] = new Set(solution[color].map(([r, c]) => `${r},${c}`));
+                    }
+                }
 
                 for (let r = 0; r < rows; r++) {
                     for (let c = 0; c < cols; c++) {
@@ -3569,10 +4103,14 @@
 
                         if (cellState === 'blocked') {
                             cell.classList.add('blocked');
-                        } else if (cellState === 'locked-green' || greenSet.has(key)) {
-                            cell.classList.add('green');
-                        } else if (cellState === 'locked-blue' || blueSet.has(key)) {
-                            cell.classList.add('blue');
+                        } else {
+                            // Check for both locked cells and placed pieces of any color
+                            for (const color of ALL_COLORS) {
+                                if (cellState === `locked-${color}` || (colorSets[color] && colorSets[color].has(key))) {
+                                    cell.classList.add(color);
+                                    break;
+                                }
+                            }
                         }
 
                         miniGrid.appendChild(cell);
@@ -3598,35 +4136,23 @@
             // Build maps for cell -> shape membership and neighbors
             const cellShapeMap = new Map(); // key -> { color, shapeIndex, cells }
 
-            // Process green placements
-            if (solution.greenPlacements) {
-                solution.greenPlacements.forEach((placement, shapeIdx) => {
-                    const cellSet = new Set(placement.cells.map(([r, c]) => `${r},${c}`));
-                    placement.cells.forEach(([r, c], cellIdx) => {
-                        cellShapeMap.set(`${r},${c}`, {
-                            color: 'green',
-                            shapeIndex: shapeIdx,
-                            cellIndex: cellIdx,
-                            cellSet: cellSet
+            // Process placements for all colors
+            ALL_COLORS.forEach(color => {
+                const placements = solution[color + 'Placements'];
+                if (placements) {
+                    placements.forEach((placement, shapeIdx) => {
+                        const cellSet = new Set(placement.cells.map(([r, c]) => `${r},${c}`));
+                        placement.cells.forEach(([r, c], cellIdx) => {
+                            cellShapeMap.set(`${r},${c}`, {
+                                color: color,
+                                shapeIndex: shapeIdx,
+                                cellIndex: cellIdx,
+                                cellSet: cellSet
+                            });
                         });
                     });
-                });
-            }
-
-            // Process blue placements
-            if (solution.bluePlacements) {
-                solution.bluePlacements.forEach((placement, shapeIdx) => {
-                    const cellSet = new Set(placement.cells.map(([r, c]) => `${r},${c}`));
-                    placement.cells.forEach(([r, c], cellIdx) => {
-                        cellShapeMap.set(`${r},${c}`, {
-                            color: 'blue',
-                            shapeIndex: shapeIdx,
-                            cellIndex: cellIdx,
-                            cellSet: cellSet
-                        });
-                    });
-                });
-            }
+                }
+            });
 
             // Update main grid
             document.querySelectorAll('#grid .cell').forEach(cell => {
@@ -3641,10 +4167,8 @@
 
                 if (cellState === 'blocked') {
                     cell.classList.add('blocked');
-                } else if (cellState === 'locked-green') {
-                    cell.classList.add('locked-green');
-                } else if (cellState === 'locked-blue') {
-                    cell.classList.add('locked-blue');
+                } else if (cellState.startsWith('locked-')) {
+                    cell.classList.add(cellState);
                 } else if (cellShapeMap.has(key)) {
                     const info = cellShapeMap.get(key);
                     cell.classList.add(info.color);
@@ -3674,6 +4198,78 @@
             });
         }
 
+        // Image upload and processing
+        let currentPreviewURL = null;
+
+        function loadImageFromFileOrBlob(blob) {
+            return new Promise((resolve, reject) => {
+                if (!blob.type.startsWith('image/')) {
+                    reject(new Error('File is not an image'));
+                    return;
+                }
+
+                const url = URL.createObjectURL(blob);
+                const img = new Image();
+
+                img.onload = () => resolve(img);
+                img.onerror = () => {
+                    URL.revokeObjectURL(url);
+                    reject(new Error('Failed to load image'));
+                };
+
+                img.src = url;
+            });
+        }
+
+        const ENABLE_DEBUG_VISUALIZATION = false;
+
+        async function processImageAndApply(blob) {
+            try {
+                updateStatus('Loading image...');
+
+                const image = await loadImageFromFileOrBlob(blob);
+
+                updateStatus('Analyzing puzzle...');
+                const result = await analyzePuzzleImage(image, ENABLE_DEBUG_VISUALIZATION);
+
+                updateStatus('Applying to grid...');
+
+                // Extract debug data before passing to generateGrid
+                const debugData = result._debug || {};
+                delete result._debug; // Remove debug data before passing to generateGrid
+
+                generateGrid(result);
+
+                // Draw debug visualization if enabled
+                if (ENABLE_DEBUG_VISUALIZATION && typeof drawDebugVisualization === 'function') {
+                    drawDebugVisualization(image, result, debugData);
+                } else {
+                    document.getElementById('debugArea').style.display = 'none';
+                }
+
+                // Clean up old preview URL if exists
+                if (currentPreviewURL) {
+                    URL.revokeObjectURL(currentPreviewURL);
+                }
+                currentPreviewURL = URL.createObjectURL(blob);
+
+                // Show toast based on confidence
+                if (result.confidence === 'full') {
+                    showToast('Puzzle loaded — click Solve', 'success', 4000, currentPreviewURL);
+                } else if (result.confidence === 'partial') {
+                    showToast('Puzzle loaded but some things may be wrong, check shapes and requirements', 'info', 6000, currentPreviewURL);
+                } else {
+                    showToast('Could not analyze image', 'error');
+                }
+                updateStatus('Ready');
+
+            } catch (error) {
+                console.error('Failed to process image:', error);
+                showToast('Could not analyze image: ' + error.message, 'error');
+                updateStatus('Ready');
+            }
+        }
+
         function updateStatus(message, type = '') {
             const panel = document.getElementById('statusPanel');
             panel.textContent = message;
@@ -3685,6 +4281,9 @@
         function renderShapeSelector() {
             const grid = document.getElementById('shapeGrid');
             grid.innerHTML = '';
+
+            const gridSize = Math.ceil(Math.sqrt(Object.keys(SHAPE_LIBRARY).length));
+            grid.style.setProperty('--grid-size', gridSize);
 
             for (const [id, shape] of Object.entries(SHAPE_LIBRARY)) {
                 const item = document.createElement('div');
@@ -3758,6 +4357,43 @@
             }
 
             console.log('Shape counts:', Object.fromEntries(shapeCounts));
+        }
+
+        function updateShapeSelector(shapeCountsInput) {
+            if (!shapeCountsInput) return;
+
+            // Convert shapeCounts object to Map if needed
+            const countsMap = shapeCountsInput instanceof Map ? shapeCountsInput :
+                new Map(Object.entries(shapeCountsInput || {}));
+
+            // Update global shapeCounts
+            shapeCounts.clear();
+            countsMap.forEach((count, id) => {
+                if (count > 0) {
+                    shapeCounts.set(id, count);
+                }
+            });
+
+            // Update UI for each shape
+            for (const [id, shape] of Object.entries(SHAPE_LIBRARY)) {
+                const item = document.querySelector(`.shape-selector-item[data-shape-id="${id}"]`);
+                if (!item) continue;
+
+                const itemCount = countsMap.get(id) || 0;
+
+                // Update active state
+                if (itemCount > 0) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+
+                // Update badge
+                const badge = item.querySelector('.shape-count-badge');
+                if (badge) {
+                    badge.textContent = itemCount > 0 ? itemCount.toString() : '1';
+                }
+            }
         }
 
         // Puzzle Mode Functions
@@ -3994,7 +4630,7 @@
             let customShapes = {};
             try {
                 customShapes = JSON.parse(localStorage.getItem('customShapes') || '{}');
-            } catch (e) {}
+            } catch (e) { }
 
             // Check for duplicates (same shape already exists)
             for (const [existingId, existing] of Object.entries(customShapes)) {
@@ -4051,7 +4687,7 @@
                 const [r, c] = queue.shift();
 
                 // Check 4-directional neighbors
-                const neighbors = [[r-1, c], [r+1, c], [r, c-1], [r, c+1]];
+                const neighbors = [[r - 1, c], [r + 1, c], [r, c - 1], [r, c + 1]];
                 for (const [nr, nc] of neighbors) {
                     const key = `${nr},${nc}`;
                     if (cellSet.has(key) && !visited.has(key)) {
@@ -4069,7 +4705,7 @@
             let customShapes = {};
             try {
                 customShapes = JSON.parse(localStorage.getItem('customShapes') || '{}');
-            } catch (e) {}
+            } catch (e) { }
 
             if (Object.keys(customShapes).length === 0) {
                 container.innerHTML = '<p class="no-custom-shapes">No custom shapes saved yet.</p>';
@@ -4121,7 +4757,7 @@
             let customShapes = {};
             try {
                 customShapes = JSON.parse(localStorage.getItem('customShapes') || '{}');
-            } catch (e) {}
+            } catch (e) { }
 
             const shapeName = customShapes[id]?.name || 'Shape';
             delete customShapes[id];
@@ -4554,8 +5190,8 @@
 
                             if (cellSet.has(`${r},${c}`)) {
                                 cell.style.background = color === 'green' ? '#39ff14' :
-                                                        color === 'blue' ? '#00bfff' :
-                                                        color === 'red' ? '#ff3939' : '#bf39ff';
+                                    color === 'blue' ? '#00bfff' :
+                                        color === 'red' ? '#ff3939' : '#bf39ff';
                             } else {
                                 cell.style.background = '#1a1a1a';
                             }
@@ -4682,7 +5318,7 @@
                         const rightKey = `${r},${c + 1}`;
                         const bottomKey = `${r + 1},${c}`;
                         const leftKey = `${r},${c - 1}`;
-                        
+
                         // Check diagonals for Inner Corners
                         const tlKey = `${r - 1},${c - 1}`;
                         const trKey = `${r - 1},${c + 1}`;
@@ -4699,7 +5335,7 @@
                         if (hasRight) cell.classList.add('border-right');
                         if (hasBottom) cell.classList.add('border-bottom');
                         if (hasLeft) cell.classList.add('border-left');
-                        
+
                         // Apply Inner Corners (If neighbors exist but diagonal is empty)
                         if (!hasTop && !hasLeft && !cellSet.has(tlKey)) cell.classList.add('corner-tl');
                         if (!hasTop && !hasRight && !cellSet.has(trKey)) cell.classList.add('corner-tr');
@@ -5815,7 +6451,7 @@
                     `#puzzleGrid .cell.placed[data-placed-shape-id="${shapeId}"]`
                 );
                 // Filter by color and rotation manually if needed, or just accept all (simplest for now)
-                allPlacedCells = candidates; 
+                allPlacedCells = candidates;
             }
 
             // Find origin for undo data
@@ -5826,35 +6462,35 @@
                 const cellCol = parseInt(cell.dataset.col);
 
                 let originRow = null, originCol = null;
-                
+
                 // Try to find the origin that explains this cell's position
                 for (const [dr, dc] of rotation) {
                     const testRow = cellRow - dr;
                     const testCol = cellCol - dc;
-                    
+
                     // Verify this origin matches all cells in the shape
                     let valid = true;
                     for (const [dr2, dc2] of rotation) {
                         const checkRow = testRow + dr2;
                         const checkCol = testCol + dc2;
-                        
+
                         // Check if this cell is part of the group we identified
                         let isPart = false;
                         for (let i = 0; i < allPlacedCells.length; i++) {
                             const pCell = allPlacedCells[i];
-                            if (parseInt(pCell.dataset.row) === checkRow && 
+                            if (parseInt(pCell.dataset.row) === checkRow &&
                                 parseInt(pCell.dataset.col) === checkCol) {
                                 isPart = true;
                                 break;
                             }
                         }
-                        
+
                         if (!isPart) {
                             valid = false;
                             break;
                         }
                     }
-                    
+
                     if (valid) {
                         originRow = testRow;
                         originCol = testCol;
@@ -6661,14 +7297,14 @@
                     <table style="margin-bottom: 15px; font-size: 11px;">
                         <tr><th>Difficulty</th><th>Grid</th><th>Colors</th><th>Blockers</th><th>Locks</th></tr>
                         ${Object.entries(DIFFICULTY_PRESETS).map(([name, p]) =>
-                            `<tr class="difficulty-${name}">
+                    `<tr class="difficulty-${name}">
                                 <td>${name}</td>
                                 <td>${p.gridRows}x${p.gridCols}</td>
                                 <td>${p.colors.length} (${p.colors.join(', ')})</td>
                                 <td>${p.blockers ? '✓' : '✗'}</td>
                                 <td>${p.locks ? '✓' : '✗'}</td>
                             </tr>`
-                        ).join('')}
+                ).join('')}
                     </table>
                 `;
             }
@@ -6766,14 +7402,14 @@
                         <div>
                             <strong style="color: #888;">By Grid Size:</strong><br>
                             ${Object.entries(byGridSize).map(([grid, nodes]) =>
-                                `${grid}: ${Math.round(calcMedian(nodes))} nodes`
-                            ).join('<br>')}
+                    `${grid}: ${Math.round(calcMedian(nodes))} nodes`
+                ).join('<br>')}
                         </div>
                         <div>
                             <strong style="color: #888;">By Color Count:</strong><br>
                             ${Object.entries(byColorCount).map(([count, nodes]) =>
-                                `${count} color${count > 1 ? 's' : ''}: ${Math.round(calcMedian(nodes))} nodes`
-                            ).join('<br>')}
+                    `${count} color${count > 1 ? 's' : ''}: ${Math.round(calcMedian(nodes))} nodes`
+                ).join('<br>')}
                         </div>
                         <div>
                             <strong style="color: #888;">By Blockers:</strong><br>
@@ -6837,7 +7473,7 @@
                 const failedConfigs = Object.entries(results)
                     .filter(([_, data]) => data.stats.generationFailures > 0 || data.stats.solverFailures > 0)
                     .sort((a, b) => (b[1].stats.generationFailures + b[1].stats.solverFailures) -
-                                    (a[1].stats.generationFailures + a[1].stats.solverFailures));
+                        (a[1].stats.generationFailures + a[1].stats.solverFailures));
 
                 if (failedConfigs.length > 0) {
                     html += `
@@ -6872,7 +7508,7 @@
             resultsDiv.innerHTML = html;
         }
 
-        window.onload = function() {
+        window.onload = function () {
             generateGrid();
             renderShapeSelector();
             setTimeout(updateSliderToggle, 0);
@@ -6882,7 +7518,80 @@
             if (samplesInput) {
                 samplesInput.addEventListener('input', updateBenchmarkModeInfo);
             }
+
+            // Image upload event handlers
+            const fileInput = document.getElementById('imageFileInput');
+            const dropzone = document.getElementById('uploadDropzone');
+
+            // File input handler
+            fileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    processImageAndApply(file);
+                }
+                // Clear input so same file can be selected again
+                e.target.value = '';
+            });
+
+            // Drag and drop handlers
+            dropzone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropzone.classList.add('drag-over');
+            });
+
+            dropzone.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                dropzone.classList.remove('drag-over');
+            });
+
+            dropzone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropzone.classList.remove('drag-over');
+
+                const file = e.dataTransfer.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    processImageAndApply(file);
+                } else {
+                    showToast('Please drop an image file', 'error');
+                }
+            });
+
+            // Global paste handler
+            document.addEventListener('paste', (e) => {
+                const items = e.clipboardData?.items;
+                if (!items) return;
+
+                for (const item of items) {
+                    if (item.type.startsWith('image/')) {
+                        e.preventDefault();
+                        const blob = item.getAsFile();
+                        if (blob) {
+                            processImageAndApply(blob);
+                        }
+                        break;
+                    }
+                }
+            });
         };
     </script>
+    <!-- Load OpenCV asynchronously after the page loads to prevent blocking UI elements -->
+    <script>
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const script = document.createElement('script');
+                script.src = 'https://docs.opencv.org/master/opencv.js';
+                script.async = true;
+                script.onload = () => console.log('OpenCV.js loaded successfully');
+                script.onerror = () => {
+                    console.error('Failed to load OpenCV.js');
+                    alert('Could not load computer vision library.');
+                };
+                document.body.appendChild(script);
+            }, 100);
+        });
+    </script>
+    <!-- Image Analyzer -->
+    <script src="image-analyzer.js"></script>
 </body>
+
 </html>
