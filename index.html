@@ -1066,7 +1066,7 @@
             display: flex;
             flex-direction: column-reverse;
             gap: 1px;
-            justify-content: flex-end;
+            justify-content: flex-start;
             background: transparent;
             padding: 0;
         }
@@ -1138,6 +1138,18 @@
             background: #00fdcf;
         }
 
+        .bar-input.orange .bar-segment {
+            border: 2px solid #ff8c00;
+        }
+
+        .bar-input.orange .bar-segment:hover {
+            background: rgba(255, 140, 0, 0.2);
+        }
+
+        .bar-input.orange .bar-segment.filled {
+            background: #ff8c00;
+        }
+
         /* Bar error state */
         .bar-input.error {
             background: linear-gradient(to top, rgba(255, 0, 0, 0.3), transparent);
@@ -1159,14 +1171,14 @@
 
         /* Column bar inputs - vertical bars side by side */
         .col-req .bar-input {
-            width: 33px;
-            height: 60px;
+            width: 22px;
+            height: 80px;
         }
 
         /* Row bar inputs - horizontal bars stacked vertically, fill from right */
         .row-req .bar-input {
-            width: 60px;
-            height: 33px;
+            width: 80px;
+            height: 22px;
             flex-direction: row-reverse;
         }
 
@@ -1187,7 +1199,7 @@
             justify-content: center;
             align-items: flex-end;
             gap: 1px;
-            width: 68px;
+            width: 90px;
         }
 
         /* Custom Stepper Control */
@@ -1219,6 +1231,22 @@
 
         .stepper.blue:hover {
             border-color: #2a3a5a;
+        }
+
+        .stepper.cyan {
+            border-color: #0a2a24;
+        }
+
+        .stepper.cyan:hover {
+            border-color: #1a4a3a;
+        }
+
+        .stepper.orange {
+            border-color: #2a1800;
+        }
+
+        .stepper.orange:hover {
+            border-color: #4a2800;
         }
 
         .stepper-btn {
@@ -1298,6 +1326,14 @@
             color: #00fdcf;
         }
 
+        .stepper.orange .stepper-btn svg {
+            fill: #ff8c00;
+        }
+
+        .stepper.orange .stepper-value {
+            color: #ff8c00;
+        }
+
         /* Column stepper - vertical orientation */
         .col-req .stepper {
             width: 100%;
@@ -1313,14 +1349,24 @@
             font-size: 1.1rem;
         }
 
-        /* Row stepper - vertical orientation but wider */
+        /* Row stepper - horizontal: [▲] [number] [▼] */
         .row-req .stepper {
-            width: 51px;
-            height: 100%;
+            width: 100%;
+            flex-direction: row;
+            align-items: center;
+            flex: 1;
         }
 
         .row-req .stepper-btn {
-            height: 19px;
+            display: flex;
+            width: 16px;
+            flex-shrink: 0;
+            height: 100%;
+        }
+
+        .row-req .stepper-btn svg {
+            width: 10px;
+            height: 10px;
         }
 
         .row-req .stepper-value {
@@ -1344,11 +1390,12 @@
 
         .row-req {
             display: flex;
-            flex-direction: column;
+            flex-direction: column-reverse;
             gap: 1px;
-            height: 68px;
+            height: 90px;
+            width: 80px;
             justify-content: center;
-            align-items: center;
+            align-items: stretch;
         }
 
         /* Grid */
@@ -1362,8 +1409,8 @@
         }
 
         .cell {
-            width: 68px;
-            height: 68px;
+            width: 90px;
+            height: 90px;
             /* Variables for theming and borders */
             --bg-color: #111;
             --border-color: #1a1a1a;
@@ -1451,6 +1498,7 @@
         .cell.blue::after,
         .cell.red::after,
         .cell.cyan::after,
+        .cell.orange::after,
         .cell.purple::after {
             display: none;
         }
@@ -1461,6 +1509,7 @@
         .cell.locked-red::after,
         .cell.locked-purple::after,
         .cell.locked-cyan::after,
+        .cell.locked-orange::after,
         .cell.blocked::after {
             display: block !important;
             z-index: 10;
@@ -1603,6 +1652,15 @@
             z-index: 5;
         }
 
+        .cell.orange {
+            --bg-color: #7a3d00;
+            --bg-alt: #4d2600;
+            --border-color: #ff8c00;
+            --grid-line: 0 0 0 0 transparent;
+            border-color: transparent;
+            z-index: 5;
+        }
+
         /* Apply alternate shade if present */
         .cell.shade-alt {
             background: var(--bg-alt, var(--bg-color));
@@ -1615,6 +1673,7 @@
         .cell.blue::before,
         .cell.red::before,
         .cell.cyan::before,
+        .cell.orange::before,
         .cell.purple::before {
             display: none;
         }
@@ -1636,6 +1695,7 @@
         .cell.locked-blue::before,
         .cell.locked-red::before,
         .cell.locked-cyan::before,
+        .cell.locked-orange::before,
         .cell.locked-purple::before {
             display: none;
         }
@@ -1644,6 +1704,7 @@
         .cell.locked-blue::after,
         .cell.locked-red::after,
         .cell.locked-cyan::after,
+        .cell.locked-orange::after,
         .cell.locked-purple::after {
             width: 16px;
             height: 16px;
@@ -1669,6 +1730,12 @@
             background: #09886F;
             border: 2px dashed #00fdcf;
             box-shadow: inset 0 0 15px rgba(0, 253, 207, 0.2);
+        }
+
+        .cell.locked-orange {
+            background: #7a3d00;
+            border: 2px dashed #ff8c00;
+            box-shadow: inset 0 0 15px rgba(255, 140, 0, 0.2);
         }
 
         /* Action Buttons */
@@ -1890,6 +1957,18 @@
             background: #2a1a3a;
             color: #bf39ff;
             border-color: #4a2d5a;
+        }
+
+        .cell-mode-btn.cyan.active {
+            background: #0a2a24;
+            color: #00fdcf;
+            border-color: #1a5a4a;
+        }
+
+        .cell-mode-btn.orange.active {
+            background: #2a1800;
+            color: #ff8c00;
+            border-color: #5a3a00;
         }
 
         /* Fit All Pieces checkbox */
@@ -2249,7 +2328,7 @@
 
         :root {
             /* Base values (desktop) */
-            --cell-size-large: 68px;
+            --cell-size-large: 90px;
             --cell-size-medium: 56px;
             --cell-size-small: 48px;
             --cell-size-tiny: 40px;
@@ -3041,6 +3120,8 @@
                         onclick="setCellMode('locked-green')">Green</button>
                     <button class="cell-mode-btn cyan" data-mode="locked-cyan"
                         onclick="setCellMode('locked-cyan')">Cyan</button>
+                    <button class="cell-mode-btn orange" data-mode="locked-orange"
+                        onclick="setCellMode('locked-orange')">Orange</button>
                     <button class="cell-mode-btn blue" data-mode="locked-blue"
                         onclick="setCellMode('locked-blue')">Blue</button>
                 </div>
@@ -3316,8 +3397,8 @@
         let shapeCounts = new Map(); // Track shape ID -> count for solving
         let fitAllPiecesMode = false; // When true, ignore requirements, just fit all pieces
         let hideBlue = false; // When true, hide blue inputs and center green
-        let enabledColors = ['green', 'blue', 'cyan']; // Colors enabled for current puzzle
-        const ALL_COLORS = ['green', 'blue', 'cyan', 'red', 'purple'];
+        let enabledColors = ['green', 'blue', 'cyan', 'orange']; // Colors enabled for current puzzle
+        const ALL_COLORS = ['green', 'blue', 'cyan', 'orange', 'red', 'purple'];
 
         // ============================================
         // MOBILE SUPPORT - Device Detection
@@ -3524,7 +3605,7 @@
 
             // Update spacer to match row requirements width
             const spacer = document.getElementById('colReqSpacer');
-            spacer.style.width = '60px';
+            spacer.style.width = '80px';
         }
 
         function createBarInput(color, type, index, max) {
@@ -3703,7 +3784,7 @@
             }
 
             const grid = document.getElementById('grid');
-            grid.style.gridTemplateColumns = `repeat(${cols}, 68px)`;
+            grid.style.gridTemplateColumns = `repeat(${cols}, 90px)`;
             grid.innerHTML = '';
 
             for (let r = 0; r < rows; r++) {
@@ -3741,7 +3822,7 @@
             }
 
             const spacer = document.getElementById('colReqSpacer');
-            spacer.style.width = '60px';
+            spacer.style.width = '80px';
 
             // Row requirements
             const rowReqs = document.getElementById('rowRequirements');

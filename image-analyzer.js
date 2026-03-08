@@ -26,6 +26,12 @@ const COLOR_PROFILES = {
         key: 'cyan',
         min: [0, 150, 160],
         max: [50, 255, 255]
+    },
+    ORANGE: {
+        id: 'locked-orange',
+        key: 'orange',
+        min: [125, 85, 35],
+        max: [255, 185, 85]
     }
 };
 
@@ -951,6 +957,8 @@ function drawDebugVisualization(image, analysisResults, detectionData) {
 
                     if (state === 'locked-green') color = 'rgba(0, 255, 0, 0.3)';
                     else if (state === 'locked-blue') color = 'rgba(0, 150, 255, 0.3)';
+                    else if (state === 'locked-cyan') color = 'rgba(0, 253, 207, 0.3)';
+                    else if (state === 'locked-orange') color = 'rgba(255, 140, 0, 0.3)';
                     else if (state === 'blocked') color = 'rgba(128, 128, 128, 0.3)';
 
                     if (color) {
@@ -990,7 +998,7 @@ function drawDebugVisualization(image, analysisResults, detectionData) {
                 ctx.fillStyle = '#ffff00';
                 ctx.font = 'bold 12px Arial';
                 ctx.fillText(
-                    `Row ${r}: G${req.green} B${req.blue} C${req.cyan}`,
+                    `Row ${r}: G${req.green} B${req.blue} C${req.cyan} O${req.orange}`,
                     regionX + 5,
                     regionY + regionHeight / 2
                 );
@@ -1016,7 +1024,7 @@ function drawDebugVisualization(image, analysisResults, detectionData) {
                 ctx.save();
                 ctx.translate(regionX + regionWidth / 2, regionY + 5);
                 ctx.rotate(Math.PI / 2);
-                ctx.fillText(`Col ${c}: G${req.green} B${req.blue} C${req.cyan}`, 0, 0);
+                ctx.fillText(`Col ${c}: G${req.green} B${req.blue} C${req.cyan} O${req.orange}`, 0, 0);
                 ctx.restore();
             }
         }
@@ -1202,6 +1210,8 @@ function generateCellStatsHTML(gridState, rows, cols) {
         'empty': 0,
         'locked-green': 0,
         'locked-blue': 0,
+        'locked-cyan': 0,
+        'locked-orange': 0,
         'blocked': 0
     };
 
